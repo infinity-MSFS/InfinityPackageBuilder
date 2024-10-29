@@ -1,0 +1,15 @@
+[submodule "dependencies/glm"]
+	path = dependencies/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "dependencies/yaml-cpp"]
+	path = dependencies/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git
+[submodule "dependencies/glfw"]
+	path = dependencies/glfw
+	url = https://github.com/TheCherno/glfw.git
+[submodule "dependencies/minizip"]
+	path = dependencies/minizip
+	url = https://github.com/domoticz/minizip.git
+[submodule "dependencies/zlib"]
+	path = dependencies/zlib
+	url = https://github.com/madler/zlib.git
