@@ -2,5 +2,10 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/dependencies/glfw" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/dependencies/glm" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/dependencies/minizip" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/dependencies/yaml-cpp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/dependencies/zlib" vcs="Git" />
   </component>
 </project>

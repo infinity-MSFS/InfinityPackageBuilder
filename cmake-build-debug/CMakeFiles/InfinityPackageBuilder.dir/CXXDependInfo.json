@@ -11,7 +11,19 @@
 	"dir-top-src" : "C:/Users/Taco/Documents/Github/InfinityPackageBuilder",
 	"exports" : [],
 	"forward-modules-from-target-dirs" : [],
-	"include-dirs" : [],
+	"include-dirs" : 
+	[
+		"C:\\Users\\Taco\\Documents\\Github\\InfinityPackageBuilder\\include",
+		"C:\\Users\\Taco\\Documents\\Github\\InfinityPackageBuilder\\src",
+		"C:\\Users\\Taco\\Documents\\Github\\InfinityPackageBuilder\\dependencies",
+		"C:\\Users\\Taco\\Documents\\Github\\InfinityPackageBuilder\\dependencies\\imgui",
+		"C:\\Users\\Taco\\Documents\\Github\\InfinityPackageBuilder\\dependencies\\GLFW\\include",
+		"C:\\Users\\Taco\\Documents\\Github\\InfinityPackageBuilder\\dependencies\\stb_image",
+		"C:\\Users\\Taco\\Documents\\Github\\InfinityPackageBuilder\\dependencies\\minizip",
+		"C:\\Users\\Taco\\Documents\\Github\\InfinityPackageBuilder\\dependencies\\zlib",
+		"C:\\Users\\Taco\\Documents\\Github\\InfinityPackageBuilder\\dependencies\\HDiff",
+		"C:\\VulkanSDK\\1.3.283.0\\Include"
+	],
 	"language" : "CXX",
 	"linked-target-dirs" : [],
 	"module-dir" : "C:/Users/Taco/Documents/Github/InfinityPackageBuilder/cmake-build-debug/CMakeFiles/InfinityPackageBuilder.dir"
