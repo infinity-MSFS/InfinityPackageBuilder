@@ -4,7 +4,13 @@ project(InfinityPackageBuilder)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Vulkan REQUIRED)
+if (DEFINED ENV{VULKAN_SDK})
+    message(STATUS "VULKAN_SDK is set to: $ENV{VULKAN_SDK}")
+else ()
+    message(FATAL_ERROR "VULKAN_SDK environment variable is not set, please add it to your environment variables! The vulkan SDK can be found in the readme")
+endif ()
+
+set(VULKAN_SDK $ENV{VULKAN_SDK})
 
 file(GLOB_RECURSE SRC_FILES
         "src/*.c"
@@ -35,6 +41,7 @@ set(MICROXML_SOURCES
         dependencies/MicroXML/include/MicroXML/utils.hpp
 )
 
+
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -47,7 +54,7 @@ include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/zlib
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/HDiff/include
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/MicroXML/include
-        "C:/VulkanSDK/1.3.283.0/Include"
+        ${VULKAN_SD}/include
         ${IncludeDir.glm}
 )
 
@@ -73,6 +80,7 @@ add_executable(InfinityPackageBuilder ${SRC_FILES}
         src/Resources/Images/InfinityAppIcon.h)
 
 target_sources(InfinityPackageBuilder PRIVATE ${IMGUI_SOURCES} ${MICROXML_SOURCES})
+target_include_directories(InfinityPackageBuilder PRIVATE ${VULKAN_SDK}/include)
 
 add_subdirectory(dependencies/glfw)
 add_subdirectory(dependencies/yaml-cpp)
@@ -80,20 +88,10 @@ add_subdirectory(dependencies/glm)
 
 add_library(GLFW INTERFACE)
 target_include_directories(GLFW INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/GLFW/include)
+
 target_link_libraries(GLFW INTERFACE glfw)
 
-link_directories("C:/Program Files (x86)/Windows Kits/10/Lib/10.0.22621.0/um/x64")
-
-target_link_libraries(
-        InfinityPackageBuilder PRIVATE
-        yaml-cpp
-        glfw
-        "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.22621.0/um/x64/fwpuclnt.lib"
-        #        zlib
-        #        minizip
-
-        ${Vulkan_LIBRARIES}
-)
+#link_directories("C:/Program Files (x86)/Windows Kits/10/Lib/10.0.22621.0/um/x64")
 
 target_compile_definitions(InfinityPackageBuilder PRIVATE
         $<$<CONFIG:Release>:RELEASE_DIST>
@@ -103,3 +101,9 @@ target_link_options(InfinityPackageBuilder PRIVATE
         $<$<CONFIG:Release>:/SUBSYSTEM:WINDOWS>
         $<$<NOT:$<CONFIG:Release>>:/SUBSYSTEM:CONSOLE>
 )
+
+if (WIN32)
+    target_link_libraries(InfinityPackageBuilder ${VULKAN_SDK}/Lib/vulkan-1.lib glfw yaml-cpp)
+else ()
+    target_link_libraries(InfinityPackageBuilder -L${VULKAN_SDK}/lib -lvulkan glfw)
+endif ()
