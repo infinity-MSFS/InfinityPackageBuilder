@@ -63,9 +63,11 @@ jobs:
 
       - name: Archive Release Executable
         if: matrix.build_type == 'Release'
-        uses: montudor/action-zip@v1
-        with:
-          args: "zip -qq -r ${{ steps.strings.outputs.build-output-dir }}/InfinityPackageBuilder.zip ${{ steps.strings.outputs.build-output-dir }}/Release"
+        run: |
+          $outputPath = "${{ steps.strings.outputs.build-output-dir }}\InfinityPackageBuilder.zip"
+          $sourcePath = "${{ steps.strings.outputs.build-output-dir }}\Release"
+          Compress-Archive -Path $sourcePath -DestinationPath $outputPath -Force
+        shell: pwsh
 
       - name: Create GitHub Release
         if: matrix.build_type == 'Release'
