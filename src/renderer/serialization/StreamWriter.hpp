@@ -32,7 +32,7 @@ namespace InfinityRenderer {
 
         template<typename T>
         void WriteRaw(const T &type) {
-            WriteData(static_cast<char *>(&type), sizeof(T));
+            WriteData((char *) &type, sizeof(T));
         }
 
         template<typename T>

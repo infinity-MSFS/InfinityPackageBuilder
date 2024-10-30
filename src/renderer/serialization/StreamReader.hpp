@@ -29,7 +29,7 @@ namespace InfinityRenderer {
 
 		template<typename T>
 		bool ReadRaw(T &type) {
-			const bool success = ReadData(static_cast<char *>(&type), sizeof(T));
+			const bool success = ReadData((char *) &type, sizeof(T));
 			return success;
 		}
 
