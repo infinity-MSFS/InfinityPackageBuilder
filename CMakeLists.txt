@@ -75,6 +75,7 @@ target_sources(InfinityPackageBuilder PRIVATE ${IMGUI_SOURCES} ${MICROXML_SOURCE
 
 add_subdirectory(dependencies/glfw)
 add_subdirectory(dependencies/yaml-cpp)
+add_subdirectory(dependencies/glm)
 
 add_library(GLFW INTERFACE)
 target_include_directories(GLFW INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/GLFW/include)
