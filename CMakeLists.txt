@@ -39,6 +39,7 @@ include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/glm
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/imgui
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/GLFW/include
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/stb_image
