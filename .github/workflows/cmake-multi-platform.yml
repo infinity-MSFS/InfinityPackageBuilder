@@ -63,9 +63,9 @@ jobs:
 
       - name: Archive Release Executable
         if: matrix.build_type == 'Release'
-        run: |
-          cd ${{ steps.strings.outputs.build-output-dir }}/Release
-          zip -r InfinityPackageBuilder.zip .
+        uses: montudor/action-zip@v1
+        with:
+          args: "zip -qq -r ${{ steps.strings.outputs.build-output-dir }}/InfinityPackageBuilder.zip ${{ steps.strings.outputs.build-output-dir }}/Release"
 
       - name: Create GitHub Release
         if: matrix.build_type == 'Release'
@@ -75,7 +75,7 @@ jobs:
           release_name: "Release ${{ github.run_number }}"
           body: "Automated release of version ${{ github.run_number }}"
           draft: false
-          prerelease: false
+          prerelease: true
 
       - name: Upload Release Asset
         if: matrix.build_type == 'Release'
