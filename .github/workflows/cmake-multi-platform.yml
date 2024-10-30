@@ -69,6 +69,11 @@ jobs:
           Compress-Archive -Path $sourcePath -DestinationPath $outputPath -Force
         shell: pwsh
 
+      - name: List output directory contents
+        run: |
+          Get-ChildItem -Path ${{ steps.strings.outputs.build-output-dir }} | Format-Table -AutoSize
+        shell: pwsh
+
       - name: Create GitHub Release
         id: create_release
         if: matrix.build_type == 'Release'
@@ -89,6 +94,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.strings.outputs.build-output-dir }}/Release/InfinityPackageBuilder.zip
+          asset_path: ${{ steps.strings.outputs.build-output-dir }}\InfinityPackageBuilder.zip
           asset_name: InfinityPackageBuilder.zip
           asset_content_type: application/zip
