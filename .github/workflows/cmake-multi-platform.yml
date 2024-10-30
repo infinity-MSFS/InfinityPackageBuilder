@@ -70,6 +70,7 @@ jobs:
         shell: pwsh
 
       - name: Create GitHub Release
+        id: create_release
         if: matrix.build_type == 'Release'
         uses: actions/create-release@v1
         env:
@@ -84,6 +85,8 @@ jobs:
       - name: Upload Release Asset
         if: matrix.build_type == 'Release'
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ steps.strings.outputs.build-output-dir }}/Release/InfinityPackageBuilder.zip
