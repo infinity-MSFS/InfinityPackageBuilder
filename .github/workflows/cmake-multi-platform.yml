@@ -54,9 +54,8 @@ jobs:
         id: version
         uses: paulhatch/semantic-version@v5.4.0
         with:
-          major_pattern: '^BREAKING CHANGE:'
-          minor_pattern: '^feat'
-          patch_pattern: '^fix'
+          major_pattern: '/major/'
+          minor_pattern: '/feat/'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -64,7 +63,7 @@ jobs:
       - name: Set release tag name
         if: matrix.build_type == 'Release'
         run: |
-          echo "release_tag=v${{ env.new_version }}" >> $GITHUB_ENV
+          echo "release_tag=v${{ env.version_tag }}" >> $GITHUB_ENV
 
       - name: Configure CMake
         run: >
@@ -97,9 +96,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: "${{ env.release_tag }}"
-          release_name: "Release ${{ env.new_version }}"
-          body: "Automated release of version ${{ env.new_version }}"
+          tag_name: "${{ env.version_tag }}"
+          release_name: "Release ${{ env.version_tag }}"
+          body: "Automated release of version ${{ env.version_tag }} by ${{env.authors}} "
           draft: false
           prerelease: true
 
