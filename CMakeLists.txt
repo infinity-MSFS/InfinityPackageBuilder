@@ -77,7 +77,9 @@ add_executable(InfinityPackageBuilder ${SRC_FILES}
         src/ImGuiTheme/ImGuiTheme.hpp
         src/renderer/GUI/UI/Ui.cpp
         src/renderer/GUI/UI/Ui.hpp
-        src/Resources/Images/InfinityAppIcon.h)
+        src/Resources/Images/InfinityAppIcon.h
+        src/PackageParser/PackageParser.cpp
+        src/PackageParser/PackageParser.hpp)
 
 target_sources(InfinityPackageBuilder PRIVATE ${IMGUI_SOURCES} ${MICROXML_SOURCES})
 target_include_directories(InfinityPackageBuilder PRIVATE ${VULKAN_SDK}/include)
