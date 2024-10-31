@@ -93,7 +93,7 @@ jobs:
         with:
           tag_name: "${{ steps.version.outputs.version_tag }}"
           release_name: "Release ${{ steps.version.outputs.version_tag }}"
-          body: "Automated release of version ${{ steps.version.outputs.version_tag }} by ${{ steps.version.outputs.authors }}"
+          body: "Automated release of version ${{ steps.version.outputs.version_tag }}"
           draft: false
           prerelease: true
 
