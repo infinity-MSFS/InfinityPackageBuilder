@@ -60,13 +60,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
-      - name: Set release variables
-        if: matrix.build_type == 'Release'
-        run: |
-          echo "version_tag=${{ steps.version.outputs.version_tag }}" >> $GITHUB_ENV
-          echo "authors=${{ steps.version.outputs.authors }}" >> $GITHUB_ENV
-
-
       - name: Configure CMake
         run: >
           cmake -B ${{ steps.strings.outputs.build-output-dir }}
@@ -98,9 +91,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: "${{ env.version_tag }}"
-          release_name: "Release ${{ env.version_tag }}"
-          body: "Automated release of version ${{ env.version_tag }} by ${{ env.authors }}"
+          tag_name: "${{ steps.version.outputs.version_tag }}"
+          release_name: "Release ${{ steps.version.outputs.version_tag }}"
+          body: "Automated release of version ${{ steps.version.outputs.version_tag }} by ${{ steps.version.outputs.authors }}"
           draft: false
           prerelease: true
 
