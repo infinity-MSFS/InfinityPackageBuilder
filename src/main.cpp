@@ -3,30 +3,24 @@
 
 bool g_ApplicationRunning = true;
 
-static float s_elapsedTime = 0.0f;
-
-static std::chrono::steady_clock::time_point s_lastTimestamp = std::chrono::steady_clock::now();
-
-static float launchButtonOffset = 0.0f;
-static const float animationSpeed = 5.0f;
-
-
-class MainLayer : public InfinityRenderer::Layer {
+class BackgroundLayer final : public InfinityRenderer::Layer {
 public:
-    virtual void OnUIRender(ImVec2 windowPos, ImVec2 windowSize) override {
-        auto start = std::chrono::steady_clock::now();
+    void OnUIRender(ImVec2 windowPos, ImVec2 windowSize) override {
+        ImGui::Text("They are here");
+    }
+};
 
-        auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(start - s_lastTimestamp).count() / 1000.0f;
 
-        s_lastTimestamp = start;
-
-        ImGui::Text("Marika");
+class ForegroundLayer final : public InfinityRenderer::Layer {
+public:
+    void OnUIRender(ImVec2 windowPos, ImVec2 windowSize) override {
+        ImGui::Text("The monkeys will rise");
     }
 };
 
 InfinityRenderer::Application *InfinityRenderer::CreateApplication(int argc, char **argv) {
-    std::filesystem::path path = "Resources/Images/Logo.h";
-    InfinityRenderer::ApplicationSpecifications spec = {
+    const std::filesystem::path path = "Resources/Images/Logo.h";
+    const InfinityRenderer::ApplicationSpecifications spec = {
         "Infinity Package Manager",
         400,
         600,
@@ -36,16 +30,17 @@ InfinityRenderer::Application *InfinityRenderer::CreateApplication(int argc, cha
         true
     };
 
-    auto app = new InfinityRenderer::Application(spec);
-    app->PushLayer<MainLayer>();
+    const auto app = new InfinityRenderer::Application(spec);
+    app->PushLayer<BackgroundLayer>();
+    app->PushLayer<ForegroundLayer>();
 
     return app;
 }
 
 namespace InfinityRenderer {
-    int Main(int argc, char **argv) {
+    int Main(const int argc, char **argv) {
         while (g_ApplicationRunning) {
-            auto app = InfinityRenderer::CreateApplication(argc, argv);
+            const auto app = InfinityRenderer::CreateApplication(argc, argv);
             app->Run();
             delete app;
         }

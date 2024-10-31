@@ -22,6 +22,8 @@ file(GLOB_RECURSE SRC_FILES
         "dependencies/glm/glm/*.h"
         "dependencies/glm/glm/*.hpp"
         "dependencies/stb_image/*.h"
+        "dependencies/MicroXML/include/MicroXML/*.hpp"
+        "dependencies/MicroXML/src/*.cpp"
 )
 
 set(IMGUI_SOURCES
@@ -35,10 +37,10 @@ set(IMGUI_SOURCES
 )
 
 set(MICROXML_SOURCES
-        dependencies/MicroXML/include/MicroXML/MicroXML.hpp
-        dependencies/MicroXML/include/MicroXML/NodeSet.hpp
-        dependencies/MicroXML/include/MicroXML/NodeXML.hpp
-        dependencies/MicroXML/include/MicroXML/utils.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/MicroXML/include/MicroXML/MicroXML.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/MicroXML/include/MicroXML/NodeSet.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/MicroXML/include/MicroXML/NodeXML.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/MicroXML/include/MicroXML/utils.hpp
 )
 
 
@@ -58,7 +60,7 @@ include_directories(
         ${IncludeDir.glm}
 )
 
-add_executable(InfinityPackageBuilder ${SRC_FILES}
+add_executable(InfinityPackageBuilder ${SRC_FILES} ${MICROXML_SOURCES}
         src/renderer/Layer.hpp
         src/renderer/buffer/buffer.hpp
         src/renderer/serialization/StreamWriter.cpp
@@ -81,7 +83,7 @@ add_executable(InfinityPackageBuilder ${SRC_FILES}
         src/PackageParser/PackageParser.cpp
         src/PackageParser/PackageParser.hpp)
 
-target_sources(InfinityPackageBuilder PRIVATE ${IMGUI_SOURCES} ${MICROXML_SOURCES})
+target_sources(InfinityPackageBuilder PRIVATE ${IMGUI_SOURCES})
 target_include_directories(InfinityPackageBuilder PRIVATE ${VULKAN_SDK}/include)
 
 add_subdirectory(dependencies/glfw)
