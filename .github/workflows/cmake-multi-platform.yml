@@ -50,16 +50,6 @@ jobs:
         run: |
           echo "VULKAN_SDK=${VULKAN_SDK}" >> $GITHUB_ENV
 
-      - name: Generate semantic version
-        id: version
-        uses: paulhatch/semantic-version@v5.4.0
-        with:
-          tag_prefix: "v"
-          bump_each_commit: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
       - name: Configure CMake
         run: >
           cmake -B ${{ steps.strings.outputs.build-output-dir }}
@@ -91,9 +81,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: "${{ steps.version.outputs.version_tag }}"
-          release_name: "Release ${{ steps.version.outputs.version_tag }}"
-          body: "Automated release of version ${{ steps.version.outputs.version_tag }}"
+          tag_name: "v0.0.${{ github.run_number }}"
+          release_name: "Release 0.0.${{ github.run_number }}"
+          body: "Automated release of version 0.0.${{ github.run_number }}"
           draft: false
           prerelease: true
 
