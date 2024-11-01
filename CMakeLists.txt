@@ -81,7 +81,9 @@ add_executable(InfinityPackageBuilder ${SRC_FILES} ${MICROXML_SOURCES}
         src/renderer/GUI/UI/Ui.hpp
         src/Resources/Images/InfinityAppIcon.h
         src/PackageParser/PackageParser.cpp
-        src/PackageParser/PackageParser.hpp)
+        src/PackageParser/PackageParser.hpp
+        src/Router/Router.cpp
+        src/Router/Router.hpp)
 
 target_sources(InfinityPackageBuilder PRIVATE ${IMGUI_SOURCES})
 target_include_directories(InfinityPackageBuilder PRIVATE ${VULKAN_SDK}/include)
