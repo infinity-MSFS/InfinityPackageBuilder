@@ -3,17 +3,17 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 
 #include "ApplicationGui.hpp"
-#include "imgui_internal.h"
-#include "backends/imgui_impl_vulkan.h"
 #include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_vulkan.h"
+#include "imgui_internal.h"
 
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <glfw/glfw3.h>
 #include <glfw/glfw3native.h>
-#include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
+#include <stdio.h>
+#include <stdlib.h>
+#include <vulkan/vulkan.h>
 
 #include "stb_image/stb_image.h"
 
@@ -43,8 +43,8 @@ static ImGui_ImplVulkanH_Window g_MainWindowData;
 static int g_MinImageCount = 2;
 static bool g_SwapChainRebuild = false;
 
-static std::vector<std::vector<VkCommandBuffer> > s_AllocatedCommandBuffers;
-static std::vector<std::vector<std::function<void()> > > s_ResourceFreeQueue;
+static std::vector<std::vector<VkCommandBuffer>> s_AllocatedCommandBuffers;
+static std::vector<std::vector<std::function<void()>>> s_ResourceFreeQueue;
 
 static uint32_t s_CurrentFrameIndex = 0;
 
@@ -82,7 +82,8 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debug_report(VkDebugReportFlagsEXT flags, 
 #endif // IMGUI_VULKAN_DEBUG_REPORT
 
 static void SetupVulkan(const char **extensions, uint32_t extensions_count) {
-    VkResult err; {
+    VkResult err;
+    {
         VkInstanceCreateInfo create_info = {};
         create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         create_info.enabledExtensionCount = extensions_count;
@@ -103,7 +104,7 @@ static void SetupVulkan(const char **extensions, uint32_t extensions_count) {
         free(extensions_ext);
 
         auto vkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT) vkGetInstanceProcAddr(
-            g_Instance, "vkCreateDebugReportCallbackEXT");
+                g_Instance, "vkCreateDebugReportCallbackEXT");
         IM_ASSERT(vkCreateDebugReportCallbackEXT != NULL);
 
         VkDebugReportCallbackCreateInfoEXT debug_report_ci = {};
@@ -119,7 +120,8 @@ static void SetupVulkan(const char **extensions, uint32_t extensions_count) {
         check_vk_result(err);
         IM_UNUSED(g_DebugReport);
 #endif
-    } {
+    }
+    {
         uint32_t gpu_count;
         err = vkEnumeratePhysicalDevices(g_Instance, &gpu_count, NULL);
         check_vk_result(err);
@@ -141,7 +143,8 @@ static void SetupVulkan(const char **extensions, uint32_t extensions_count) {
 
         g_PhysicalDevice = gpus[use_gpu];
         free(gpus);
-    } {
+    }
+    {
         uint32_t count;
         vkGetPhysicalDeviceQueueFamilyProperties(g_PhysicalDevice, &count, NULL);
         VkQueueFamilyProperties *queues = (VkQueueFamilyProperties *) malloc(sizeof(VkQueueFamilyProperties) * count);
@@ -153,7 +156,8 @@ static void SetupVulkan(const char **extensions, uint32_t extensions_count) {
             }
         free(queues);
         IM_ASSERT(g_QueueFamily != (uint32_t) -1);
-    } {
+    }
+    {
         int device_extension_count = 1;
         const char *device_extensions[] = {"VK_KHR_swapchain"};
         const float queue_priority[] = {1.0f};
@@ -171,21 +175,19 @@ static void SetupVulkan(const char **extensions, uint32_t extensions_count) {
         err = vkCreateDevice(g_PhysicalDevice, &create_info, g_Allocator, &g_Device);
         check_vk_result(err);
         vkGetDeviceQueue(g_Device, g_QueueFamily, 0, &g_Queue);
-    } {
-        VkDescriptorPoolSize pool_sizes[] =
-        {
-            {VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
-            {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000},
-            {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000},
-            {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000},
-            {VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000},
-            {VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000},
-            {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000},
-            {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000},
-            {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000},
-            {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000},
-            {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000}
-        };
+    }
+    {
+        VkDescriptorPoolSize pool_sizes[] = {{VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
+                                             {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000},
+                                             {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000},
+                                             {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000},
+                                             {VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000},
+                                             {VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000},
+                                             {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000},
+                                             {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000},
+                                             {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000},
+                                             {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000},
+                                             {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000}};
         VkDescriptorPoolCreateInfo pool_info = {};
         pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
@@ -206,20 +208,18 @@ static void SetupVulkanWindow(ImGui_ImplVulkanH_Window *wd, VkSurfaceKHR surface
         fprintf(stderr, "Error no WSI support on GPU 0 \n");
         exit(-1);
     }
-    const VkFormat requestSurfaceImageFormat[] = {
-        VK_FORMAT_B8G8R8A8_UNORM,
-        VK_FORMAT_R8G8B8A8_UNORM,
-        VK_FORMAT_A8B8G8R8_UNORM_PACK32,
-        VK_FORMAT_B8G8R8_UNORM,
-        VK_FORMAT_R8G8B8_UNORM
-    };
+    const VkFormat requestSurfaceImageFormat[] = {VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_R8G8B8A8_UNORM,
+                                                  VK_FORMAT_A8B8G8R8_UNORM_PACK32, VK_FORMAT_B8G8R8_UNORM,
+                                                  VK_FORMAT_R8G8B8_UNORM};
 
     const VkColorSpaceKHR requestSurfaceColorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
-    wd->SurfaceFormat = ImGui_ImplVulkanH_SelectSurfaceFormat(g_PhysicalDevice, wd->Surface, requestSurfaceImageFormat, static_cast<size_t>(IM_ARRAYSIZE(requestSurfaceImageFormat)),
-                                                              requestSurfaceColorSpace);
+    wd->SurfaceFormat = ImGui_ImplVulkanH_SelectSurfaceFormat(
+            g_PhysicalDevice, wd->Surface, requestSurfaceImageFormat,
+            static_cast<size_t>(IM_ARRAYSIZE(requestSurfaceImageFormat)), requestSurfaceColorSpace);
 
 #ifdef IMGUI_UNLIMITED_FRAME_RATE
-    VkPresentModeKHR present_modes[] = {VK_PRESENT_MODE_MAILBOX_KHR, VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_FIFO_KHR};
+    VkPresentModeKHR present_modes[] = {VK_PRESENT_MODE_MAILBOX_KHR, VK_PRESENT_MODE_IMMEDIATE_KHR,
+                                        VK_PRESENT_MODE_FIFO_KHR};
 #else
     VkPresentModeKHR present_modes[] = {VK_PRESENT_MODE_FIFO_KHR};
 #endif
@@ -234,8 +234,8 @@ static void CleanupVulkan() {
     vkDestroyDescriptorPool(g_Device, g_DescriptorPool, g_Allocator);
 
 #ifdef IMGUI_VULKAN_DEBUG_REPORT
-    auto vkDestroyDebugReportCallbackEXT = (PFN_vkDestroyDebugReportCallbackEXT) vkGetInstanceProcAddr(
-        g_Instance, "vkDestroyDebugReportCallbackEXT");
+    auto vkDestroyDebugReportCallbackEXT =
+            (PFN_vkDestroyDebugReportCallbackEXT) vkGetInstanceProcAddr(g_Instance, "vkDestroyDebugReportCallbackEXT");
     vkDestroyDebugReportCallbackEXT(g_Instance, g_DebugReport, g_Allocator);
 #endif // IMGUI_VULKAN_DEBUG_REPORT
 
@@ -262,18 +262,21 @@ static void FrameRender(ImGui_ImplVulkanH_Window *wd, ImDrawData *draw_data) {
 
     s_CurrentFrameIndex = (s_CurrentFrameIndex + 1) % g_MainWindowData.ImageCount;
 
-    ImGui_ImplVulkanH_Frame *fd = &wd->Frames[wd->FrameIndex]; {
+    ImGui_ImplVulkanH_Frame *fd = &wd->Frames[wd->FrameIndex];
+    {
         err = vkWaitForFences(g_Device, 1, &fd->Fence, VK_TRUE, UINT64_MAX);
         // wait indefinitely instead of periodically checking
         check_vk_result(err);
 
         err = vkResetFences(g_Device, 1, &fd->Fence);
         check_vk_result(err);
-    } {
+    }
+    {
         for (auto &func: s_ResourceFreeQueue[s_CurrentFrameIndex])
             func();
         s_ResourceFreeQueue[s_CurrentFrameIndex].clear();
-    } {
+    }
+    {
         auto &allocatedCommandBuffers = s_AllocatedCommandBuffers[wd->FrameIndex];
         if (allocatedCommandBuffers.size() > 0) {
             vkFreeCommandBuffers(g_Device, fd->CommandPool, (uint32_t) allocatedCommandBuffers.size(),
@@ -288,7 +291,8 @@ static void FrameRender(ImGui_ImplVulkanH_Window *wd, ImDrawData *draw_data) {
         info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
         err = vkBeginCommandBuffer(fd->CommandBuffer, &info);
         check_vk_result(err);
-    } {
+    }
+    {
         VkRenderPassBeginInfo info = {};
         info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         info.renderPass = wd->RenderPass;
@@ -302,7 +306,8 @@ static void FrameRender(ImGui_ImplVulkanH_Window *wd, ImDrawData *draw_data) {
 
     ImGui_ImplVulkan_RenderDrawData(draw_data, fd->CommandBuffer);
 
-    vkCmdEndRenderPass(fd->CommandBuffer); {
+    vkCmdEndRenderPass(fd->CommandBuffer);
+    {
         VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         VkSubmitInfo info = {};
         info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -345,15 +350,16 @@ static void glfw_error_callback(int error, const char *description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-#include "Resources/Fonts/Roboto-Regular.h"
 #include "Resources/Fonts/Roboto-Bold.h"
 #include "Resources/Fonts/Roboto-Italic.h"
-#include "Resources/Images/windowIcons.h"
-#include "Resources/Images/logo.h"
+#include "Resources/Fonts/Roboto-Regular.h"
 #include "Resources/Images/InfinityAppIcon.h"
+#include "Resources/Images/logo.h"
+#include "Resources/Images/windowIcons.h"
 
 namespace InfinityRenderer {
-    Application::Application(const ApplicationSpecifications &applicationSpecification) : m_Specification(applicationSpecification) {
+    Application::Application(const ApplicationSpecifications &applicationSpecification) :
+        m_Specification(applicationSpecification) {
         s_Instance = this;
 
         Init();
@@ -365,9 +371,7 @@ namespace InfinityRenderer {
         s_Instance = nullptr;
     }
 
-    Application &Application::Get() {
-        return *s_Instance;
-    }
+    Application &Application::Get() { return *s_Instance; }
 
     WNDPROC originalWndProc = nullptr;
 
@@ -375,10 +379,10 @@ namespace InfinityRenderer {
         switch (message) {
             case WM_GETMINMAXINFO: {
                 MINMAXINFO *minMaxInfo = (MINMAXINFO *) lParam;
-                minMaxInfo->ptMaxTrackSize.x = 620;
-                minMaxInfo->ptMaxTrackSize.y = 420;
-                minMaxInfo->ptMinTrackSize.x = 620;
-                minMaxInfo->ptMinTrackSize.y = 420;
+                minMaxInfo->ptMaxTrackSize.x = 1920;
+                minMaxInfo->ptMaxTrackSize.y = 1080;
+                minMaxInfo->ptMinTrackSize.x = 500;
+                minMaxInfo->ptMinTrackSize.y = 300;
 
                 return 0;
             }
@@ -417,15 +421,15 @@ namespace InfinityRenderer {
         int monitorX, monitorY;
         glfwGetMonitorPos(primaryMonitor, &monitorX, &monitorY);
 
-        m_WindowHandle = glfwCreateWindow(m_Specification.Width, m_Specification.Height, m_Specification.Name.c_str(), NULL, NULL);
+        m_WindowHandle = glfwCreateWindow(m_Specification.Width, m_Specification.Height, m_Specification.Name.c_str(),
+                                          NULL, NULL);
 
 
         SubClassGLFWWindow(m_WindowHandle);
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
         if (m_Specification.CenterWindow) {
-            glfwSetWindowPos(m_WindowHandle,
-                             monitorX + (videoMode->width - m_Specification.Width) / 2,
+            glfwSetWindowPos(m_WindowHandle, monitorX + (videoMode->width - m_Specification.Width) / 2,
                              monitorY + (videoMode->height - m_Specification.Height) / 2);
         }
 
@@ -505,13 +509,18 @@ namespace InfinityRenderer {
 
         ImFontConfig fontConfig;
         fontConfig.FontDataOwnedByAtlas = false;
-        ImFont *robotoFont = io.Fonts->AddFontFromMemoryTTF((void *) g_RobotoRegular, sizeof(g_RobotoRegular), 20.0f, &fontConfig);
+        ImFont *robotoFont =
+                io.Fonts->AddFontFromMemoryTTF((void *) g_RobotoRegular, sizeof(g_RobotoRegular), 20.0f, &fontConfig);
         s_Fonts["Default"] = robotoFont;
-        s_Fonts["Bold"] = io.Fonts->AddFontFromMemoryTTF((void *) g_RobotoBold, sizeof(g_RobotoBold), 20.0f, &fontConfig);
-        s_Fonts["Italic"] = io.Fonts->AddFontFromMemoryTTF((void *) g_RobotoItalic, sizeof(g_RobotoItalic), 20.0f, &fontConfig);
-        s_Fonts["DefaultLarge"] = io.Fonts->AddFontFromMemoryTTF((void *) g_RobotoRegular, sizeof(g_RobotoRegular), 40.0f, &fontConfig);
+        s_Fonts["Bold"] =
+                io.Fonts->AddFontFromMemoryTTF((void *) g_RobotoBold, sizeof(g_RobotoBold), 20.0f, &fontConfig);
+        s_Fonts["Italic"] =
+                io.Fonts->AddFontFromMemoryTTF((void *) g_RobotoItalic, sizeof(g_RobotoItalic), 20.0f, &fontConfig);
+        s_Fonts["DefaultLarge"] =
+                io.Fonts->AddFontFromMemoryTTF((void *) g_RobotoRegular, sizeof(g_RobotoRegular), 40.0f, &fontConfig);
 
-        io.FontDefault = robotoFont; {
+        io.FontDefault = robotoFont;
+        {
             VkCommandPool command_pool = wd->Frames[wd->FrameIndex].CommandPool;
             VkCommandBuffer command_buffer = wd->Frames[wd->FrameIndex].CommandBuffer;
 
@@ -537,17 +546,20 @@ namespace InfinityRenderer {
             err = vkDeviceWaitIdle(g_Device);
             check_vk_result(err);
             ImGui_ImplVulkan_DestroyFontUploadObjects();
-        } {
+        }
+        {
             uint32_t w, h;
             void *data = Image::Decode(g_WindowCloseIcon, sizeof(g_WindowCloseIcon), w, h);
             m_IconClose = std::make_shared<Image>(w, h, ImageFormat::RGBA, data);
             free(data);
-        } {
+        }
+        {
             uint32_t w, h;
             void *data = Image::Decode(g_WindowMinimizeIcon, sizeof(g_WindowMinimizeIcon), w, h);
             m_IconMinimize = std::make_shared<Image>(w, h, ImageFormat::RGBA, data);
             free(data);
-        } {
+        }
+        {
             uint32_t w, h;
             void *data = Image::Decode(g_InfinityIcon, sizeof(g_InfinityIcon), w, h);
             m_AppHeaderIcon = std::make_shared<Image>(w, h, ImageFormat::RGBA, data);
@@ -595,30 +607,27 @@ namespace InfinityRenderer {
 
         ImGui::SetCursorPos(ImVec2(windowPadding.x, windowPadding.y + titlebarVerticalOffset));
         const ImVec2 titlebarMin = ImGui::GetCursorScreenPos();
-        const ImVec2 titlebarMax = {
-            ImGui::GetCursorScreenPos().x + ImGui::GetWindowWidth() - windowPadding.y * 2.0f,
-            ImGui::GetCursorScreenPos().y + titlebarHeight
-        };
+        const ImVec2 titlebarMax = {ImGui::GetCursorScreenPos().x + ImGui::GetWindowWidth() - windowPadding.y * 2.0f,
+                                    ImGui::GetCursorScreenPos().y + titlebarHeight};
         auto *bgDrawList = ImGui::GetBackgroundDrawList();
         auto *fgDrawList = ImGui::GetForegroundDrawList();
         bgDrawList->AddRectFilled(titlebarMin, titlebarMax, UI::Colors::Theme::titlebar);
 
-        //fgDrawList->AddRect(titlebarMin, titlebarMax, UI::Colors::Theme::invalidPrefab);
+        // fgDrawList->AddRect(titlebarMin, titlebarMax, UI::Colors::Theme::invalidPrefab);
         fgDrawList->AddRectFilled(titlebarMin, titlebarMax, ImColor(0.0f, 0.0f, 0.0f, 0.2f));
-        fgDrawList->AddLine(ImVec2(titlebarMin.x, titlebarMax.y), titlebarMax, ImColor(0.7f, 0.7f, 0.7f, 0.3f), 1); {
+        fgDrawList->AddLine(ImVec2(titlebarMin.x, titlebarMax.y), titlebarMax, ImColor(0.7f, 0.7f, 0.7f, 0.3f), 1);
+        {
             const int logoWidth = 36;
             const int logoHeight = 36;
             const ImVec2 logoOffset(16.0f + windowPadding.x, 5.0f + windowPadding.y + titlebarVerticalOffset);
-            const ImVec2 logoRectStart = {
-                ImGui::GetItemRectMin().x + logoOffset.x, ImGui::GetItemRectMin().y + logoOffset.y
-            };
+            const ImVec2 logoRectStart = {ImGui::GetItemRectMin().x + logoOffset.x,
+                                          ImGui::GetItemRectMin().y + logoOffset.y};
             const ImVec2 logoRectMax = {logoRectStart.x + logoWidth, logoRectStart.y + logoHeight};
             fgDrawList->AddImage(m_AppHeaderIcon->GetDescriptorSet(), logoRectStart, logoRectMax);
         }
 
-        ImGui::BeginHorizontal("Titlebar", {
-                                   ImGui::GetWindowWidth() - windowPadding.y * 2.0f, ImGui::GetFrameHeightWithSpacing()
-                               });
+        ImGui::BeginHorizontal("Titlebar",
+                               {ImGui::GetWindowWidth() - windowPadding.y * 2.0f, ImGui::GetFrameHeightWithSpacing()});
 
         static float moveOffsetX;
         static float moveOffsetY;
@@ -627,7 +636,8 @@ namespace InfinityRenderer {
 
         ImGui::SetCursorPos(ImVec2(windowPadding.x, windowPadding.y + titlebarVerticalOffset));
         // DEBUG DRAG BOUNDS
-        // fgDrawList->AddRect(ImGui::GetCursorScreenPos(), ImVec2(ImGui::GetCursorScreenPos().x + w - buttonsAreaWidth, ImGui::GetCursorScreenPos().y + titlebarHeight), UI::Colors::Theme::invalidPrefab);
+        // fgDrawList->AddRect(ImGui::GetCursorScreenPos(), ImVec2(ImGui::GetCursorScreenPos().x + w - buttonsAreaWidth,
+        // ImGui::GetCursorScreenPos().y + titlebarHeight), UI::Colors::Theme::invalidPrefab);
         ImGui::InvisibleButton("##titleBarDragZone", ImVec2(w - buttonsAreaWidth, titlebarHeight));
 
         m_TitleBarHovered = ImGui::IsItemHovered();
@@ -639,7 +649,8 @@ namespace InfinityRenderer {
         }
 
         if (m_MenubarCallback) {
-            ImGui::SuspendLayout(); {
+            ImGui::SuspendLayout();
+            {
                 ImGui::SetItemAllowOverlap();
                 const float logoHorizontalOffset = 16.0f * 2.0f + 48.0f + windowPadding.x;
                 ImGui::SetCursorPos(ImVec2(logoHorizontalOffset, 6.0f + titlebarVerticalOffset));
@@ -660,14 +671,15 @@ namespace InfinityRenderer {
 
 
         ImGui::Spring();
-        UI::ShiftCursorY(8.0f); {
+        UI::ShiftCursorY(8.0f);
+        {
             const int iconWidth = m_IconMinimize->GetWidth();
             const int iconHeight = m_IconMinimize->GetHeight();
             const float padY = (buttonHeight - (float) iconHeight) / 2.0f;
             if (ImGui::InvisibleButton("Minimize", ImVec2(buttonWidth, buttonHeight))) {
                 if (m_WindowHandle) {
                     Application::Get().QueueEvent(
-                        [windowHandle = m_WindowHandle]() { glfwIconifyWindow(windowHandle); });
+                            [windowHandle = m_WindowHandle]() { glfwIconifyWindow(windowHandle); });
                 }
             }
 
@@ -676,7 +688,8 @@ namespace InfinityRenderer {
         }
 
         ImGui::Spring(-1.0f, 15.0f);
-        UI::ShiftCursorY(8.0f); {
+        UI::ShiftCursorY(8.0f);
+        {
             const int iconWidth = m_IconClose->GetWidth();
             const int iconHeight = m_IconClose->GetHeight();
             if (ImGui::InvisibleButton("Close", ImVec2(buttonWidth, buttonHeight)))
@@ -697,10 +710,9 @@ namespace InfinityRenderer {
             return;
 
         if (m_Specification.CustomTitlebar) {
-            const ImRect menuBarRect = {
-                ImGui::GetCursorPos(),
-                {ImGui::GetContentRegionAvail().x + ImGui::GetCursorScreenPos().x, ImGui::GetFrameHeightWithSpacing()}
-            };
+            const ImRect menuBarRect = {ImGui::GetCursorPos(),
+                                        {ImGui::GetContentRegionAvail().x + ImGui::GetCursorScreenPos().x,
+                                         ImGui::GetFrameHeightWithSpacing()}};
 
             ImGui::BeginGroup();
             if (UI::BeginMenubar(menuBarRect)) {
@@ -742,7 +754,8 @@ namespace InfinityRenderer {
         // Main loop
         while (!glfwWindowShouldClose(m_WindowHandle) && m_Running) {
             double startTime = glfwGetTime();
-            glfwPollEvents(); {
+            glfwPollEvents();
+            {
                 std::scoped_lock<std::mutex> lock(m_EventQueueMutex);
 
                 while (m_EventQueue.size() > 0) {
@@ -774,7 +787,8 @@ namespace InfinityRenderer {
 
             ImGui_ImplVulkan_NewFrame();
             ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame(); {
+            ImGui::NewFrame();
+            {
                 ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
 
                 ImGuiViewport *viewport = ImGui::GetMainViewport();
@@ -786,7 +800,7 @@ namespace InfinityRenderer {
                 ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
                 ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
                 window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-                        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground;
+                                ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground;
                 window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
                 if (!m_Specification.CustomTitlebar && m_MenubarCallback)
                     window_flags |= ImGuiWindowFlags_MenuBar;
@@ -798,7 +812,7 @@ namespace InfinityRenderer {
                     float titleBarHeight;
 
                     UI_DrawTitlebar(titleBarHeight);
-                    //ImGui::SetCursorPosY(titleBarHeight);
+                    // ImGui::SetCursorPosY(titleBarHeight);
                 }
 
                 for (auto &layer: m_LayerStack)
@@ -813,8 +827,8 @@ namespace InfinityRenderer {
             // Rendering
             ImGui::Render();
             ImDrawData *main_draw_data = ImGui::GetDrawData();
-            const bool main_is_minimized = (main_draw_data->DisplaySize.x <= 0.0f || main_draw_data->DisplaySize.y <=
-                                            0.0f);
+            const bool main_is_minimized =
+                    (main_draw_data->DisplaySize.x <= 0.0f || main_draw_data->DisplaySize.y <= 0.0f);
             wd->ClearValue.color.float32[0] = clear_color.x * clear_color.w;
             wd->ClearValue.color.float32[1] = clear_color.y * clear_color.w;
             wd->ClearValue.color.float32[2] = clear_color.z * clear_color.w;
@@ -847,29 +861,17 @@ namespace InfinityRenderer {
         }
     }
 
-    void Application::Close() {
-        m_Running = false;
-    }
+    void Application::Close() { m_Running = false; }
 
-    bool Application::IsMaximized() const {
-        return (bool) glfwGetWindowAttrib(m_WindowHandle, GLFW_MAXIMIZED);
-    }
+    bool Application::IsMaximized() const { return (bool) glfwGetWindowAttrib(m_WindowHandle, GLFW_MAXIMIZED); }
 
-    float Application::GetTime() {
-        return (float) glfwGetTime();
-    }
+    float Application::GetTime() { return (float) glfwGetTime(); }
 
-    VkInstance Application::GetInstance() {
-        return g_Instance;
-    }
+    VkInstance Application::GetInstance() { return g_Instance; }
 
-    VkPhysicalDevice Application::GetPhysicalDevice() {
-        return g_PhysicalDevice;
-    }
+    VkPhysicalDevice Application::GetPhysicalDevice() { return g_PhysicalDevice; }
 
-    VkDevice Application::GetDevice() {
-        return g_Device;
-    }
+    VkDevice Application::GetDevice() { return g_Device; }
 
     VkCommandBuffer Application::GetCommandBuffer(bool begin) {
         ImGui_ImplVulkanH_Window *wd = &g_MainWindowData;
@@ -932,4 +934,4 @@ namespace InfinityRenderer {
 
         return s_Fonts.at(name);
     }
-}
+} // namespace InfinityRenderer
