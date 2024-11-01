@@ -54,13 +54,7 @@ jobs:
         id: version
         uses: paulhatch/semantic-version@v5.4.0
         with:
-          tag_prefix: "v"
-          major_pattern: "(MAJOR)"
-          minor_pattern: "(MINOR)"
-          version_format: "${major}.${minor}.${patch}-rc${increment}"
-          user_format_type: "csv"
-          bump_each_commit: false
-          search_commit_body: true
+          bump_each_commit: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
