@@ -48,7 +48,7 @@ namespace InfinityPackageParser {
         package_definition_parsed.asset_package.flags.CanBeReferenced =
                 asset_package("Flags")("CanBeReferenced")[0].asString();
 
-        for (auto asset_node: assetPackage("AssetGroups")("AssetGroup")) {
+        for (auto asset_node: asset_package("AssetGroups")("AssetGroup")) {
             PackageTypes::PackageDefinitions::PackageDefinitionType::AssetPackage::AssetGroups::AssetGroup asset_group;
             asset_group.Name = asset_node["Name"];
             asset_group.Type = asset_node("Type")[0].asString();

@@ -654,7 +654,7 @@ namespace InfinityRenderer {
 
         const ImU32 buttonColN = UI::Colors::ColorWithMultipliedValue(UI::Colors::Theme::text, 0.9f);
         const ImU32 buttonColH = UI::Colors::ColorWithMultipliedValue(UI::Colors::Theme::text, 1.2f);
-        const ImU32 buttonColP = UI::Colors::Theme::textDarker;
+        const ImU32 buttonColP = UI::Colors::Theme::text_darker;
         const float buttonWidth = 14.0f;
         const float buttonHeight = 14.0f;
 
