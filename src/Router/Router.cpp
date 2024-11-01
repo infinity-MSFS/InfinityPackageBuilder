@@ -5,7 +5,7 @@
 namespace InfinityPackageBuilder::Utils {
     std::unique_ptr<Router> Router::m_Instance = nullptr;
 
-    void Router::configure(std::unordered_map<int, std::function<void()> > pages) {
+    void Router::configure(std::unordered_map<int, std::function<void()>> pages) {
         if (!m_Instance) {
             m_Instance = std::unique_ptr<Router>(new Router(std::move(pages)));
         }
@@ -29,9 +29,7 @@ namespace InfinityPackageBuilder::Utils {
         }
     }
 
-    int Router::getPage() const {
-        return m_CurrentPageID;
-    }
+    int Router::getPage() const { return m_CurrentPageID; }
 
     void Router::RenderCurrentPage() {
         if (m_Pages.contains(m_CurrentPageID)) {
@@ -41,7 +39,6 @@ namespace InfinityPackageBuilder::Utils {
         }
     }
 
-    Router::Router(std::unordered_map<int, std::function<void()> > pages)
-        : m_Pages(std::move(pages)), m_CurrentPageID(0) {
-    }
-}
+    Router::Router(std::unordered_map<int, std::function<void()>> pages) :
+        m_CurrentPageID(0), m_Pages(std::move(pages)) {}
+} // namespace InfinityPackageBuilder::Utils
