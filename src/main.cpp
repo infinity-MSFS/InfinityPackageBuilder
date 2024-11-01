@@ -7,7 +7,7 @@ bool g_ApplicationRunning = true;
 
 class PageRenderLayer final : public InfinityRenderer::Layer {
 public:
-    void OnUIRender(ImVec2 windowPos, ImVec2 windowSize) override {
+    void OnUIRender() override {
         auto &router = InfinityPackageBuilder::Utils::Router::getInstance();
         router.RenderCurrentPage();
     }

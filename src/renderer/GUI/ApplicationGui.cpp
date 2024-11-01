@@ -815,8 +815,8 @@ namespace InfinityRenderer {
                     // ImGui::SetCursorPosY(titleBarHeight);
                 }
 
-                for (auto &layer: m_LayerStack)
-                    layer->OnUIRender(windowPos, viewport->Size);
+                for (const auto &layer: m_LayerStack)
+                    layer->OnUIRender();
 
 
                 ImGui::PopStyleVar(3);

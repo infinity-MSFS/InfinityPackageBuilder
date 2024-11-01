@@ -19,35 +19,34 @@ private:
     static State m_CurrentState;
 };
 
+struct LineParams {
+    ImVec2 start;
+    ImVec2 end;
+};
+
+struct SettingsIconAnimationParams {
+    LineParams top;
+    LineParams middle;
+    LineParams bottom;
+};
+
+
+class MenuUI {
+public:
+    static bool RenderSettingsIcon(ImVec2 pos, MenuManager::State state, bool reset_animation);
+    static float RenderSettingsMenu(MenuManager::State state);
+};
 
 class Menu final : public InfinityRenderer::Layer {
 public:
-    void OnUIRender(ImVec2 windowPos, ImVec2 windowSize) override {
-        auto &router = InfinityPackageBuilder::Utils::Router::getInstance();
-        // draw the icon thats clickable,
-        if (ImGui::Button("Menu")) {
+    void OnUIRender() override {
+
+        // we are extracting the setting window pos in the event that we need to move other elements to avoid
+        // blocking / overlapping. If used we should move to a shared memory space / global state
+        [[maybe_unused]] float settings_pos_x = MenuUI::RenderSettingsMenu(MenuManager::getSate());
+
+        if (MenuUI::RenderSettingsIcon(ImVec2(10.0f, 50.0f), MenuManager::getSate(), false)) {
             MenuManager::toggleState();
-        }
-
-        if (MenuManager::getSate() == MenuManager::State::Open) {
-            // draw the menu
-            // rect
-
-            if (ImGui::Button("Package Builder")) {
-                router.setPage(0);
-            }
-            if (ImGui::Button("Package Differ")) {
-                router.setPage(1);
-            }
-            if (ImGui::Button("Release Publisher")) {
-                router.setPage(2);
-            }
-            if (ImGui::Button("Launcher JSON Manager")) {
-                router.setPage(3);
-            }
-            if (ImGui::Button("Settings")) {
-                router.setPage(4);
-            }
         }
     }
 };
