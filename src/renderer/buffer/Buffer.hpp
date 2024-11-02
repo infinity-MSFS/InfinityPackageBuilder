@@ -9,17 +9,11 @@ namespace InfinityRenderer {
         void *Data;
         uint64_t Size;
 
-        Buffer()
-            : Data(nullptr), Size(0) {
-        }
+        Buffer() : Data(nullptr), Size(0) {}
 
-        Buffer(const void *data, uint64_t size)
-            : Data((void *) data), Size(size) {
-        }
+        Buffer(const void *data, uint64_t size) : Data((void *) data), Size(size) {}
 
-        Buffer(const Buffer &other, uint64_t size)
-            : Data(other.Data), Size(size) {
-        }
+        Buffer(const Buffer &other, uint64_t size) : Data(other.Data), Size(size) {}
 
         static Buffer Copy(const Buffer &other) {
             Buffer buffer;
@@ -36,7 +30,7 @@ namespace InfinityRenderer {
         }
 
         void Allocate(uint64_t size) {
-            delete[](uint8_t *) Data;
+            delete[] (uint8_t *) Data;
             Data = nullptr;
 
             if (size == 0)
@@ -47,12 +41,12 @@ namespace InfinityRenderer {
         }
 
         void Release() {
-            delete[](uint8_t *) Data;
+            delete[] (uint8_t *) Data;
             Data = nullptr;
             Size = 0;
         }
 
-        void ZeroInitialize() {
+        void ZeroInitialize() const {
             if (Data)
                 memset(Data, 0, Size);
         }
@@ -67,8 +61,8 @@ namespace InfinityRenderer {
             return *(T *) ((uint32_t *) Data + offset);
         }
 
-        uint8_t *ReadBytes(uint64_t size, uint64_t offset) const {
-            uint8_t *buffer = new uint8_t[size];
+        [[nodiscard]] uint8_t *ReadBytes(uint64_t size, uint64_t offset) const {
+            auto *buffer = new uint8_t[size];
             memcpy(buffer, (uint8_t *) Data + offset, size);
             return buffer;
         }
@@ -77,23 +71,17 @@ namespace InfinityRenderer {
             memcpy((uint8_t *) Data + offset, data, size);
         }
 
-        operator bool() const {
-            return Data;
-        }
+        explicit operator bool() const { return Data; }
 
-        uint8_t &operator[](int index) {
-            return ((uint8_t *) Data)[index];
-        }
+        uint8_t &operator[](int index) { return ((uint8_t *) Data)[index]; }
 
-        uint8_t operator[](int index) const {
-            return ((uint8_t *) Data)[index];
-        }
+        uint8_t operator[](int index) const { return ((uint8_t *) Data)[index]; }
 
         template<typename T>
         T *As() const {
             return (T *) Data;
         }
 
-        inline uint64_t GetSize() const { return Size; }
+        [[nodiscard]] inline uint64_t GetSize() const { return Size; }
     };
-}
+} // namespace InfinityRenderer

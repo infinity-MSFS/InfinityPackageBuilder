@@ -1,14 +1,11 @@
 
 #include "PackageParser.hpp"
+#include "MicroXML/MicroXML.hpp"
 
 
 namespace InfinityPackageParser {
-    PackageParser::PackageParser() {
-        // TODO: construct data structs
-    }
 
-
-    void PackageParser::ParseMainXML() {
+    void PackageParser::ParseMainXML() const {
         NodeXML root = MicroXML::parse(m_XMLFilePath);
         NodeSet project = root("Project");
 
@@ -26,7 +23,7 @@ namespace InfinityPackageParser {
         }
     }
 
-    void PackageParser::ParsePackageDefinitionsXML() {
+    void PackageParser::ParsePackageDefinitionsXML() const {
         NodeXML root = MicroXML::parse(m_PackageDefinitionsXMLPath);
         NodeSet asset_package = root("AssetPackage");
 
@@ -68,10 +65,8 @@ namespace InfinityPackageParser {
         mINI::INIStructure ini;
         file.read(ini);
 
-
         for (int i = 0; i < 100; i++) {
-            std::string name = "FLTSIM." + std::to_string(i);
-            if (ini.has(name)) {
+            if (const std::string name = "FLTSIM." + std::to_string(i); ini.has(name)) {
                 auto object = ini[name];
 
                 PackageTypes::AircraftCFG::LiveryObject new_object;

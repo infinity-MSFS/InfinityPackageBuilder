@@ -85,7 +85,18 @@ add_executable(InfinityPackageBuilder ${SRC_FILES} ${MICROXML_SOURCES}
         src/Router/Router.cpp
         src/Router/Router.hpp
         src/Components/Menu/Menu.cpp
-        src/Components/Menu/Menu.hpp)
+        src/Components/Menu/Menu.hpp
+        src/Pages/LauncherJsonManager/LauncherJsonManager.cpp
+        src/Pages/LauncherJsonManager/LauncherJsonManager.hpp
+        src/Pages/PackageBuilder/PackageBuilder.cpp
+        src/Pages/PackageBuilder/PackageBuilder.hpp
+        src/Pages/PackageDiffer/PackageDiffer.cpp
+        src/Pages/PackageDiffer/PackageDiffer.hpp
+        src/Pages/ReleasePublisher/PackagePublisher.cpp
+        src/Pages/ReleasePublisher/PackagePublisher.hpp
+        src/Pages/Settings/Settings.cpp
+        src/Pages/Settings/Settings.hpp
+        src/Pages/Page.hpp)
 
 target_sources(InfinityPackageBuilder PRIVATE ${IMGUI_SOURCES})
 target_include_directories(InfinityPackageBuilder PRIVATE ${VULKAN_SDK}/include)

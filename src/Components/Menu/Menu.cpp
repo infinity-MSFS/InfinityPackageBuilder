@@ -1,5 +1,6 @@
 
 #include "Menu.hpp"
+#include "Router/Router.hpp"
 
 MenuManager::State MenuManager::m_CurrentState = MenuManager::State::Closed;
 
@@ -42,13 +43,14 @@ static float settings_menu_x = -10.0f;
 static constexpr float animation_speed = 6.0f;
 
 float MenuUI::RenderSettingsMenu(const MenuManager::State state) {
-    static auto previous_show = MenuManager::State::Closed;
-    auto &router = InfinityPackageBuilder::Utils::Router::getInstance();
-    float target_x = (state == MenuManager::State::Open) ? 405.0f : -10.0f;
 
-    if (settings_menu_x != target_x) {
-        const float delta = (target_x - settings_menu_x) * animation_speed * ImGui::GetIO().DeltaTime;
-        if (std::abs(delta) < 0.1f) {
+    auto &router = InfinityPackageBuilder::Utils::Router::getInstance();
+
+
+    if (const float target_x = (state == MenuManager::State::Open) ? 405.0f : -10.0f; settings_menu_x != target_x) {
+
+        if (const float delta = (target_x - settings_menu_x) * animation_speed * ImGui::GetIO().DeltaTime;
+            std::abs(delta) < 0.1f) {
             settings_menu_x = target_x;
         } else {
             settings_menu_x += delta;
@@ -79,14 +81,10 @@ float MenuUI::RenderSettingsMenu(const MenuManager::State state) {
         router.setPage(3);
     }
 
-
     ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 310.0f));
     if (ImGui::Button("Settings")) {
         router.setPage(4);
     }
-
-
-    previous_show = state;
 
     return settings_menu_x;
 }

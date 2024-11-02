@@ -4,8 +4,8 @@
 #include "StreamReader.hpp"
 #include "StreamWriter.hpp"
 
-#include <fstream>
 #include <filesystem>
+#include <fstream>
 
 
 namespace InfinityRenderer {
@@ -17,11 +17,11 @@ namespace InfinityRenderer {
 
         ~FileStreamWriter() override;
 
-        [[nodiscard]] bool IsStreamGood() const final { return m_Stream.good(); }
-        uint64_t GetStreamPosition() final { return m_Stream.tellp(); }
-        void SetStreamPosition(const uint64_t position) final { m_Stream.seekp(position); }
+        [[nodiscard]] bool IsStreamGood() const override { return m_Stream.good(); }
+        uint64_t GetStreamPosition() override { return m_Stream.tellp(); }
+        void SetStreamPosition(const uint64_t position) override { m_Stream.seekp(position); }
 
-        bool WriteData(const char *data, size_t size) final;
+        bool WriteData(const char *data, size_t size) override;
 
     private:
         std::filesystem::path m_Path;
@@ -36,7 +36,7 @@ namespace InfinityRenderer {
 
         ~FileStreamReader() override;
 
-        [[nodiscard]] bool IsStreamGood() const final { return m_Stream.good(); }
+        [[nodiscard]] bool IsStreamGood() const override { return m_Stream.good(); }
         uint64_t GetStreamPosition() override { return m_Stream.tellg(); }
         void SetStreamPosition(const uint64_t position) override { m_Stream.seekg(position); }
 
@@ -46,5 +46,4 @@ namespace InfinityRenderer {
         std::filesystem::path m_Path;
         std::ifstream m_Stream;
     };
-}
-
+} // namespace InfinityRenderer

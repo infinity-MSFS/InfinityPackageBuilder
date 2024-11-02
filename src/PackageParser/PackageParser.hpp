@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
+
 #include "ini/ini.h"
-#include "MicroXML/MicroXML.hpp"
 
 namespace InfinityPackageParser {
     namespace PackageTypes {
@@ -58,7 +58,7 @@ namespace InfinityPackageParser {
                 std::string soundAi;
                 std::string shortDescription;
             };
-        }
+        } // namespace AircraftCFG
 
         namespace PackageDefinitions {
             struct PackageDefinitionType {
@@ -103,23 +103,24 @@ namespace InfinityPackageParser {
 
                 AssetPackage asset_package;
             };
-        }
-    }
+        } // namespace PackageDefinitions
+    } // namespace PackageTypes
 
     class PackageParser {
     public:
-        PackageParser();
+        PackageParser() = default;
 
     private:
-        void ParseMainXML();
+        void ParseMainXML() const;
 
-        void ParsePackageDefinitionsXML();
+        void ParsePackageDefinitionsXML() const;
 
         void ParseAircraftCFG();
 
     private:
         /*
-         * <Project Version="2" Name="C-17" FolderName="Packages" PublishingGroupFolderName="PublishingGroupsContent" MetadataFolderName="PackagesMetadata" PublishingGroupMetadataFolderName="PublishingGroupsMetadata">
+         * <Project Version="2" Name="C-17" FolderName="Packages" PublishingGroupFolderName="PublishingGroupsContent"
+         * MetadataFolderName="PackagesMetadata" PublishingGroupMetadataFolderName="PublishingGroupsMetadata">
          *    <OutputDirectory>.</OutputDirectory>
          *    <TemporaryOutputDirectory>_PackageInt</TemporaryOutputDirectory>
          *    <PublishingGroupTemporaryOutputDirectory>_PublishingGroupInt</PublishingGroupTemporaryOutputDirectory>
@@ -137,6 +138,4 @@ namespace InfinityPackageParser {
         std::string m_AircraftCfgPath;
         std::string m_Version;
     };
-}
-
-
+} // namespace InfinityPackageParser

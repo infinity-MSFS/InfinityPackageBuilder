@@ -1,18 +1,18 @@
 
 #pragma once
 
+#include "ImGuiTheme/ImGuiTheme.hpp"
+#include "renderer/GUI/UI/UI.hpp"
 #include "renderer/Layer.hpp"
 #include "renderer/image/Image.hpp"
-#include "renderer/GUI/UI/UI.hpp"
-#include "ImGuiTheme/ImGuiTheme.hpp"
 
+#include <filesystem>
+#include <functional>
+#include <memory>
+#include <mutex>
+#include <queue>
 #include <string>
 #include <vector>
-#include <queue>
-#include <mutex>
-#include <memory>
-#include <functional>
-#include <filesystem>
 
 #include "imgui.h"
 #include "vulkan/vulkan.h"
@@ -49,7 +49,7 @@ namespace InfinityRenderer {
 
         template<typename T>
         void PushLayer() {
-            static_assert(std::is_base_of<Layer, T>::value, "Pushed type is not subclass of Layer!");
+            static_assert(std::is_base_of_v<Layer, T>, "Pushed type is not subclass of Layer!");
             m_LayerStack.emplace_back(std::make_shared<T>())->OnAttach();
         }
 
@@ -110,11 +110,11 @@ namespace InfinityRenderer {
 
         bool m_TitleBarHovered = false;
 
-        std::vector<std::shared_ptr<Layer> > m_LayerStack;
+        std::vector<std::shared_ptr<Layer>> m_LayerStack;
         std::function<void()> m_MenubarCallback;
 
         std::mutex m_EventQueueMutex;
-        std::queue<std::function<void()> > m_EventQueue;
+        std::queue<std::function<void()>> m_EventQueue;
 
 
         std::shared_ptr<Image> m_AppHeaderIcon;
@@ -125,4 +125,4 @@ namespace InfinityRenderer {
     };
 
     Application *CreateApplication(int argc, char **argv);
-}
+} // namespace InfinityRenderer
