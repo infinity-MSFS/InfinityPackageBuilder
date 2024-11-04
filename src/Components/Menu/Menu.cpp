@@ -1,5 +1,6 @@
 
 #include "Menu.hpp"
+#include <iostream>
 #include "Router/Router.hpp"
 
 MenuManager::State MenuManager::m_CurrentState = MenuManager::State::Closed;
@@ -42,49 +43,67 @@ bool MenuUI::RenderSettingsIcon(const ImVec2 pos, const MenuManager::State state
 static float settings_menu_x = -10.0f;
 static constexpr float animation_speed = 6.0f;
 
+using InfinityPackageBuilder::Utils::Router;
+
 float MenuUI::RenderSettingsMenu(const MenuManager::State state) {
 
-    auto &router = InfinityPackageBuilder::Utils::Router::getInstance();
 
+    if (const auto router = Router::getInstance(); router.has_value()) {
+        if (const float target_x = (state == MenuManager::State::Open) ? 405.0f : -10.0f; settings_menu_x != target_x) {
 
-    if (const float target_x = (state == MenuManager::State::Open) ? 405.0f : -10.0f; settings_menu_x != target_x) {
-
-        if (const float delta = (target_x - settings_menu_x) * animation_speed * ImGui::GetIO().DeltaTime;
-            std::abs(delta) < 0.1f) {
-            settings_menu_x = target_x;
-        } else {
-            settings_menu_x += delta;
+            if (const float delta = (target_x - settings_menu_x) * animation_speed * ImGui::GetIO().DeltaTime;
+                std::abs(delta) < 0.1f) {
+                settings_menu_x = target_x;
+            } else {
+                settings_menu_x += delta;
+            }
         }
-    }
-    ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(-10.0f, 40.0f), ImVec2(settings_menu_x, ImGui::GetWindowHeight()),
-                                              ImColor(15.0f / 255.0f, 15.0f / 255.0f, 15.0f / 255.0f, 0.75f), 0.0f);
+        ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(-10.0f, 40.0f),
+                                                  ImVec2(settings_menu_x, ImGui::GetWindowHeight()),
+                                                  ImColor(15.0f / 255.0f, 15.0f / 255.0f, 15.0f / 255.0f, 0.75f), 0.0f);
 
-    const auto text_size = ImGui::CalcTextSize("Tools").x / 2;
-    ImGui::SetCursorPos(ImVec2(settings_menu_x - 202.5f - text_size, 60.0f));
-    ImGui::Text("Tools");
-    ImGui::GetWindowDrawList()->AddLine(ImVec2(settings_menu_x - 395.0f, 100.0f),
-                                        ImVec2(settings_menu_x - 10.0f, 100.0f), ImColor(1.0f, 1.0f, 1.0f, 1.0f), 2.0f);
-    ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 110.0f));
-    if (ImGui::Button("Package Builder")) {
-        router.setPage(0);
-    }
-    ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 160.0f));
-    if (ImGui::Button("Package Differ")) {
-        router.setPage(1);
-    }
-    ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 210.0f));
-    if (ImGui::Button("Release Publisher")) {
-        router.setPage(2);
-    }
-    ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 260.0f));
-    if (ImGui::Button("Launcher JSON Manager")) {
-        router.setPage(3);
-    }
+        const auto text_size = ImGui::CalcTextSize("Tools").x / 2;
+        ImGui::SetCursorPos(ImVec2(settings_menu_x - 202.5f - text_size, 60.0f));
+        ImGui::Text("Tools");
+        ImGui::GetWindowDrawList()->AddLine(ImVec2(settings_menu_x - 395.0f, 100.0f),
+                                            ImVec2(settings_menu_x - 10.0f, 100.0f), ImColor(1.0f, 1.0f, 1.0f, 1.0f),
+                                            2.0f);
+        ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 110.0f));
+        if (ImGui::Button("Package Builder")) {
+            if (auto result = static_cast<Router *>(*router)->setPage(0); !result) {
+                std::cerr << "Menu: Error setting page:" << result.error() << std::endl;
+            }
+        }
+        ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 160.0f));
+        if (ImGui::Button("Package Differ")) {
+            if (auto result = static_cast<Router *>(*router)->setPage(1); !result) {
+                std::cerr << "Menu: Error setting page:" << result.error() << std::endl;
+            }
+        }
+        ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 210.0f));
+        if (ImGui::Button("Release Publisher")) {
+            if (auto result = static_cast<Router *>(*router)->setPage(2); !result) {
+                std::cerr << "Menu: Error setting page:" << result.error() << std::endl;
+            }
+        }
+        ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 260.0f));
+        if (ImGui::Button("Launcher JSON Manager")) {
+            if (auto result = static_cast<Router *>(*router)->setPage(3); !result) {
+                std::cerr << "Menu: Error setting page:" << result.error() << std::endl;
+            }
+        }
 
-    ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 310.0f));
-    if (ImGui::Button("Settings")) {
-        router.setPage(4);
-    }
+        ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 310.0f));
+        if (ImGui::Button("Settings")) {
+            if (auto result = static_cast<Router *>(*router)->setPage(4); !result) {
+                std::cerr << "Menu: Error setting page:" << result.error() << std::endl;
+            }
+        }
 
-    return settings_menu_x;
+        return settings_menu_x;
+    }
+    {
+        std::cerr << "MenuUI::RenderSEttingsMenu: Failed to obain router instance" << std::endl;
+        return 0.0f;
+    }
 }

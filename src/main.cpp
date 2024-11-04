@@ -10,22 +10,26 @@
 #include "renderer/GUI/ApplicationGui.hpp"
 
 bool g_ApplicationRunning = true;
+using InfinityPackageBuilder::Utils::Router;
 
 class PageRenderLayer final : public InfinityRenderer::Layer {
 public:
     void OnUIRender() override {
-        auto &router = InfinityPackageBuilder::Utils::Router::getInstance();
-        router.RenderCurrentPage();
+
+        if (const auto router = Router::getInstance(); router.has_value()) {
+            static_cast<Router *>(*router)->RenderCurrentPage();
+        } else {
+            std::cerr << "PageRenderLayer: Cannot obtain router instance" << std::endl;
+        }
     }
 };
 
 
 InfinityRenderer::Application *InfinityRenderer::CreateApplication(int argc, char **argv) {
     const std::filesystem::path path = "Resources/Images/Logo.h";
-    const InfinityRenderer::ApplicationSpecifications spec = {
-            "Infinity Package Manager", 1440, 1026, path, true, true, true};
+    const ApplicationSpecifications spec = {"Infinity Package Manager", 1440, 1026, path, true, true, true};
 
-    const auto app = new InfinityRenderer::Application(spec);
+    const auto app = new Application(spec);
     app->PushLayer<PageRenderLayer>();
     app->PushLayer<Menu>();
 
@@ -48,9 +52,9 @@ namespace InfinityRenderer {
                 {2, [release_publisher]() { release_publisher->RenderPage(); }},
                 {3, [launcher_json_manager]() { launcher_json_manager->RenderPage(); }},
                 {4, [settings]() { settings->RenderPage(); }}};
-        InfinityPackageBuilder::Utils::Router::configure(pages);
+        Router::configure(pages);
         while (g_ApplicationRunning) {
-            const auto app = InfinityRenderer::CreateApplication(argc, argv);
+            const auto app = CreateApplication(argc, argv);
             app->Run();
             delete app;
             g_ApplicationRunning = false;

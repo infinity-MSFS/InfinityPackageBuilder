@@ -11,25 +11,30 @@ namespace InfinityPackageBuilder::Utils {
         }
     }
 
-    Router &Router::getInstance() {
+    std::optional<Router *> Router::getInstance() {
         if (!m_Instance) {
-            throw std::runtime_error("Router is not configured. Call configure() before trying to get the instance.");
+            return std::nullopt;
         }
-        return *m_Instance;
+        return m_Instance.get();
     }
 
-    bool Router::setPage(const int pageId) {
+    std::expected<bool, std::string> Router::setPage(const int pageId) {
         if (m_Pages.contains(pageId)) {
             m_CurrentPageID = pageId;
             return true;
         } else {
             std::ostringstream oss;
             oss << "Error: Attempted to access page ID " << pageId;
-            throw std::runtime_error(oss.str());
+            return std::unexpected(oss.str());
         }
     }
 
-    int Router::getPage() const { return m_CurrentPageID; }
+    std::optional<int> Router::getPage() const {
+        if (m_CurrentPageID) {
+            return m_CurrentPageID;
+        }
+        return std::nullopt;
+    }
 
     void Router::RenderCurrentPage() {
         if (m_Pages.contains(m_CurrentPageID)) {

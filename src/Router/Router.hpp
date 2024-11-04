@@ -1,8 +1,10 @@
 
 #pragma once
 
+#include <expected>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <unordered_map>
@@ -13,11 +15,11 @@ namespace InfinityPackageBuilder::Utils {
     public:
         static void configure(std::unordered_map<int, std::function<void()>> pages);
 
-        static Router &getInstance();
+        static std::optional<Router *> getInstance();
 
-        bool setPage(int pageId);
+        std::expected<bool, std::string> setPage(int pageId);
 
-        [[nodiscard]] int getPage() const;
+        [[nodiscard]] std::optional<int> getPage() const;
 
         void RenderCurrentPage();
 
