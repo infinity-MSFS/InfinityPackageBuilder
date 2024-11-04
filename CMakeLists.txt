@@ -24,6 +24,7 @@ file(GLOB_RECURSE SRC_FILES
         "dependencies/stb_image/*.h"
         "dependencies/MicroXML/include/MicroXML/*.hpp"
         "dependencies/MicroXML/src/*.cpp"
+
 )
 
 set(IMGUI_SOURCES
@@ -43,6 +44,12 @@ set(MICROXML_SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/MicroXML/include/MicroXML/utils.hpp
 )
 
+set(SOL_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/sol/include/sol/config.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/sol/include/sol/forward.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/sol/include/sol/sol.hpp
+)
+
 
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -56,11 +63,13 @@ include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/zlib
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/HDiff/include
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/MicroXML/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/sol/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/include
         ${VULKAN_SD}/include
         ${IncludeDir.glm}
 )
 
-add_executable(InfinityPackageBuilder ${SRC_FILES} ${MICROXML_SOURCES}
+add_executable(InfinityPackageBuilder ${SRC_FILES} ${MICROXML_SOURCES} ${SOL_SOURCES}
         src/renderer/Layer.hpp
         src/renderer/buffer/buffer.hpp
         src/renderer/serialization/StreamWriter.cpp
@@ -113,7 +122,6 @@ target_include_directories(GLFW INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/dependenci
 
 target_link_libraries(GLFW INTERFACE glfw)
 
-#link_directories("C:/Program Files (x86)/Windows Kits/10/Lib/10.0.22621.0/um/x64")
 
 target_compile_definitions(InfinityPackageBuilder PRIVATE
         $<$<CONFIG:Release>:RELEASE_DIST>
@@ -125,7 +133,13 @@ target_link_options(InfinityPackageBuilder PRIVATE
 )
 
 if (WIN32)
-    target_link_libraries(InfinityPackageBuilder ${VULKAN_SDK}/Lib/vulkan-1.lib glfw yaml-cpp Boxer)
+    target_link_libraries(InfinityPackageBuilder ${VULKAN_SDK}/Lib/vulkan-1.lib glfw yaml-cpp Boxer ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/lua.lib)
 else ()
-    target_link_libraries(InfinityPackageBuilder -L${VULKAN_SDK}/lib -lvulkan glfw Boxer)
+    target_link_libraries(InfinityPackageBuilder -L${VULKAN_SDK}/lib -lvulkan glfw Boxer ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/liblua.a)
+
+    add_custom_command(TARGET InfinityPackageBuilder POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/liblua.so
+            $<TARGET_FILE_DIR:InfinityPackageBuilder>
+    )
 endif ()
