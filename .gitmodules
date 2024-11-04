@@ -13,3 +13,6 @@
 [submodule "dependencies/zlib"]
 	path = dependencies/zlib
 	url = https://github.com/madler/zlib.git
+[submodule "dependencies/Boxer"]
+	path = dependencies/Boxer
+	url = https://github.com/aaronmjacobs/Boxer.git

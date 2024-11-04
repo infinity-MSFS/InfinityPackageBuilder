@@ -2,6 +2,8 @@
 #include "Menu.hpp"
 #include <iostream>
 #include "Router/Router.hpp"
+#include "Util/Error.hpp"
+#include "boxer/boxer.h"
 
 MenuManager::State MenuManager::m_CurrentState = MenuManager::State::Closed;
 
@@ -71,32 +73,32 @@ float MenuUI::RenderSettingsMenu(const MenuManager::State state) {
         ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 110.0f));
         if (ImGui::Button("Package Builder")) {
             if (auto result = static_cast<Router *>(*router)->setPage(0); !result) {
-                std::cerr << "Menu: Error setting page:" << result.error() << std::endl;
+                InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
             }
         }
         ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 160.0f));
         if (ImGui::Button("Package Differ")) {
             if (auto result = static_cast<Router *>(*router)->setPage(1); !result) {
-                std::cerr << "Menu: Error setting page:" << result.error() << std::endl;
+                InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
             }
         }
         ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 210.0f));
         if (ImGui::Button("Release Publisher")) {
             if (auto result = static_cast<Router *>(*router)->setPage(2); !result) {
-                std::cerr << "Menu: Error setting page:" << result.error() << std::endl;
+                InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
             }
         }
         ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 260.0f));
         if (ImGui::Button("Launcher JSON Manager")) {
             if (auto result = static_cast<Router *>(*router)->setPage(3); !result) {
-                std::cerr << "Menu: Error setting page:" << result.error() << std::endl;
+                InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
             }
         }
 
         ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 310.0f));
         if (ImGui::Button("Settings")) {
             if (auto result = static_cast<Router *>(*router)->setPage(4); !result) {
-                std::cerr << "Menu: Error setting page:" << result.error() << std::endl;
+                InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
             }
         }
 

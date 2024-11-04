@@ -1,6 +1,8 @@
 
 #include "Router.hpp"
 
+#include "Util/Error.hpp"
+
 
 namespace InfinityPackageBuilder::Utils {
     std::unique_ptr<Router> Router::m_Instance = nullptr;
@@ -18,14 +20,14 @@ namespace InfinityPackageBuilder::Utils {
         return m_Instance.get();
     }
 
-    std::expected<bool, std::string> Router::setPage(const int pageId) {
+    std::expected<bool, Errors::Error> Router::setPage(const int pageId) {
         if (m_Pages.contains(pageId)) {
             m_CurrentPageID = pageId;
             return true;
         } else {
             std::ostringstream oss;
             oss << "Error: Attempted to access page ID " << pageId;
-            return std::unexpected(oss.str());
+            return std::unexpected(Errors::Error{Errors::ErrorType::Fatal, oss.str()});
         }
     }
 

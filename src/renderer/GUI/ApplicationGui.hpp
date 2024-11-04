@@ -17,6 +17,7 @@
 #include "imgui.h"
 #include "vulkan/vulkan.h"
 
+#include <optional>
 
 void check_vk_result(VkResult err);
 
@@ -41,7 +42,7 @@ namespace InfinityRenderer {
 
         ~Application();
 
-        static Application &Get();
+        static std::optional<Application *> Get();
 
         void Run();
 

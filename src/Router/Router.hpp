@@ -9,6 +9,8 @@
 #include <stdexcept>
 #include <unordered_map>
 
+#include "Util/Error.hpp"
+
 
 namespace InfinityPackageBuilder::Utils {
     class Router {
@@ -17,7 +19,7 @@ namespace InfinityPackageBuilder::Utils {
 
         static std::optional<Router *> getInstance();
 
-        std::expected<bool, std::string> setPage(int pageId);
+        std::expected<bool, Errors::Error> setPage(int pageId);
 
         [[nodiscard]] std::optional<int> getPage() const;
 

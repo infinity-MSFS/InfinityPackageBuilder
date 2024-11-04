@@ -7,6 +7,7 @@ Welcome to the **Infinity Package Manager**!
 ## Table of Contents
 
 - [Project Overview](#project-overview)
+- [Features](#features)
 - [Requirements](#requirements)
 - [Contribution Guidelines](#contribution-guidelines)
     - [Project Structure and Layers](#project-structure-and-layers)
@@ -23,13 +24,39 @@ Welcome to the **Infinity Package Manager**!
 The **Infinity Package Manager** uses Vulkan and ImGui to deliver a high-performance, responsive graphical user interface. This tool is ideal for Infinity Launcher devs that would like a near seamless
 approach to building, diffing, and distributing their aircraft from a single program.
 
+---
+
+## Features:
+
+### Package Builder
+
+- Build MSFS aircraft packages without directly using the MSFS SDK.
+- Overview of many project settings in a much more user-friendly UI.
+- Ease the versioning process.
+
+### Package Differ
+
+- Create diffs for projects that match the **Infinity MSFS** Diff standard.
+- Cache Previous versions or automatically download prior versions to base diffs
+
+### Release Publisher
+
+- Creates and publishes diffs in proper format for the **Infinity Launcher** using either GitHub (default) or CDNs like CloudFare using a custom **Lua** script. The release manager exposes the
+  necessary methods for handling API keys, account management and uploading.
+
+### Launcher JSON Manager
+
+- Port of the existing launcher JSON manager, allows project managers to edit their page through a GUI.
+
+---
+
 ## Requirements
 
 ### Building
 
 Ensure you have the following prerequisites:
 
-- **C++20 or newer** compiler (for async/await)
+- **C++23 or newer** compiler (for async/await, optional and expected)
 - **Vulkan SDK** (version X.X or later) **You must set the environment variable `VULKAN_SDK` to your vulkan SDK path**
 - **CMake** (minimum version 3.28)
 
@@ -62,6 +89,31 @@ To maintain clean and readable code across contributions, we enforce the followi
     - All naming of Classes, Functions, and Structs should follow PascalCase.
     - Variable naming should follow Hungarian notation i.e. `m_Variable` for member variable and `g_Variable` for global variable.
     - local variables should follow snake_case.
+- **Null Prevention / Value Presence**
+    - Use `std::optional` to represent values that may or may not be present, rather than relying on null pointers or ambiguous default values. This makes it clear when a variable or return value is
+      optional.
+- **Error handling**
+    - **Use `std::expected` for Rich Error Reporting:** When an operation may fail with a known error state, use `std::expected<T, E>` to provide detailed error information `(E)` instead of only
+      using
+      a
+      success boolean or null value.
+    - **Return Meaningful Error Types:** Avoid raw string or int values for the error case of `std::expected`, Prefer to use the `InfinityPackageBuilder::Errors::Error` struct which can be
+      directly piped into a warning or error popup
+        ```cpp
+       enum class ErrorType {
+         Fatal,
+         NonFatal,
+         Warning,
+      };
+          
+      struct Error {
+         ErrorType error_type;
+         std::string error_message;
+  
+         [[nodiscard]] ErrorType GetErrorType() const { return error_type; }
+         [[nodiscard]] std::string &GetErrorMessage() { return error_message; }
+      };
+      ```
 
 ### Asset Management
 

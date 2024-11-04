@@ -96,7 +96,8 @@ add_executable(InfinityPackageBuilder ${SRC_FILES} ${MICROXML_SOURCES}
         src/Pages/ReleasePublisher/PackagePublisher.hpp
         src/Pages/Settings/Settings.cpp
         src/Pages/Settings/Settings.hpp
-        src/Pages/Page.hpp)
+        src/Pages/Page.hpp
+        src/Util/Error.hpp)
 
 target_sources(InfinityPackageBuilder PRIVATE ${IMGUI_SOURCES})
 target_include_directories(InfinityPackageBuilder PRIVATE ${VULKAN_SDK}/include)
@@ -104,6 +105,8 @@ target_include_directories(InfinityPackageBuilder PRIVATE ${VULKAN_SDK}/include)
 add_subdirectory(dependencies/glfw)
 add_subdirectory(dependencies/yaml-cpp)
 add_subdirectory(dependencies/glm)
+add_subdirectory(dependencies/Boxer)
+
 
 add_library(GLFW INTERFACE)
 target_include_directories(GLFW INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/GLFW/include)
@@ -122,7 +125,7 @@ target_link_options(InfinityPackageBuilder PRIVATE
 )
 
 if (WIN32)
-    target_link_libraries(InfinityPackageBuilder ${VULKAN_SDK}/Lib/vulkan-1.lib glfw yaml-cpp)
+    target_link_libraries(InfinityPackageBuilder ${VULKAN_SDK}/Lib/vulkan-1.lib glfw yaml-cpp Boxer)
 else ()
-    target_link_libraries(InfinityPackageBuilder -L${VULKAN_SDK}/lib -lvulkan glfw)
+    target_link_libraries(InfinityPackageBuilder -L${VULKAN_SDK}/lib -lvulkan glfw Boxer)
 endif ()

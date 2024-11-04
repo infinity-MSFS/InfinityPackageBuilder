@@ -371,7 +371,7 @@ namespace InfinityRenderer {
         s_Instance = nullptr;
     }
 
-    Application &Application::Get() { return *s_Instance; }
+    std::optional<Application *> Application::Get() { return s_Instance; }
 
     WNDPROC originalWndProc = nullptr;
 
@@ -678,8 +678,11 @@ namespace InfinityRenderer {
             const float padY = (buttonHeight - (float) iconHeight) / 2.0f;
             if (ImGui::InvisibleButton("Minimize", ImVec2(buttonWidth, buttonHeight))) {
                 if (m_WindowHandle) {
-                    Application::Get().QueueEvent(
-                            [windowHandle = m_WindowHandle]() { glfwIconifyWindow(windowHandle); });
+                    if (const auto application = Get(); application.has_value()) {
+                        static_cast<Application *>(*application)->QueueEvent([windowHandle = m_WindowHandle]() {
+                            glfwIconifyWindow(windowHandle);
+                        });
+                    }
                 }
             }
 
@@ -692,8 +695,11 @@ namespace InfinityRenderer {
         {
             const int iconWidth = m_IconClose->GetWidth();
             const int iconHeight = m_IconClose->GetHeight();
-            if (ImGui::InvisibleButton("Close", ImVec2(buttonWidth, buttonHeight)))
-                Application::Get().Close();
+            if (ImGui::InvisibleButton("Close", ImVec2(buttonWidth, buttonHeight))) {
+                if (const auto application = Get(); application.has_value()) {
+                    static_cast<Application *>(*application)->Close();
+                }
+            }
 
             UI::DrawButtonImage(m_IconClose, UI::Colors::Theme::text,
                                 UI::Colors::ColorWithMultipliedValue(UI::Colors::Theme::text, 1.4f), buttonColP);
