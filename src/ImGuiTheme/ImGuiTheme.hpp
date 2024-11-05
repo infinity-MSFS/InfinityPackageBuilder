@@ -3,7 +3,6 @@
 
 
 #include <cmath>
-#include <glm/glm.hpp>
 #include "imgui.h"
 
 namespace InfinityRenderer::UI {

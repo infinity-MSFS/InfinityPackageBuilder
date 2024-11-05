@@ -17,10 +17,6 @@ file(GLOB_RECURSE SRC_FILES
         "src/*.cpp"
         "src/*.h"
         "src/*.hpp"
-        "dependencies/glm/glm/*.c"
-        "dependencies/glm/glm/*.cpp"
-        "dependencies/glm/glm/*.h"
-        "dependencies/glm/glm/*.hpp"
         "dependencies/stb_image/*.h"
         "dependencies/MicroXML/include/MicroXML/*.hpp"
         "dependencies/MicroXML/src/*.cpp"
@@ -56,19 +52,15 @@ include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/glm
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/imgui
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/GLFW/include
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/stb_image
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/minizip
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/zlib
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/HDiff/include
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/MicroXML/include
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/sol/include
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/include
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ImGuiColorTextEdit
         ${VULKAN_SD}/include
-        ${IncludeDir.glm}
 )
 
 add_executable(InfinityPackageBuilder ${SRC_FILES} ${MICROXML_SOURCES} ${SOL_SOURCES}
@@ -119,7 +111,6 @@ target_sources(InfinityPackageBuilder PRIVATE ${IMGUI_SOURCES})
 target_include_directories(InfinityPackageBuilder PRIVATE ${VULKAN_SDK}/include)
 
 add_subdirectory(dependencies/glfw)
-add_subdirectory(dependencies/glm)
 add_subdirectory(dependencies/Boxer)
 
 
