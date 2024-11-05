@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "Components/Background/Background.hpp"
 #include "Components/Menu/Menu.hpp"
 #include "Pages/LauncherJsonManager/LauncherJsonManager.hpp"
 #include "Pages/PackageBuilder/PackageBuilder.hpp"
@@ -15,6 +16,9 @@ using InfinityPackageBuilder::Utils::Router;
 class PageRenderLayer final : public InfinityRenderer::Layer {
 public:
     void OnUIRender() override {
+        const Background background;
+
+        background.RenderBackground();
 
         if (const auto router = Router::getInstance(); router.has_value()) {
             (*router)->RenderCurrentPage();
@@ -27,7 +31,7 @@ public:
 
 InfinityRenderer::Application *InfinityRenderer::CreateApplication(int argc, char **argv) {
     const std::filesystem::path path = "Resources/Images/Logo.h";
-    const ApplicationSpecifications spec = {"Infinity Package Manager", 1440, 1026, path, true, true, true};
+    const ApplicationSpecifications spec = {"Infinity Package Manager", 1440, 1026, 2560, 1440, 1240, 680, path, true, true, true};
 
     const auto app = new Application(spec);
     app->PushLayer<PageRenderLayer>();

@@ -29,6 +29,11 @@ namespace InfinityRenderer {
         uint32_t Width;
         uint32_t Height;
 
+        uint32_t MaxWidth;
+        uint32_t MaxHeight;
+        uint32_t MinWidth;
+        uint32_t MinHeight;
+
         std::filesystem::path IconPath;
 
         bool WindowResizable;
@@ -43,6 +48,8 @@ namespace InfinityRenderer {
         ~Application();
 
         static std::optional<Application *> Get();
+
+        ApplicationSpecifications GetSpecifications() { return m_Specification; }
 
         void Run();
 

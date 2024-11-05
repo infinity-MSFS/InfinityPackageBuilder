@@ -78,4 +78,32 @@ namespace InfinityPackageBuilder::Lua {
         TextEditor::LanguageDefinition m_Language;
     };
 
+    inline const TextEditor::Palette &GetInfinityPalette() {
+        static constexpr TextEditor::Palette p = {{
+                0xffa585a4, // Default
+                0xffd69c56, // Keyword
+                0xffcba2a2, // Number
+                0xffab6a28, // String
+                0xffb25e9e, // Char literal
+                0xffffffff, // Punctuation
+                0xffb25e9e, // Preprocessor
+                0xff8887ab, // Identifier
+                0xffb25e9e, // Known identifier
+                0xffb25e9e, // Preproc identifier
+                0xff206020, // Comment (single line)
+                0xff406020, // Comment (multi line)
+                0x40000000, // Background
+                0xffe0e0e0, // Cursor
+                0xffb25e9e, // Selection
+                0x800020ff, // ErrorMarker
+                0x40f08000, // Breakpoint
+                0xff707000, // Line number
+                0x40000000, // Current line fill
+                0x40808080, // Current line fill (inactive)
+                0x40a0a0a0, // Current line edge
+        }};
+        return p;
+    }
+
+
 } // namespace InfinityPackageBuilder::Lua

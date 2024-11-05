@@ -8,7 +8,7 @@ namespace InfinityPackageBuilder::Lua {
 
     LuaInterpreter::LuaInterpreter(const char *file_path) : m_LuaError({-1, ""}), m_FilePath(file_path), m_Language(TextEditor::LanguageDefinition::Lua()) {
         m_TextEditor.SetLanguageDefinition(m_Language);
-        m_TextEditor.SetPalette(TextEditor::GetDarkPalette());
+        m_TextEditor.SetPalette(GetInfinityPalette());
         m_Lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::table, sol::lib::math, sol::lib::io, sol::lib::os, sol::lib::utf8);
 
 
@@ -28,7 +28,7 @@ namespace InfinityPackageBuilder::Lua {
     }
 
 
-    void LuaInterpreter::RenderCodebox() { m_TextEditor.Render("Lua Editor"); }
+    void LuaInterpreter::RenderCodebox() { m_TextEditor.Render("Lua Editor", ImVec2(600, ImGui::GetWindowHeight() - 50.0f), true); }
 
     void LuaInterpreter::InsertError(int line, std::string &error) {
         m_ErrorMarkers.insert(std::pair(line, error));

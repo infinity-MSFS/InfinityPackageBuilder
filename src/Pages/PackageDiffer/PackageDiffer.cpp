@@ -8,6 +8,6 @@ PackageDiffer::PackageDiffer(const float padding_x, const float padding_y) : Pag
 
 void PackageDiffer::RenderPage() {
     const auto word_size = ImGui::CalcTextSize("Package Differ");
-    ImGui::SetCursorPos(ImVec2(ImGui::GetWindowWidth() / 2 - word_size.x / 2, ImGui::GetWindowHeight() / 2));
+    ImGui::SetCursorPos(ImVec2(ImGui::GetWindowWidth() / 2 - word_size.x / 2, 10.0f));
     ImGui::Text("Package Differ");
 }

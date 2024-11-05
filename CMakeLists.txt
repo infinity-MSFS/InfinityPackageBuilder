@@ -105,7 +105,10 @@ add_executable(InfinityPackageBuilder ${SRC_FILES} ${MICROXML_SOURCES} ${SOL_SOU
         src/Util/Error.hpp
         src/Util/LuaInterpreter.cpp
         src/Util/LuaInterpreter.hpp
-        src/Util/FunctionTraits.hpp)
+        src/Util/FunctionTraits.hpp
+        src/Components/ToggleButton/ToggleButton.hpp
+        src/Components/Background/Background.cpp
+        src/Components/Background/Background.hpp)
 
 target_sources(InfinityPackageBuilder PRIVATE ${IMGUI_SOURCES})
 target_include_directories(InfinityPackageBuilder PRIVATE ${VULKAN_SDK}/include)

@@ -359,13 +359,15 @@ namespace InfinityRenderer {
     WNDPROC originalWndProc = nullptr;
 
     LRESULT CALLBACK CustomWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+
+        auto specification = s_Instance->GetSpecifications();
         switch (message) {
             case WM_GETMINMAXINFO: {
                 MINMAXINFO *minMaxInfo = (MINMAXINFO *) lParam;
-                minMaxInfo->ptMaxTrackSize.x = 1920;
-                minMaxInfo->ptMaxTrackSize.y = 1080;
-                minMaxInfo->ptMinTrackSize.x = 500;
-                minMaxInfo->ptMinTrackSize.y = 300;
+                minMaxInfo->ptMaxTrackSize.x = specification.MaxWidth;
+                minMaxInfo->ptMaxTrackSize.y = specification.MaxHeight;
+                minMaxInfo->ptMinTrackSize.x = specification.MinWidth;
+                minMaxInfo->ptMinTrackSize.y = specification.MinHeight;
 
                 return 0;
             }
