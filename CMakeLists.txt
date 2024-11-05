@@ -25,6 +25,7 @@ file(GLOB_RECURSE SRC_FILES
         "dependencies/MicroXML/include/MicroXML/*.hpp"
         "dependencies/MicroXML/src/*.cpp"
 
+
 )
 
 set(IMGUI_SOURCES
@@ -65,11 +66,14 @@ include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/MicroXML/include
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/sol/include
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ImGuiColorTextEdit
         ${VULKAN_SD}/include
         ${IncludeDir.glm}
 )
 
 add_executable(InfinityPackageBuilder ${SRC_FILES} ${MICROXML_SOURCES} ${SOL_SOURCES}
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ImGuiColorTextEdit/TextEditor.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ImGuiColorTextEdit/TextEditor.h
         src/renderer/Layer.hpp
         src/renderer/buffer/buffer.hpp
         src/renderer/serialization/StreamWriter.cpp
@@ -106,7 +110,10 @@ add_executable(InfinityPackageBuilder ${SRC_FILES} ${MICROXML_SOURCES} ${SOL_SOU
         src/Pages/Settings/Settings.cpp
         src/Pages/Settings/Settings.hpp
         src/Pages/Page.hpp
-        src/Util/Error.hpp)
+        src/Util/Error.hpp
+        src/Util/LuaInterpreter.cpp
+        src/Util/LuaInterpreter.hpp
+        src/Util/FunctionTraits.hpp)
 
 target_sources(InfinityPackageBuilder PRIVATE ${IMGUI_SOURCES})
 target_include_directories(InfinityPackageBuilder PRIVATE ${VULKAN_SDK}/include)

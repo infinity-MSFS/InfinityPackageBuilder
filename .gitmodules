@@ -16,3 +16,6 @@
 [submodule "dependencies/Boxer"]
 	path = dependencies/Boxer
 	url = https://github.com/aaronmjacobs/Boxer.git
+[submodule "dependencies/ImGuiColorTextEdit"]
+	path = dependencies/ImGuiColorTextEdit
+	url = https://github.com/BalazsJako/ImGuiColorTextEdit.git

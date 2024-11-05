@@ -1,39 +1,42 @@
 
 #include "PackagePublisher.hpp"
 
+#include "Util/LuaInterpreter.hpp"
 #include "renderer/GUI/ApplicationGui.hpp"
 
 #include "sol/sol.hpp"
+#include "util/FunctionTraits.hpp"
+
+void greet(const std::string &name) { std::cout << "Hello " << name << "!" << std::endl; }
 
 
-PackagePublisher::PackagePublisher(const float padding_x, const float padding_y) : Page(padding_x, padding_y) {}
+PackagePublisher::PackagePublisher(const float padding_x, const float padding_y) : Page(padding_x, padding_y), m_LuaInterpreter("C:\\test\\script.lua" /*TODO: implement per project folder */) {
 
+    std::string greet_signature = get_function_signature<void, std::string>("greet");
+    m_LuaInterpreter.AddFunctionToLua("greet", greet, greet_signature);
+}
+using namespace InfinityPackageBuilder::Lua;
 void PackagePublisher::RenderPage() {
 
-    sol::state lua;
-    lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::table, sol::lib::math, sol::lib::io, sol::lib::os,
-                       sol::lib::debug);
-
-    static char tex[4096] = "";
 
     ImGui::SetCursorPos(ImVec2(300.0f, 100.0f));
+    m_LuaInterpreter.RenderCodebox();
+    ImGui::SetCursorPos(ImVec2(120.0f, 100.0f));
 
-    ImGui::InputTextMultiline("Lua Script", tex, sizeof(tex), ImVec2(400.0f, 600.0f));
-    ImGui::SetCursorPos(ImVec2(920.0f, 100.0f));
-    if (ImGui::Button("Exec")) {
-        try {
-            lua.script(tex);
-            // lua.script_file("C://test//script.lua");
-        } catch (const sol::error &e) {
-            std::cerr << "Lua error:" << e.what() << std::endl;
-        }
+    const char *button_label;
+
+    if (m_LuaInterpreter.GetLuaError().line_number != -1) {
+        button_label = "Error Running, Try again?";
+    } else {
+        button_label = "Run";
     }
-    ImGui::SetCursorPos(ImVec2(920.0f, 150.0f));
+
+    if (ImGui::Button(button_label)) {
+        m_LuaInterpreter.RunLua();
+    }
+
+    ImGui::SetCursorPos(ImVec2(120.0f, 150.0f));
     if (ImGui::Button("Paste from Clipboard")) {
-        const char *clipboard_text = ImGui::GetClipboardText();
-        strncpy_s(tex, clipboard_text, sizeof(tex) - 1);
-        tex[sizeof(tex) - 1] = '\0';
+        m_LuaInterpreter.Paste();
     }
-
-    ImGui::Text("PackagePublisher");
 }
