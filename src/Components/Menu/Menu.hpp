@@ -32,7 +32,7 @@ struct SettingsIconAnimationParams {
 
 class MenuUI {
 public:
-    static bool RenderSettingsIcon(ImVec2 pos, MenuManager::State state, bool reset_animation);
+    static bool RenderSettingsIcon(ImVec2 pos, MenuManager::State state);
     static float RenderSettingsMenu(MenuManager::State state);
 };
 
@@ -44,7 +44,7 @@ public:
         // blocking / overlapping. If used we should move to a shared memory space / global state
         [[maybe_unused]] float settings_pos_x = MenuUI::RenderSettingsMenu(MenuManager::getSate());
 
-        if (MenuUI::RenderSettingsIcon(ImVec2(10.0f, 50.0f), MenuManager::getSate(), false)) {
+        if (MenuUI::RenderSettingsIcon(ImVec2(10.0f, 50.0f), MenuManager::getSate())) {
             MenuManager::toggleState();
         }
     }

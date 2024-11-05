@@ -10,7 +10,7 @@
 void greet(const std::string &name) { std::cout << "Hello " << name << "!" << std::endl; }
 
 
-PackagePublisher::PackagePublisher(const float padding_x, const float padding_y) : Page(padding_x, padding_y), m_LuaInterpreter("C:\\test\\script.lua" /*TODO: implement per project folder */) {
+PackagePublisher::PackagePublisher(const float padding_x, const float padding_y, const char *lua_file_path) : Page(padding_x, padding_y), m_LuaInterpreter(lua_file_path) {
 
     std::string greet_signature = get_function_signature<void, std::string>("greet");
     m_LuaInterpreter.AddFunctionToLua("greet", greet, greet_signature);

@@ -31,19 +31,13 @@ namespace InfinityPackageParser {
 
         package_definition_parsed.asset_package.Version = asset_package[0]["Version"];
 
-        package_definition_parsed.asset_package.item_settings.ContentType =
-                asset_package("ItemSettings")("ContentType")[0].asString();
-        package_definition_parsed.asset_package.item_settings.Title =
-                asset_package("ItemSettings")("Title")[0].asString();
-        package_definition_parsed.asset_package.item_settings.Manufacturer =
-                asset_package("ItemSettings")("Manufacturer")[0].asString();
-        package_definition_parsed.asset_package.item_settings.Creator =
-                asset_package("ItemSettings")("Creator")[0].asString();
+        package_definition_parsed.asset_package.item_settings.ContentType = asset_package("ItemSettings")("ContentType")[0].asString();
+        package_definition_parsed.asset_package.item_settings.Title = asset_package("ItemSettings")("Title")[0].asString();
+        package_definition_parsed.asset_package.item_settings.Manufacturer = asset_package("ItemSettings")("Manufacturer")[0].asString();
+        package_definition_parsed.asset_package.item_settings.Creator = asset_package("ItemSettings")("Creator")[0].asString();
 
-        package_definition_parsed.asset_package.flags.VisibleInStore =
-                asset_package("Flags")("VisibleInStore")[0].asString();
-        package_definition_parsed.asset_package.flags.CanBeReferenced =
-                asset_package("Flags")("CanBeReferenced")[0].asString();
+        package_definition_parsed.asset_package.flags.VisibleInStore = asset_package("Flags")("VisibleInStore")[0].asString();
+        package_definition_parsed.asset_package.flags.CanBeReferenced = asset_package("Flags")("CanBeReferenced")[0].asString();
 
         for (auto asset_node: asset_package("AssetGroups")("AssetGroup")) {
             PackageTypes::PackageDefinitions::PackageDefinitionType::AssetPackage::AssetGroups::AssetGroup asset_group;
@@ -58,9 +52,8 @@ namespace InfinityPackageParser {
     }
 
     void PackageParser::ParseAircraftCFG() {
-        const mINI::INIFile file(
-                R"(C:\Users\Taco\Documents\Github\parserTester\aircraft.cfg)"); // needs a full path, we will build with
-                                                                                // a helper function
+        const mINI::INIFile file(R"(C:\Users\Taco\Documents\Github\parserTester\aircraft.cfg)"); // needs a full path, we will build with
+                                                                                                 // a helper function
 
         mINI::INIStructure ini;
         file.read(ini);

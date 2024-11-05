@@ -119,7 +119,6 @@ target_sources(InfinityPackageBuilder PRIVATE ${IMGUI_SOURCES})
 target_include_directories(InfinityPackageBuilder PRIVATE ${VULKAN_SDK}/include)
 
 add_subdirectory(dependencies/glfw)
-add_subdirectory(dependencies/yaml-cpp)
 add_subdirectory(dependencies/glm)
 add_subdirectory(dependencies/Boxer)
 
@@ -140,7 +139,7 @@ target_link_options(InfinityPackageBuilder PRIVATE
 )
 
 if (WIN32)
-    target_link_libraries(InfinityPackageBuilder ${VULKAN_SDK}/Lib/vulkan-1.lib glfw yaml-cpp Boxer ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/lua.lib)
+    target_link_libraries(InfinityPackageBuilder ${VULKAN_SDK}/Lib/vulkan-1.lib glfw Boxer ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/lua.lib)
 else ()
     target_link_libraries(InfinityPackageBuilder -L${VULKAN_SDK}/lib -lvulkan glfw Boxer ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/liblua.a)
 
