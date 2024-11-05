@@ -26,15 +26,15 @@ namespace InfinityRenderer::UI {
         colors[ImGuiCol_FrameBgActive] = ImColor(0, 0, 0);
 
         // Tabs
-        colors[ImGuiCol_Tab] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::titlebar);
+        colors[ImGuiCol_Tab] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::title_bar);
         colors[ImGuiCol_TabHovered] = ImColor(255, 225, 135, 30);
         colors[ImGuiCol_TabActive] = ImColor(255, 225, 135, 60);
-        colors[ImGuiCol_TabUnfocused] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::titlebar);
+        colors[ImGuiCol_TabUnfocused] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::title_bar);
         colors[ImGuiCol_TabUnfocusedActive] = colors[ImGuiCol_TabHovered];
 
         // Title
-        colors[ImGuiCol_TitleBg] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::titlebar);
-        colors[ImGuiCol_TitleBgActive] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::titlebar);
+        colors[ImGuiCol_TitleBg] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::title_bar);
+        colors[ImGuiCol_TitleBgActive] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::title_bar);
         colors[ImGuiCol_TitleBgCollapsed] = ImVec4{0.15f, 0.1505f, 0.151f, 1.0f};
 
         // Resize Grip

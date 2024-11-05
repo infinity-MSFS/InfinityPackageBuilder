@@ -5,8 +5,5 @@
     <mapping directory="$PROJECT_DIR$/dependencies/Boxer" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/dependencies/ImGuiColorTextEdit" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/dependencies/glfw" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/dependencies/glm" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/dependencies/minizip" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/dependencies/zlib" vcs="Git" />
   </component>
 </project>

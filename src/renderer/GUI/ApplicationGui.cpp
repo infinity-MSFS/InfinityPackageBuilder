@@ -587,7 +587,7 @@ namespace InfinityRenderer {
         const ImVec2 titlebarMax = {ImGui::GetCursorScreenPos().x + ImGui::GetWindowWidth() - windowPadding.y * 2.0f, ImGui::GetCursorScreenPos().y + titlebarHeight};
         auto *bgDrawList = ImGui::GetBackgroundDrawList();
         auto *fgDrawList = ImGui::GetForegroundDrawList();
-        bgDrawList->AddRectFilled(titlebarMin, titlebarMax, UI::Colors::Theme::titlebar);
+        bgDrawList->AddRectFilled(titlebarMin, titlebarMax, UI::Colors::Theme::title_bar);
 
         // fgDrawList->AddRect(titlebarMin, titlebarMax, UI::Colors::Theme::invalidPrefab);
         fgDrawList->AddRectFilled(titlebarMin, titlebarMax, ImColor(0.0f, 0.0f, 0.0f, 0.2f));
