@@ -3,9 +3,10 @@
 
 #include "renderer/buffer/Buffer.hpp"
 
-#include <string>
 #include <map>
+#include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace InfinityRenderer {
     class StreamWriter {
@@ -14,7 +15,7 @@ namespace InfinityRenderer {
 
         [[nodiscard]] virtual bool IsStreamGood() const = 0;
 
-        virtual uint64_t GetStreamPosition() =0;
+        virtual uint64_t GetStreamPosition() = 0;
 
         virtual void SetStreamPosition(uint64_t position) = 0;
 
@@ -104,8 +105,9 @@ namespace InfinityRenderer {
                     WriteObject<T>(element);
             }
         }
-
-        template<>
+#ifdef _MSC_VER
+        template<> // Only MSVC supports empty templates
+#endif
         void WriteArray(const std::vector<std::string> &array, const bool writeSize) {
             if (writeSize)
                 WriteRaw<uint32_t>(static_cast<uint32_t>(array.size()));
@@ -114,5 +116,4 @@ namespace InfinityRenderer {
                 WriteString(element);
         }
     };
-}
-
+} // namespace InfinityRenderer

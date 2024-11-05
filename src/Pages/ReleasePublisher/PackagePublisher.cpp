@@ -6,7 +6,7 @@
 #include "renderer/GUI/ApplicationGui.hpp"
 
 #include "sol/sol.hpp"
-#include "util/FunctionTraits.hpp"
+#include "Util/FunctionTraits.hpp"
 
 void greet(const std::string &name) { std::cout << "Hello " << name << "!" << std::endl; }
 

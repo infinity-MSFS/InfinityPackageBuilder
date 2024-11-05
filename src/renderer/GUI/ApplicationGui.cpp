@@ -1,7 +1,10 @@
 #define GLFW_INCLUDE_NONE
 #define GLFW_INCLUDE_VULKAN
+#ifdef WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
-
+#else
+#define GLFW_EXPOSE_NATIVE_WAYLAND
+#endif
 #include "ApplicationGui.hpp"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_vulkan.h"
@@ -11,9 +14,10 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
-#include <glfw/glfw3.h>
-#include <glfw/glfw3native.h>
+#include <thread>
 #include <vulkan/vulkan.h>
+#include "GLFW/glfw3.h"
+#include "GLFW/glfw3native.h"
 
 #include "stb_image/stb_image.h"
 
@@ -356,6 +360,8 @@ namespace InfinityRenderer {
 
     std::optional<Application *> Application::Get() { return s_Instance; }
 
+
+#ifdef WIN32
     WNDPROC originalWndProc = nullptr;
 
     LRESULT CALLBACK CustomWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -386,7 +392,7 @@ namespace InfinityRenderer {
         HWND hwnd = glfwGetWin32Window(window);
         originalWndProc = (WNDPROC) SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR) CustomWindowProc);
     }
-
+#endif
     void Application::Init() {
         glfwSetErrorCallback(glfw_error_callback);
         if (!glfwInit()) {
@@ -406,11 +412,19 @@ namespace InfinityRenderer {
         int monitorX, monitorY;
         glfwGetMonitorPos(primaryMonitor, &monitorX, &monitorY);
 
+
         m_WindowHandle = glfwCreateWindow(m_Specification.Width, m_Specification.Height, m_Specification.Name.c_str(), NULL, NULL);
 
 
+#ifdef __linux__
+        glfwSetWindowSizeLimits(m_WindowHandle, m_Specification.MinWidth, m_Specification.MinHeight, m_Specification.MaxWidth, m_Specification.MaxHeight);
+#endif
+
+#ifdef WIN32
         SubClassGLFWWindow(m_WindowHandle);
+#endif
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+
 
         if (m_Specification.CenterWindow) {
             glfwSetWindowPos(m_WindowHandle, monitorX + (videoMode->width - m_Specification.Width) / 2, monitorY + (videoMode->height - m_Specification.Height) / 2);
@@ -822,7 +836,11 @@ namespace InfinityRenderer {
 
             float time = GetTime();
             m_FrameTime = time - m_LastFrameTime;
+#ifdef WIN32
             m_TimeStep = min(m_FrameTime, 0.0333f);
+#else
+            m_TimeStep = std::min(m_FrameTime, 0.0333f);
+#endif
             m_LastFrameTime = time;
 
             double endTime = glfwGetTime();

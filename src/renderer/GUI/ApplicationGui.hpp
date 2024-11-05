@@ -2,7 +2,7 @@
 #pragma once
 
 #include "ImGuiTheme/ImGuiTheme.hpp"
-#include "renderer/GUI/UI/UI.hpp"
+#include "renderer/GUI/UI/Ui.hpp"
 #include "renderer/Layer.hpp"
 #include "renderer/image/Image.hpp"
 

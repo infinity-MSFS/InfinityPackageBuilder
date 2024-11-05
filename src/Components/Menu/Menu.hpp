@@ -44,8 +44,14 @@ public:
         // blocking / overlapping. If used we should move to a shared memory space / global state
         [[maybe_unused]] float settings_pos_x = MenuUI::RenderSettingsMenu(MenuManager::getSate());
 
+#ifdef WIN32
         if (MenuUI::RenderSettingsIcon(ImVec2(10.0f, 50.0f), MenuManager::getSate())) {
             MenuManager::toggleState();
         }
+#else
+        if (MenuUI::RenderSettingsIcon(ImVec2(10.0f, 10.0f), MenuManager::getSate())) {
+            MenuManager::toggleState();
+        }
+#endif
     }
 };

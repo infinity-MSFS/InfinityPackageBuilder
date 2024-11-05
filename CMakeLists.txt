@@ -4,6 +4,13 @@ project(InfinityPackageBuilder)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+message(STATUS "Compiler: ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
+
+if (NOT WIN32)
+    message(WARNING "The Package Builder functionality is only available on Windows. This will create a build that omits its functionality.")
+endif ()
+
 if (DEFINED ENV{VULKAN_SDK})
     message(STATUS "VULKAN_SDK is set to: $ENV{VULKAN_SDK}")
 else ()
@@ -67,7 +74,7 @@ add_executable(InfinityPackageBuilder ${SRC_FILES} ${MICROXML_SOURCES} ${SOL_SOU
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ImGuiColorTextEdit/TextEditor.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ImGuiColorTextEdit/TextEditor.h
         src/renderer/Layer.hpp
-        src/renderer/buffer/buffer.hpp
+        src/renderer/buffer/Buffer.hpp
         src/renderer/serialization/StreamWriter.cpp
         src/renderer/serialization/StreamWriter.hpp
         src/renderer/serialization/StreamReader.cpp
@@ -127,10 +134,13 @@ target_compile_definitions(InfinityPackageBuilder PRIVATE
         $<$<CONFIG:Release>:RELEASE_DIST>
 )
 
-target_link_options(InfinityPackageBuilder PRIVATE
-        $<$<CONFIG:Release>:/SUBSYSTEM:WINDOWS>
-        $<$<NOT:$<CONFIG:Release>>:/SUBSYSTEM:CONSOLE>
-)
+if (WIN32)
+    target_link_options(InfinityPackageBuilder PRIVATE
+            $<$<CONFIG:Release>:/SUBSYSTEM:WINDOWS>
+            $<$<NOT:$<CONFIG:Release>>:/SUBSYSTEM:CONSOLE>
+    )
+endif ()
+
 
 if (WIN32)
     target_link_libraries(InfinityPackageBuilder ${VULKAN_SDK}/Lib/vulkan-1.lib glfw Boxer ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/lua.lib)

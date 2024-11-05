@@ -3,6 +3,8 @@
 
 #include <memory>
 #include <string>
+#include <cstring>
+
 
 namespace InfinityRenderer {
     struct Buffer {

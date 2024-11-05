@@ -50,12 +50,20 @@ float MenuUI::RenderSettingsMenu(const MenuManager::State state) {
                 settings_menu_x += delta;
             }
         }
+#ifdef WIN32
         ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(-10.0f, 40.0f), ImVec2(settings_menu_x, ImGui::GetWindowHeight()), ImColor(15.0f / 255.0f, 15.0f / 255.0f, 15.0f / 255.0f, 0.75f), 0.0f);
-
         const auto text_size = ImGui::CalcTextSize("Tools").x / 2;
         ImGui::SetCursorPos(ImVec2(settings_menu_x - 202.5f - text_size, 60.0f));
         ImGui::Text("Tools");
         ImGui::GetWindowDrawList()->AddLine(ImVec2(settings_menu_x - 395.0f, 100.0f), ImVec2(settings_menu_x - 10.0f, 100.0f), ImColor(1.0f, 1.0f, 1.0f, 1.0f), 2.0f);
+#else
+        ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(-10.0f, 0.0f), ImVec2(settings_menu_x, ImGui::GetWindowHeight()), ImColor(15.0f / 255.0f, 15.0f / 255.0f, 15.0f / 255.0f, 0.75f), 0.0f);
+        const auto text_size = ImGui::CalcTextSize("Tools").x / 2;
+        ImGui::SetCursorPos(ImVec2(settings_menu_x - 202.5f - text_size, 20.0f));
+        ImGui::Text("Tools");
+        ImGui::GetWindowDrawList()->AddLine(ImVec2(settings_menu_x - 395.0f, 60.0f), ImVec2(settings_menu_x - 10.0f, 60.0f), ImColor(1.0f, 1.0f, 1.0f, 1.0f), 2.0f);
+#endif
+
 
 #ifdef WIN32
         ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 110.0f));
@@ -90,25 +98,25 @@ float MenuUI::RenderSettingsMenu(const MenuManager::State state) {
             }
         }
 #else
-        ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 110.0f));
+        ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 70.0f));
         if (ImGui::Button("Package Differ")) {
             if (auto result = static_cast<Router *>(*router)->setPage(0); !result) {
                 InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
             }
         }
-        ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 160.0f));
+        ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 120.0f));
         if (ImGui::Button("Release Publisher")) {
             if (auto result = static_cast<Router *>(*router)->setPage(1); !result) {
                 InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
             }
         }
-        ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 210.0f));
+        ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 170.0f));
         if (ImGui::Button("Launcher JSON Manager")) {
             if (auto result = static_cast<Router *>(*router)->setPage(2); !result) {
                 InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
             }
         }
-        ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 260.0f));
+        ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 220.0f));
         if (ImGui::Button("Settings")) {
             if (auto result = static_cast<Router *>(*router)->setPage(3); !result) {
                 InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());

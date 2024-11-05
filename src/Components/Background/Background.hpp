@@ -2,8 +2,11 @@
 #pragma once
 
 
+#include <cmath>
+#include <string>
 #include "imgui.h"
 #include "vector"
+
 
 static std::vector<ImVec2> m_circlePos;
 

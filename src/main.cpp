@@ -31,7 +31,21 @@ public:
 
 InfinityRenderer::Application *InfinityRenderer::CreateApplication(int argc, char **argv) {
     const std::filesystem::path path = "Resources/Images/Logo.h";
-    const ApplicationSpecifications spec = {"Infinity Package Manager", 1440, 1026, 2560, 1440, 1240, 680, path, true, true, true};
+    const ApplicationSpecifications spec = {"Infinity Package Manager",
+                                            1440,
+                                            1026,
+                                            2560,
+                                            1440,
+                                            1240,
+                                            680,
+                                            path,
+                                            true,
+#ifdef WIN32
+                                            true,
+#else
+                                            false,
+#endif
+                                            true};
 
     const auto app = new Application(spec);
     app->PushLayer<PageRenderLayer>();
@@ -79,7 +93,9 @@ namespace InfinityRenderer {
             delete app;
             g_ApplicationRunning = false;
         }
+#ifdef WIN32
         delete package_builder;
+#endif
         delete package_differ;
         delete release_publisher;
         delete launcher_json_manager;
