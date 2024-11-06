@@ -12,13 +12,13 @@
 #include "backends/imgui_impl_vulkan.h"
 #include "imgui_internal.h"
 
-
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <thread>
 #include <vulkan/vulkan.h>
 #include "GLFW/glfw3.h"
+#include "GLFW/glfw3native.h"
 
 #include "stb_image/stb_image.h"
 
