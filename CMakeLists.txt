@@ -6,9 +6,33 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 message(STATUS "Compiler: ${CMAKE_CXX_COMPILER_ID}")
 message(STATUS "Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
+option(INFINITY_USE_X11 "Build for X11" OFF)
+option(INFINITY_USE_WAYLAND "Build for Wayland" OFF)
 
-if (NOT WIN32)
+if (WIN32)
+    message(STATUS "Detected Windows")
+    add_compile_definitions(INFINITY_WINDOWS)
+elseif (UNIX)
     message(WARNING "The Package Builder functionality is only available on Windows. This will create a build that omits its functionality.")
+
+    message(STATUS "INFINITY_USE_X11 is: ${INFINITY_USE_X11}")
+    message(STATUS "INFINITY_USE_WAYLAND is: ${INFINITY_USE_WAYLAND}")
+
+    if (INFINITY_USE_X11 AND INFINITY_USE_WAYLAND)
+        message(FATAL_ERROR "Cannot build for both X11 and Wayland. Only one can be selected.")
+    elseif (NOT INFINITY_USE_X11 AND NOT INFINITY_USE_WAYLAND)
+        message(FATAL_ERROR "Must select either X11 or Wayland. Use -DINFINITY_USE_X11=ON -DINFINITY_USE_WAYLAND=OFF or -DINFINITY_USE_X11=OFF -DINFINITY_USE_WAYLAND=ON for Linux build.")
+    endif ()
+
+    if (INFINITY_USE_X11)
+        message(STATUS "Detected Linux with X11")
+        add_compile_definitions(INFINITY_X11)
+    elseif (INFINITY_USE_WAYLAND)
+        message(STATUS "Detected Linux with Wayland")
+        add_compile_definitions(INFINITY_WAYLAND)
+    endif ()
+else ()
+    message(FATAL_ERROR "Unsupported OS")
 endif ()
 
 if (DEFINED ENV{VULKAN_SDK})
@@ -115,7 +139,9 @@ add_executable(InfinityPackageBuilder ${SRC_FILES} ${MICROXML_SOURCES} ${SOL_SOU
         src/Util/FunctionTraits.hpp
         src/Components/ToggleButton/ToggleButton.hpp
         src/Components/Background/Background.cpp
-        src/Components/Background/Background.hpp)
+        src/Components/Background/Background.hpp
+        src/Components/Buttons/MenuButton.cpp
+        src/Components/Buttons/MenuButton.hpp)
 
 target_sources(InfinityPackageBuilder PRIVATE ${IMGUI_SOURCES})
 target_include_directories(InfinityPackageBuilder PRIVATE ${VULKAN_SDK}/include)

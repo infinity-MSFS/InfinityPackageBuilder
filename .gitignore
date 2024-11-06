@@ -1,4 +1,6 @@
 cmake-build-debug
 cmake-build-release
 bin
+cmake-build-debug-x11
+cmake-build-release-x11
 build

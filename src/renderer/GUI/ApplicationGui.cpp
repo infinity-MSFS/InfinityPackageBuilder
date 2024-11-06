@@ -1,9 +1,11 @@
 #define GLFW_INCLUDE_NONE
 #define GLFW_INCLUDE_VULKAN
-#ifdef WIN32
+#ifdef INFINITY_WINDOWS
 #define GLFW_EXPOSE_NATIVE_WIN32
-#else
+#elif INFINITY_WAYLAND
 #define GLFW_EXPOSE_NATIVE_WAYLAND
+#elif INFINITY_X11
+#define GLFW_EXPOSE_NATIVE_X11
 #endif
 #include "ApplicationGui.hpp"
 #include "backends/imgui_impl_glfw.h"
@@ -17,11 +19,11 @@
 #include <thread>
 #include <vulkan/vulkan.h>
 #include "GLFW/glfw3.h"
-#include "GLFW/glfw3native.h"
 
 #include "stb_image/stb_image.h"
 
 #include <iostream>
+#include <utility>
 
 extern bool g_ApplicationRunning;
 
@@ -58,6 +60,8 @@ static InfinityRenderer::Application *s_Instance = nullptr;
 
 constexpr int FPS_CAP = 144;
 constexpr double FRAME_DURATION = 1.0 / FPS_CAP;
+
+GLFWwindow *InfinityRenderer::Application::s_WindowHandle = nullptr;
 
 
 void check_vk_result(VkResult err) {
@@ -124,11 +128,11 @@ static void SetupVulkan(const char **extensions, uint32_t extensions_count) {
     }
     {
         uint32_t gpu_count;
-        err = vkEnumeratePhysicalDevices(g_Instance, &gpu_count, NULL);
+        err = vkEnumeratePhysicalDevices(g_Instance, &gpu_count, nullptr);
         check_vk_result(err);
         IM_ASSERT(gpu_count > 0);
 
-        VkPhysicalDevice *gpus = (VkPhysicalDevice *) malloc(sizeof(VkPhysicalDevice) * gpu_count);
+        auto *gpus = (VkPhysicalDevice *) malloc(sizeof(VkPhysicalDevice) * gpu_count);
         err = vkEnumeratePhysicalDevices(g_Instance, &gpu_count, gpus);
         check_vk_result(err);
 
@@ -147,8 +151,8 @@ static void SetupVulkan(const char **extensions, uint32_t extensions_count) {
     }
     {
         uint32_t count;
-        vkGetPhysicalDeviceQueueFamilyProperties(g_PhysicalDevice, &count, NULL);
-        VkQueueFamilyProperties *queues = (VkQueueFamilyProperties *) malloc(sizeof(VkQueueFamilyProperties) * count);
+        vkGetPhysicalDeviceQueueFamilyProperties(g_PhysicalDevice, &count, nullptr);
+        auto *queues = (VkQueueFamilyProperties *) malloc(sizeof(VkQueueFamilyProperties) * count);
         vkGetPhysicalDeviceQueueFamilyProperties(g_PhysicalDevice, &count, queues);
         for (uint32_t i = 0; i < count; i++)
             if (queues[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
@@ -269,7 +273,7 @@ static void FrameRender(ImGui_ImplVulkanH_Window *wd, ImDrawData *draw_data) {
     }
     {
         auto &allocatedCommandBuffers = s_AllocatedCommandBuffers[wd->FrameIndex];
-        if (allocatedCommandBuffers.size() > 0) {
+        if (!allocatedCommandBuffers.empty()) {
             vkFreeCommandBuffers(g_Device, fd->CommandPool, (uint32_t) allocatedCommandBuffers.size(), allocatedCommandBuffers.data());
             allocatedCommandBuffers.clear();
         }
@@ -346,7 +350,7 @@ static void glfw_error_callback(int error, const char *description) { fprintf(st
 #include "Resources/Images/windowIcons.h"
 
 namespace InfinityRenderer {
-    Application::Application(const ApplicationSpecifications &applicationSpecification) : m_Specification(applicationSpecification) {
+    Application::Application(ApplicationSpecifications applicationSpecification) : m_Specification(std::move(applicationSpecification)) {
         s_Instance = this;
 
         Init();
@@ -413,14 +417,16 @@ namespace InfinityRenderer {
         glfwGetMonitorPos(primaryMonitor, &monitorX, &monitorY);
 
 
-        m_WindowHandle = glfwCreateWindow(m_Specification.Width, m_Specification.Height, m_Specification.Name.c_str(), NULL, NULL);
+        m_WindowHandle = glfwCreateWindow(m_Specification.Width, m_Specification.Height, m_Specification.Name.c_str(), nullptr, nullptr);
+
+        s_WindowHandle = m_WindowHandle;
 
 
-#ifdef __linux__
+#if defined(INFINITY_X11) || defined(INFINITY_WAYLAND)
         glfwSetWindowSizeLimits(m_WindowHandle, m_Specification.MinWidth, m_Specification.MinHeight, m_Specification.MaxWidth, m_Specification.MaxHeight);
 #endif
 
-#ifdef WIN32
+#ifdef INFINITY_WINDOWS
         SubClassGLFWWindow(m_WindowHandle);
 #endif
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
@@ -441,7 +447,7 @@ namespace InfinityRenderer {
 
         glfwSetWindowUserPointer(m_WindowHandle, this);
         glfwSetTitlebarHitTestCallback(m_WindowHandle, [](GLFWwindow *window, int x, int y, int *hit) {
-            Application *app = (Application *) glfwGetWindowUserPointer(window);
+            auto *app = (Application *) glfwGetWindowUserPointer(window);
             *hit = app->IsTitleBarHovered();
         });
 
@@ -663,8 +669,7 @@ namespace InfinityRenderer {
         ImGui::Spring();
         UI::ShiftCursorY(8.0f);
         {
-            const int iconWidth = m_IconMinimize->GetWidth();
-            const int iconHeight = m_IconMinimize->GetHeight();
+            const int iconHeight = static_cast<int>(m_IconMinimize->GetHeight());
             const float padY = (buttonHeight - (float) iconHeight) / 2.0f;
             if (ImGui::InvisibleButton("Minimize", ImVec2(buttonWidth, buttonHeight))) {
                 if (m_WindowHandle) {
@@ -680,8 +685,6 @@ namespace InfinityRenderer {
         ImGui::Spring(-1.0f, 15.0f);
         UI::ShiftCursorY(8.0f);
         {
-            const int iconWidth = m_IconClose->GetWidth();
-            const int iconHeight = m_IconClose->GetHeight();
             if (ImGui::InvisibleButton("Close", ImVec2(buttonWidth, buttonHeight))) {
                 if (const auto application = Get(); application.has_value()) {
                     static_cast<Application *>(*application)->Close();
@@ -721,9 +724,9 @@ namespace InfinityRenderer {
 
     void Application::SetWindowIcon(GLFWwindow *window, const unsigned char *data, int size) {
         GLFWimage images[1];
-        images[0].pixels = stbi_load_from_memory(data, size, &images[0].width, &images[0].height, 0, 4);
+        images[0].pixels = stbi_load_from_memory(data, size, &images[0].width, &images[0].height, nullptr, 4);
 
-        if (images[0].pixels == NULL) {
+        if (images[0].pixels == nullptr) {
             fprintf(stderr, "Failed to load image from memory\n");
             return;
         }
@@ -748,7 +751,7 @@ namespace InfinityRenderer {
             {
                 std::scoped_lock<std::mutex> lock(m_EventQueueMutex);
 
-                while (m_EventQueue.size() > 0) {
+                while (!m_EventQueue.empty()) {
                     auto &func = m_EventQueue.front();
                     func();
                     m_EventQueue.pop();
@@ -793,7 +796,6 @@ namespace InfinityRenderer {
                 if (!m_Specification.CustomTitlebar && m_MenubarCallback)
                     window_flags |= ImGuiWindowFlags_MenuBar;
 
-                const bool isMaximized = IsMaximized();
 
                 ImGui::Begin("DockSpaceWindow", nullptr, window_flags);
                 if (m_Specification.CustomTitlebar) {
@@ -831,12 +833,15 @@ namespace InfinityRenderer {
 
             if (!main_is_minimized)
                 FramePresent(wd);
-            else
-                std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            else {
+                using namespace std::chrono_literals;
+                std::this_thread::sleep_for(5ms);
+            }
+
 
             float time = GetTime();
             m_FrameTime = time - m_LastFrameTime;
-#ifdef WIN32
+#ifdef INFINITY_WINDOWS
             m_TimeStep = min(m_FrameTime, 0.0333f);
 #else
             m_TimeStep = std::min(m_FrameTime, 0.0333f);
@@ -867,7 +872,6 @@ namespace InfinityRenderer {
     VkCommandBuffer Application::GetCommandBuffer(bool begin) {
         ImGui_ImplVulkanH_Window *wd = &g_MainWindowData;
 
-        // Use any command queue
         VkCommandPool command_pool = wd->Frames[wd->FrameIndex].CommandPool;
 
         VkCommandBufferAllocateInfo cmdBufAllocateInfo = {};
@@ -922,5 +926,11 @@ namespace InfinityRenderer {
             return nullptr;
 
         return s_Fonts.at(name);
+    }
+    void Application::SetWindowTitle(const std::string &title) {
+        if (s_WindowHandle != nullptr) {
+            const std::string title_full = "Infinity Package Manager - " + title;
+            glfwSetWindowTitle(s_WindowHandle, title_full.c_str());
+        }
     }
 } // namespace InfinityRenderer

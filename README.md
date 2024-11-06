@@ -60,6 +60,10 @@ Ensure you have the following prerequisites:
 - **Vulkan SDK** (version X.X or later) **You must set the environment variable `VULKAN_SDK` to your vulkan SDK path**
 - **CMake** (minimum version 3.28)
 
+#### Linux
+
+- Pass either `-DINFINITY_USE_X11=ON -DINFINITY_USE_WAYLAND=OFF` or `-DINFINITY_USE_X11=OFF -DINFINITY_USE_WAYLAND=ON` for Linux build.`
+
 ### Running
 
 - Prebuilt binary if not building from source

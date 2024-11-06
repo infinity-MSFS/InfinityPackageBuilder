@@ -43,7 +43,7 @@ namespace InfinityRenderer {
 
     class Application {
     public:
-        explicit Application(const ApplicationSpecifications &applicationSpecification);
+        explicit Application(ApplicationSpecifications applicationSpecification);
 
         ~Application();
 
@@ -72,7 +72,7 @@ namespace InfinityRenderer {
 
         [[nodiscard]] std::shared_ptr<Image> GetApplicationIcon() const { return m_AppHeaderIcon; }
 
-        float GetTime();
+        static float GetTime();
 
         [[nodiscard]] GLFWwindow *GetWindowHandle() const { return m_WindowHandle; }
         [[nodiscard]] bool IsTitleBarHovered() const { return m_TitleBarHovered; }
@@ -96,20 +96,28 @@ namespace InfinityRenderer {
             m_EventQueue.push(func);
         }
 
+
+        static void SetWindowTitle(const std::string &title);
+
+
+        static GLFWwindow *s_WindowHandle;
+
     private:
         void Init();
 
         void Shutdown();
 
-        void SetWindowIcon(GLFWwindow *window, const unsigned char *data, int size);
+        static void SetWindowIcon(GLFWwindow *window, const unsigned char *data, int size);
 
         void UI_DrawTitlebar(float &outTitlebarHeight);
 
         void UI_DrawMenubar();
 
+
     private:
         ApplicationSpecifications m_Specification;
         GLFWwindow *m_WindowHandle = nullptr;
+
         bool m_Running = false;
 
         float m_TimeStep = 0.0f;

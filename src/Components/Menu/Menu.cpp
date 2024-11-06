@@ -70,24 +70,32 @@ float MenuUI::RenderSettingsMenu(const MenuManager::State state) {
         if (ImGui::Button("Package Builder")) {
             if (auto result = static_cast<Router *>(*router)->setPage(0); !result) {
                 InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
+            } else {
+                InfinityRenderer::Application::SetWindowTitle("Package Builder");
             }
         }
         ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 160.0f));
         if (ImGui::Button("Package Differ")) {
             if (auto result = static_cast<Router *>(*router)->setPage(1); !result) {
                 InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
+            } else {
+                InfinityRenderer::Application::SetWindowTitle("Package Differ");
             }
         }
         ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 210.0f));
         if (ImGui::Button("Release Publisher")) {
             if (auto result = static_cast<Router *>(*router)->setPage(2); !result) {
                 InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
+            } else {
+                InfinityRenderer::Application::SetWindowTitle("Release Publisher");
             }
         }
         ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 260.0f));
         if (ImGui::Button("Launcher JSON Manager")) {
             if (auto result = static_cast<Router *>(*router)->setPage(3); !result) {
                 InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
+            } else {
+                InfinityRenderer::Application::SetWindowTitle("Launcher JSON Manager");
             }
         }
 
@@ -95,6 +103,8 @@ float MenuUI::RenderSettingsMenu(const MenuManager::State state) {
         if (ImGui::Button("Settings")) {
             if (auto result = static_cast<Router *>(*router)->setPage(4); !result) {
                 InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
+            } else {
+                InfinityRenderer::Application::SetWindowTitle("Settings");
             }
         }
 #else
@@ -102,24 +112,32 @@ float MenuUI::RenderSettingsMenu(const MenuManager::State state) {
         if (ImGui::Button("Package Differ")) {
             if (auto result = static_cast<Router *>(*router)->setPage(0); !result) {
                 InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
+            } else {
+                InfinityRenderer::Application::SetWindowTitle("Package Differ");
             }
         }
         ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 120.0f));
         if (ImGui::Button("Release Publisher")) {
             if (auto result = static_cast<Router *>(*router)->setPage(1); !result) {
                 InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
+            } else {
+                InfinityRenderer::Application::SetWindowTitle("Release Publisher");
             }
         }
         ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 170.0f));
         if (ImGui::Button("Launcher JSON Manager")) {
             if (auto result = static_cast<Router *>(*router)->setPage(2); !result) {
                 InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
+            } else {
+                InfinityRenderer::Application::SetWindowTitle("Launcher JSON Manager");
             }
         }
         ImGui::SetCursorPos(ImVec2(settings_menu_x - 230.0f, 220.0f));
         if (ImGui::Button("Settings")) {
             if (auto result = static_cast<Router *>(*router)->setPage(3); !result) {
                 InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
+            } else {
+                InfinityRenderer::Application::SetWindowTitle("Settings");
             }
         }
 

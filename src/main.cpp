@@ -26,6 +26,14 @@ public:
             std::cerr << "PageRenderLayer: Cannot obtain router instance" << std::endl;
         }
     }
+
+    void OnAttach() override {
+#ifdef WIN32
+        InfinityRenderer::Application::SetWindowTitle("Package Builder");
+#else
+        InfinityRenderer::Application::SetWindowTitle("Package Differ");
+#endif
+    }
 };
 
 
@@ -80,6 +88,7 @@ namespace InfinityRenderer {
                                                                       {2, [release_publisher]() { release_publisher->RenderPage(); }},
                                                                       {3, [launcher_json_manager]() { launcher_json_manager->RenderPage(); }},
                                                                       {4, [settings]() { settings->RenderPage(); }}};
+
 #else
         const std::unordered_map<int, std::function<void()>> pages = {{0, [package_differ]() { package_differ->RenderPage(); }},
                                                                       {1, [release_publisher]() { release_publisher->RenderPage(); }},
