@@ -54,6 +54,9 @@ function(check_and_init_submodule submodule_path submodule_name)
     endif ()
 endfunction()
 
+find_package(CURL REQUIRED)
+
+
 check_and_init_submodule("dependencies/glfw" "GLFW")
 check_and_init_submodule("dependencies/Boxer" "Boxer")
 check_and_init_submodule("dependencies/ImGuiColorTextEdit" "ImGuiColorTextEdit")
@@ -135,12 +138,16 @@ include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/sol/include
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/include
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ImGuiColorTextEdit
-        ${VULKAN_SD}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/json/include
+        ${VULKAN_SDK}/include
+
 )
 
 add_executable(InfinityPackageBuilder ${SRC_FILES} ${MICROXML_SOURCES} ${SOL_SOURCES}
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ImGuiColorTextEdit/TextEditor.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ImGuiColorTextEdit/TextEditor.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/json/include/nlohmann/json.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/json/include/nlohmann/json_fwd.hpp
         src/renderer/Layer.hpp
         src/renderer/buffer/Buffer.hpp
         src/renderer/serialization/StreamWriter.cpp
@@ -187,6 +194,10 @@ add_executable(InfinityPackageBuilder ${SRC_FILES} ${MICROXML_SOURCES} ${SOL_SOU
         src/Components/Buttons/MenuButton.cpp
         src/Components/Buttons/MenuButton.hpp
         src/renderer/GUI/Vulkan/Vulkan.hpp
+        src/Util/GithubRelease.cpp
+        src/Util/GithubRelease.hpp
+        src/Util/GithubOAuth.cpp
+        src/Util/GithubOAuth.hpp
 )
 
 target_sources(InfinityPackageBuilder PRIVATE ${IMGUI_SOURCES})
@@ -213,11 +224,10 @@ if (WIN32)
     )
 endif ()
 
-
 if (WIN32)
-    target_link_libraries(InfinityPackageBuilder ${VULKAN_SDK}/Lib/vulkan-1.lib glfw Boxer ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/lua.lib)
+    target_link_libraries(InfinityPackageBuilder PRIVATE ${VULKAN_SDK}/Lib/vulkan-1.lib glfw Boxer ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/lua.lib CURL::libcurl)
 else ()
-    target_link_libraries(InfinityPackageBuilder -L${VULKAN_SDK}/lib -lvulkan glfw Boxer ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/liblua.a)
+    target_link_libraries(InfinityPackageBuilder PRIVATE -L${VULKAN_SDK}/lib -lvulkan glfw Boxer ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/liblua.a CURL::libcurl)
 
     add_custom_command(TARGET InfinityPackageBuilder POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy

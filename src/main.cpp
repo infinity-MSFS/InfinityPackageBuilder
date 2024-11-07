@@ -27,13 +27,7 @@ public:
         }
     }
 
-    void OnAttach() override {
-#ifdef WIN32
-        InfinityRenderer::Application::SetWindowTitle("Package Builder");
-#else
-        InfinityRenderer::Application::SetWindowTitle("Package Differ");
-#endif
-    }
+    void OnAttach() override { InfinityRenderer::Application::SetWindowTitle(std::get<0>(buttons.front())); }
 };
 
 

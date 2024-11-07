@@ -232,6 +232,19 @@ namespace InfinityRenderer {
             uint32_t w3, h3;
             void *data = Image::Decode(g_InfinityIcon, sizeof(g_InfinityIcon), w3, h3);
             m_AppHeaderIcon = std::make_shared<Image>(w3, h3, ImageFormat::RGBA, data);
+            free(data);
+        }
+        {
+            uint32_t w4, h4;
+            void *data = Image::Decode(g_WindowMaximizeIcon, sizeof(g_WindowMaximizeIcon), w4, h4);
+            m_IconMaximize = std::make_shared<Image>(w4, h4, ImageFormat::RGBA, data);
+            free(data);
+        }
+        {
+            uint32_t w5, h5;
+            void *data = Image::Decode(g_WindowRestoreIcon, sizeof(g_WindowRestoreIcon), w5, h5);
+            m_IconRestore = std::make_shared<Image>(w5, h5, ImageFormat::RGBA, data);
+            free(data);
         }
     }
 
@@ -336,12 +349,33 @@ namespace InfinityRenderer {
             if (ImGui::InvisibleButton("Minimize", ImVec2(buttonWidth, buttonHeight))) {
                 if (m_WindowHandle) {
                     if (const auto application = Get(); application.has_value()) {
-                        static_cast<Application *>(*application)->QueueEvent([windowHandle = m_WindowHandle]() { glfwIconifyWindow(windowHandle); });
+                        (*application)->QueueEvent([windowHandle = m_WindowHandle]() { glfwIconifyWindow(windowHandle); });
                     }
                 }
             }
 
             UI::DrawButtonImage(m_IconMinimize, buttonColN, buttonColH, buttonColP, UI::RectExpanded(UI::GetItemRect(), 0.0f, -padY));
+        }
+
+        ImGui::Spring(-1.0f, 17.0f);
+        UI::ShiftCursorY(8.0f);
+        {
+
+
+            const bool isMaximized = IsMaximized();
+
+            if (ImGui::InvisibleButton("Maximize", ImVec2(buttonWidth, buttonHeight))) {
+                if (const auto application = Get(); application.has_value()) {
+                    (*application)->QueueEvent([isMaximized, windowHandle = m_WindowHandle]() {
+                        if (isMaximized)
+                            glfwRestoreWindow(windowHandle);
+                        else
+                            glfwMaximizeWindow(windowHandle);
+                    });
+                }
+            }
+
+            UI::DrawButtonImage(isMaximized ? m_IconRestore : m_IconMaximize, buttonColN, buttonColH, buttonColP);
         }
 
         ImGui::Spring(-1.0f, 15.0f);

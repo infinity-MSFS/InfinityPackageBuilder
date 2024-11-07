@@ -5,8 +5,9 @@
 #include "Util/LuaInterpreter.hpp"
 #include "renderer/GUI/ApplicationGui.hpp"
 
-#include "sol/sol.hpp"
 #include "Util/FunctionTraits.hpp"
+#include "Util/GithubOAuth.hpp"
+#include "sol/sol.hpp"
 
 void greet(const std::string &name) { std::cout << "Hello " << name << "!" << std::endl; }
 
@@ -20,11 +21,14 @@ PackagePublisher::PackagePublisher(const float padding_x, const float padding_y,
     std::string window_size_signature = get_function_signature<void, void>("windowSize");
     m_LuaInterpreter.AddFunctionToLua("windowSize", windowSize, window_size_signature);
 }
+
+
 using namespace InfinityPackageBuilder::Lua;
 void PackagePublisher::RenderPage() {
     const auto word_size = ImGui::CalcTextSize("Package Publisher");
     ImGui::SetCursorPos(ImVec2(ImGui::GetWindowWidth() / 2 - word_size.x / 2, 10.0f));
     ImGui::Text("Package Publisher");
+
 
     static bool is_using_lua = false;
 
