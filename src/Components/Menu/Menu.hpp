@@ -1,7 +1,16 @@
 
 #pragma once
 
+#include <functional>
+#include <string>
+#include <tuple>
+#include <utility>
+#include <vector>
 #include "renderer/Layer.hpp"
+
+#include "Router/Router.hpp"
+
+using InfinityPackageBuilder::Utils::Router;
 
 class MenuManager {
 public:
@@ -35,6 +44,9 @@ public:
     static bool RenderSettingsIcon(ImVec2 pos, MenuManager::State state);
     static float RenderSettingsMenu(MenuManager::State state);
 };
+
+
+
 
 class Menu final : public InfinityRenderer::Layer {
 public:

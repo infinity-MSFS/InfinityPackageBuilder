@@ -4,19 +4,70 @@ project(InfinityPackageBuilder)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-message(STATUS "Compiler: ${CMAKE_CXX_COMPILER_ID}")
-message(STATUS "Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
+string(ASCII 27 Esc)
+set(ColorReset "${Esc}[m")
+set(ColourBold "${Esc}[1m")
+set(Red "${Esc}[31m")
+set(Green "${Esc}[32m")
+set(Yellow "${Esc}[33m")
+set(Blue "${Esc}[34m")
+set(Magenta "${Esc}[35m")
+set(Cyan "${Esc}[36m")
+set(White "${Esc}[37m")
+set(BoldRed "${Esc}[1;31m")
+set(BoldGreen "${Esc}[1;32m")
+set(BoldYellow "${Esc}[1;33m")
+set(BoldBlue "${Esc}[1;34m")
+set(BoldMagenta "${Esc}[1;35m")
+set(BoldCyan "${Esc}[1;36m")
+set(BoldWhite "${Esc}[1;37m")
+
+
+message(STATUS "${BoldMagenta}Checking build Environment: ${ColorReset} ")
+
+message("${Blue}Compiler: ${Green}${CMAKE_CXX_COMPILER_ID}${ColorReset}")
+message("${Blue}Compiler Version: ${Green}${CMAKE_CXX_COMPILER_VERSION}${ColorReset}")
 option(INFINITY_USE_X11 "Build for X11" OFF)
 option(INFINITY_USE_WAYLAND "Build for Wayland" OFF)
 
+if (DEFINED ENV{VULKAN_SDK})
+    message("${Blue}VULKAN_SDK is set to: ${Green}$ENV{VULKAN_SDK}${ColorReset}")
+else ()
+    message(FATAL_ERROR "VULKAN_SDK environment variable is not set, please add it to your environment variables! The vulkan SDK can be found in the readme")
+endif ()
+
+set(VULKAN_SDK $ENV{VULKAN_SDK})
+
+function(check_and_init_submodule submodule_path submodule_name)
+    if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${submodule_path}/.git")
+        message("${Yellow}${submodule_name} submodule not initialized. Cloning it now...${ColorReset}")
+        execute_process(COMMAND git submodule update --init --recursive ${submodule_path}
+                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                RESULT_VARIABLE GIT_SUBMODULE_RESULT)
+        if (NOT GIT_SUBMODULE_RESULT EQUAL "0")
+            message(FATAL_ERROR "Failed to initialize submodule: ${submodule_name}. Please ensure Git is available and try again.")
+        else ()
+            message("${Blue}${submodule_name} initialized successfully.${ColorReset}")
+        endif ()
+    else ()
+        message("${Blue}${submodule_name} is initialized.${ColorReset}")
+    endif ()
+endfunction()
+
+check_and_init_submodule("dependencies/glfw" "GLFW")
+check_and_init_submodule("dependencies/Boxer" "Boxer")
+check_and_init_submodule("dependencies/ImGuiColorTextEdit" "ImGuiColorTextEdit")
+
+
 if (WIN32)
-    message(STATUS "Detected Windows")
+    message("${Green}Detected Windows${ColorReset}")
     add_compile_definitions(INFINITY_WINDOWS)
 elseif (UNIX)
+    message(STATUS "${BoldMagenta}Checking Linux specific build Environment: ${ColorReset} ")
     message(WARNING "The Package Builder functionality is only available on Windows. This will create a build that omits its functionality.")
 
-    message(STATUS "INFINITY_USE_X11 is: ${INFINITY_USE_X11}")
-    message(STATUS "INFINITY_USE_WAYLAND is: ${INFINITY_USE_WAYLAND}")
+    message("${Blue}INFINITY_USE_X11 is: ${Green}${INFINITY_USE_X11}${ColorReset}")
+    message("${Blue}INFINITY_USE_WAYLAND is: ${Green}${INFINITY_USE_WAYLAND}${ColorReset}")
 
     if (INFINITY_USE_X11 AND INFINITY_USE_WAYLAND)
         message(FATAL_ERROR "Cannot build for both X11 and Wayland. Only one can be selected.")
@@ -25,23 +76,16 @@ elseif (UNIX)
     endif ()
 
     if (INFINITY_USE_X11)
-        message(STATUS "Detected Linux with X11")
+        message(STATUS "${Green}Detected Linux with X11${ColorReset}")
         add_compile_definitions(INFINITY_X11)
     elseif (INFINITY_USE_WAYLAND)
-        message(STATUS "Detected Linux with Wayland")
+        message(STATUS "${Green}Detected Linux with Wayland${ColorReset}")
         add_compile_definitions(INFINITY_WAYLAND)
     endif ()
 else ()
     message(FATAL_ERROR "Unsupported OS")
 endif ()
 
-if (DEFINED ENV{VULKAN_SDK})
-    message(STATUS "VULKAN_SDK is set to: $ENV{VULKAN_SDK}")
-else ()
-    message(FATAL_ERROR "VULKAN_SDK environment variable is not set, please add it to your environment variables! The vulkan SDK can be found in the readme")
-endif ()
-
-set(VULKAN_SDK $ENV{VULKAN_SDK})
 
 file(GLOB_RECURSE SRC_FILES
         "src/*.c"
@@ -141,7 +185,9 @@ add_executable(InfinityPackageBuilder ${SRC_FILES} ${MICROXML_SOURCES} ${SOL_SOU
         src/Components/Background/Background.cpp
         src/Components/Background/Background.hpp
         src/Components/Buttons/MenuButton.cpp
-        src/Components/Buttons/MenuButton.hpp)
+        src/Components/Buttons/MenuButton.hpp
+        src/renderer/GUI/Vulkan/Vulkan.hpp
+)
 
 target_sources(InfinityPackageBuilder PRIVATE ${IMGUI_SOURCES})
 target_include_directories(InfinityPackageBuilder PRIVATE ${VULKAN_SDK}/include)

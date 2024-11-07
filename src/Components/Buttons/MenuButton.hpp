@@ -1,27 +1,29 @@
 #pragma once
 
+#include <functional>
+#include <string>
+#include <tuple>
+#include <utility>
+#include <vector>
+
 
 class MenuButton {
 public:
-    MenuButton(float x, float y, float width, float height, int active_id);
+    MenuButton(float x, float y, float width, float height, float spacing, const std::vector<std::tuple<std::string, int, std::function<void()>, bool>> &buttons);
 
-    bool Render();
+    void UpdateLocation(float x, float y);
 
-    void SetActive(int active_id) { m_CurrentActiveID = active_id; };
+    void Render();
 
-private:
-    [[nodiscard]] bool IsAactive() const {
-        if (m_CurrentActiveID == m_ActiveId) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+    void SetActive(const int active_id) { m_CurrentActiveID = active_id; };
 
 private:
-    float m_X, m_Y, m_Width, m_Height;
+    bool RenderButton(float x, float y, float width, float height, const char *label, int to, bool settings);
 
-    bool m_Clicked, m_Hovered;
+private:
+    float m_StartingX, m_StartingY, m_Width, m_Height, m_Spacing;
 
-    int m_ActiveId, m_CurrentActiveID;
+    std::vector<std::tuple<std::string, int, std::function<void()>, bool>> m_Buttons;
+
+    int m_CurrentActiveID;
 };

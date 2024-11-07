@@ -1,8 +1,7 @@
 
 #pragma once
 
-#include "ImGuiTheme/ImGuiTheme.hpp"
-#include "renderer/GUI/UI/Ui.hpp"
+
 #include "renderer/Layer.hpp"
 #include "renderer/image/Image.hpp"
 
@@ -10,14 +9,15 @@
 #include <functional>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <queue>
 #include <string>
 #include <vector>
 
+
 #include "imgui.h"
 #include "vulkan/vulkan.h"
 
-#include <optional>
 
 void check_vk_result(VkResult err);
 
@@ -77,11 +77,11 @@ namespace InfinityRenderer {
         [[nodiscard]] GLFWwindow *GetWindowHandle() const { return m_WindowHandle; }
         [[nodiscard]] bool IsTitleBarHovered() const { return m_TitleBarHovered; }
 
-        static VkInstance GetInstance();
+        static std::optional<VkInstance> GetInstance();
 
-        static VkPhysicalDevice GetPhysicalDevice();
+        static std::optional<VkPhysicalDevice> GetPhysicalDevice();
 
-        static VkDevice GetDevice();
+        static std::optional<VkDevice> GetDevice();
 
         static VkCommandBuffer GetCommandBuffer(bool begin);
 
@@ -109,9 +109,9 @@ namespace InfinityRenderer {
 
         static void SetWindowIcon(GLFWwindow *window, const unsigned char *data, int size);
 
-        void UI_DrawTitlebar(float &outTitlebarHeight);
+        void UI_DrawTitleBar(float &out_title_bar_height);
 
-        void UI_DrawMenubar();
+        void UI_DrawMenubar() const;
 
 
     private:
