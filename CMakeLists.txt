@@ -6,18 +6,25 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(cmake/util.cmake)
 include(cmake/colors.cmake)
+include(FetchContent)
 
 message(STATUS "${BoldMagenta}Checking build Environment: ${ColorReset} ")
 
+message("${Blue}Project: ${Green}${CMAKE_PROJECT_NAME}${ColorReset}")
+message("${Blue}Release Profile: ${Green}${CMAKE_BUILD_TYPE}${ColorReset}")
 message("${Blue}Compiler: ${Green}${CMAKE_CXX_COMPILER_ID}${ColorReset}")
 message("${Blue}Compiler Version: ${Green}${CMAKE_CXX_COMPILER_VERSION}${ColorReset}")
 option(INFINITY_USE_X11 "Build for X11" OFF)
 option(INFINITY_USE_WAYLAND "Build for Wayland" OFF)
 
 # --- util.cmake ---
-check_and_init_submodule("dependencies/glfw" "GLFW")
-check_and_init_submodule("dependencies/Boxer" "Boxer")
 check_and_init_submodule("dependencies/ImGuiColorTextEdit" "ImGuiColorTextEdit")
+
+FetchContent_Declare(GLFW GIT_REPOSITORY https://github.com/TheCherno/glfw.git)
+FetchContent_Declare(Boxer GIT_REPOSITORY https://github.com/aaronmjacobs/Boxer.git)
+
+FetchContent_MakeAvailable(GLFW)
+FetchContent_MakeAvailable(Boxer)
 
 find_package(Vulkan REQUIRED)
 find_package(CURL REQUIRED)
@@ -132,7 +139,6 @@ target_include_directories(InfinityPackageBuilder PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ini
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/imgui
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/GLFW/include
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/stb_image
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/HDiff/include
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/MicroXML/include
@@ -142,8 +148,6 @@ target_include_directories(InfinityPackageBuilder PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/json/include
 )
 
-add_subdirectory(dependencies/glfw)
-add_subdirectory(dependencies/Boxer)
 
 target_compile_definitions(InfinityPackageBuilder PRIVATE
         $<$<CONFIG:Release>:RELEASE_DIST>
