@@ -55,6 +55,7 @@ function(check_and_init_submodule submodule_path submodule_name)
 endfunction()
 
 find_package(CURL REQUIRED)
+find_package(OpenSSL REQUIRED)
 
 
 check_and_init_submodule("dependencies/glfw" "GLFW")
@@ -87,6 +88,17 @@ elseif (UNIX)
     endif ()
 else ()
     message(FATAL_ERROR "Unsupported OS")
+endif ()
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/.env" ENV_FILE)
+string(REGEX MATCH "ENCRYPTION_KEY=([A-Za-z0-9]+)" _match "${ENV_FILE}")
+set(ENCRYPTION_KEY ${CMAKE_MATCH_1})
+
+if (NOT ENCRYPTION_KEY)
+    message(FATAL_ERROR "ENCRYPTION_KEY is not set. Please set it in the .env file")
+else ()
+    message("${Blue}ENCRYPTION_KEY is set to defined value: ${Green}ENCRYPTION_KEY${ColorReset}")
+    add_compile_definitions(ENCRYPTION_KEY="${ENCRYPTION_KEY}")
 endif ()
 
 
@@ -198,6 +210,8 @@ add_executable(InfinityPackageBuilder ${SRC_FILES} ${MICROXML_SOURCES} ${SOL_SOU
         src/Util/GithubRelease.hpp
         src/Util/GithubOAuth.cpp
         src/Util/GithubOAuth.hpp
+        src/Util/Encrypt.hpp
+        src/Util/StateTimer.hpp
 )
 
 target_sources(InfinityPackageBuilder PRIVATE ${IMGUI_SOURCES})
@@ -225,9 +239,9 @@ if (WIN32)
 endif ()
 
 if (WIN32)
-    target_link_libraries(InfinityPackageBuilder PRIVATE ${VULKAN_SDK}/Lib/vulkan-1.lib glfw Boxer ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/lua.lib CURL::libcurl)
+    target_link_libraries(InfinityPackageBuilder PRIVATE ${VULKAN_SDK}/Lib/vulkan-1.lib glfw Boxer ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/lua.lib CURL::libcurl OpenSSL::SSL OpenSSL::Crypto)
 else ()
-    target_link_libraries(InfinityPackageBuilder PRIVATE -L${VULKAN_SDK}/lib -lvulkan glfw Boxer ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/liblua.a CURL::libcurl)
+    target_link_libraries(InfinityPackageBuilder PRIVATE -L${VULKAN_SDK}/lib -lvulkan glfw Boxer ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/liblua.a CURL::libcurl OpenSSL::SSL OpenSSL::Crypto)
 
     add_custom_command(TARGET InfinityPackageBuilder POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy

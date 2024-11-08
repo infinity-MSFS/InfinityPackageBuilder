@@ -3,20 +3,24 @@
 #include <chrono>
 #include <ini/ini.h>
 
+constexpr const char *encryption_key = ENCRYPTION_KEY;
+
+GithubOAuth *GithubOAuth::s_Instance = nullptr;
+
 GithubOAuth::GithubOAuth() : m_Interval(0) {
-    mINI::INIFile file("infinity.ini");
+    mINI::INIFile file(".infinity.ini");
     mINI::INIStructure ini;
+    s_Instance = this;
     file.read(ini);
-    if (ini.has("things")) {
-        if (auto &category = ini["things"]; category.has("thing")) {
-            m_AccessToken = category["thing"];
-            std::cout << "Access Token: " << m_AccessToken << std::endl;
+    if (ini.has("github")) {
+        if (auto &category = ini["github"]; category.has("token")) {
+            m_AccessToken = Decrypt(category["token"], encryption_key);
             VerifyAccessToken();
         }
     }
 }
 
-void GithubOAuth::RenderUI() {
+void GithubOAuth::RenderUI(const std::function<void(const std::string &)> &key_set_callback) {
 
     ImGui::SetCursorPos({ImGui::GetWindowWidth() / 2.0f, ImGui::GetWindowHeight() / 2.0f});
     if (!m_IsAuthorized) {
@@ -28,6 +32,7 @@ void GithubOAuth::RenderUI() {
             }
         }
     } else {
+        key_set_callback(m_AccessToken);
         ImGui::Text("Welcome %s", m_Username.c_str());
     }
 }
@@ -41,7 +46,6 @@ std::unordered_map<std::string, std::string> parse_urlencoded(const std::string 
         std::string key, value;
         std::istringstream key_value(item);
         if (std::getline(std::getline(key_value, key, '='), value)) {
-            // URL decode the key and value
             std::string decoded_key = curl_easy_unescape(nullptr, key.c_str(), key.length(), nullptr);
             std::string decoded_value = curl_easy_unescape(nullptr, value.c_str(), value.length(), nullptr);
             result[decoded_key] = decoded_value;
@@ -108,7 +112,7 @@ bool GithubOAuth::StartDeviceFlow() {
 
 std::optional<std::string> GithubOAuth::GetOAuthToken() {
     if (m_IsAuthorized) {
-        return m_DeviceCode;
+        return m_AccessToken;
     } else {
         return std::nullopt;
     }
@@ -125,7 +129,7 @@ void GithubOAuth::PollForAccessToken() {
     std::string url = "https://github.com/login/oauth/access_token";
 
     while (!m_IsAuthorized) {
-        std::this_thread::sleep_for(std::chrono::seconds(m_Interval + 1));
+        std::this_thread::sleep_for(std::chrono::seconds(static_cast<long>(m_Interval + 1)));
         json payload = {{"client_id", m_ClientID}, {"device_code", m_DeviceCode}, {"grant_type", "urn:ietf:params:oauth:grant-type:device_code"}};
         std::string body = payload.dump();
 
@@ -159,20 +163,25 @@ void GithubOAuth::PollForAccessToken() {
             m_AccessToken = response_json["access_token"];
             m_IsAuthorized = true;
             VerifyAccessToken();
-            mINI::INIFile file("infinity.ini");
+            mINI::INIFile file(".infinity.ini");
 
             mINI::INIStructure ini;
-            ini["things"]["thing"] = m_AccessToken;
+            ini["github"]["token"] = Encrypt(m_AccessToken, encryption_key);
 
             if (!file.generate(ini, true)) {
                 std::cerr << "Failed to generate INI file.\n";
             }
+#ifdef WIN32
+            if (!HideFile(.infinity.ini)) {
+                std::cerr << "Failed to hide INI file\n";
+            }
+#endif
             break;
         } else if (response_string.contains("interval")) {
             std::string interval_string = response_json["interval"];
             m_Interval = std::stoi(interval_string);
         } else if (response_string.contains("error") && response_json["error"] == "authorization_pending") {
-            std::this_thread::sleep_for(std::chrono::seconds(m_Interval + 1));
+            std::this_thread::sleep_for(std::chrono::seconds(static_cast<long>(m_Interval + 1)));
         } else {
             std::cerr << "Authorization failed: " << response_json.dump() << '\n';
             break;

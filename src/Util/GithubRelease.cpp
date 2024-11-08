@@ -1,50 +1,105 @@
 
 #include "GithubRelease.hpp"
 #include <iostream>
+#include <thread>
 
 
 void GithubRelease::RenderUI() {
     ImGui::Begin("GitHub Release Creator");
 
-    // ImGui::InputText("Repository (username/repo)", &m_Repo);
-    // ImGui::InputText("Release Title", &releaseTitle);
-    // ImGui::InputText("Release Description", &releaseDescription);
-    // ImGui::InputText("Tag (e.g., v1.0.0)", &releaseTag);
-    // ImGui::InputText("File Path (e.g., /path/to/file.zip)", &filePath);
-    // ImGui::Checkbox("Is Prerelease", &isPrerelease);
-    // ImGui::InputText("GitHub Token", &githubToken);
-    //
-    // if (ImGui::Button("Publish Release")) {
-    //     if (CreateRelease()) {
-    //         std::cout << "Release created successfully.\n";
-    //     } else {
-    //         std::cerr << "Failed to create release.\n";
-    //     }
-    // }
+    char repoBuffer[256] = {0};
+    char releaseTitleBuffer[256] = {0};
+    char releaseDescriptionBuffer[512] = {0};
+    char releaseTagBuffer[256] = {0};
+    char filePathBuffer[512] = {0};
+
+    strncpy(repoBuffer, m_Repo.c_str(), sizeof(repoBuffer) - 1);
+    strncpy(releaseTitleBuffer, m_ReleaseTitle.c_str(), sizeof(releaseTitleBuffer) - 1);
+    strncpy(releaseDescriptionBuffer, m_ReleaseDescription.c_str(), sizeof(releaseDescriptionBuffer) - 1);
+    strncpy(releaseTagBuffer, m_ReleaseTag.c_str(), sizeof(releaseTagBuffer) - 1);
+    strncpy(filePathBuffer, m_FilePath.c_str(), sizeof(filePathBuffer) - 1);
+
+    if (ImGui::InputText("Repository (username/repo)", repoBuffer, sizeof(repoBuffer))) {
+        m_Repo = repoBuffer;
+    }
+
+    if (ImGui::InputText("Release Title", releaseTitleBuffer, sizeof(releaseTitleBuffer))) {
+        m_ReleaseTitle = releaseTitleBuffer;
+    }
+
+    if (ImGui::InputText("Release Description", releaseDescriptionBuffer, sizeof(releaseDescriptionBuffer))) {
+        m_ReleaseDescription = releaseDescriptionBuffer; // Update the member variable after input
+    }
+
+    if (ImGui::InputText("Tag (e.g., v1.0.0)", releaseTagBuffer, sizeof(releaseTagBuffer))) {
+        m_ReleaseTag = releaseTagBuffer; // Update the member variable after input
+    }
+
+    if (ImGui::InputText("File Path (e.g., /path/to/file.zip)", filePathBuffer, sizeof(filePathBuffer))) {
+        m_FilePath = filePathBuffer; // Update the member variable after input
+    }
+    ImGui::Checkbox("Is Prerelease", &m_IsPrerelease);
+
+
+    if (m_Loading == LoadingState::Loading) {
+        ImGui::Text("Creating Release....");
+        ImGui::ProgressBar(0.0f, {0.0f, 0.0f}, "Please wait...");
+    }
+    if (m_Loading == LoadingState::PreLoad) {
+        if (ImGui::Button("Publish Release")) {
+            std::thread([this]() {
+                std::function<void(const LoadingState)> callback = [&](const LoadingState loading) { SetLoading(loading); };
+                CreateRelease(callback);
+            }).detach();
+        }
+    }
+    if (m_Loading == LoadingState::AfterLoad) {
+        ImGui::Text("Package Published");
+        m_Timer.Update();
+        if (!m_Timer.IsActive()) {
+            SetLoading(LoadingState::PreLoad);
+        }
+    }
+
+    if (m_Loading == LoadingState::Failure) {
+        ImGui::Text("Failed to upload release");
+        m_Timer.Update();
+        if (!m_Timer.IsActive()) {
+            SetLoading(LoadingState::PreLoad);
+        }
+    }
+
 
     ImGui::End();
 }
 
 
-bool GithubRelease::CreateRelease() {
+bool GithubRelease::CreateRelease(const std::function<void(const LoadingState)> &callback) {
+    callback(LoadingState::Loading);
     if (!CreateTag()) {
+        callback(LoadingState::Failure);
         std::cerr << "Failed to create tag on GitHub.\n";
         return false;
     }
 
-    // Step 2: Use GitHub API to create release
     std::string releaseId;
     if (!CreateGithubRelease(releaseId)) {
         std::cerr << "Failed to create release on GitHub.\n";
+        callback(LoadingState::Failure);
         return false;
     }
 
-    // Step 3: Upload file if specified
     if (!m_FilePath.empty() && !releaseId.empty()) {
-        return UploadAsset(releaseId);
+        if (UploadAsset(releaseId)) {
+
+            callback(LoadingState::AfterLoad);
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    return true;
+    return false;
 }
 
 bool GithubRelease::CreateTag() {
@@ -83,18 +138,17 @@ bool GithubRelease::UploadAsset(const std::string &releaseId) const {
         buffer << file.rdbuf();
         std::string fileContents = buffer.str();
 
-        struct curl_slist *headers = NULL;
-        headers = curl_slist_append(headers, ("Authorization: token " + githubToken).c_str());
+        struct curl_slist *headers = nullptr;
+        headers = curl_slist_append(headers, ("Authorization: token " + m_GithubToken).c_str());
         headers = curl_slist_append(headers, "Content-Type: application/octet-stream");
 
-        std::string url = "https://uploads.github.com/repos/" + m_Repo + "/releases/" + releaseId + "/assets?name=" + GetFileName(m_FilePath);
+        std::string url = "https://uploads.github.com/repos/" + std::string(m_Repo) + "/releases/" + releaseId + "/assets?name=" + GetFileName(m_FilePath);
 
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, fileContents.c_str());
         curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, fileContents.size());
 
-        // Perform the request
         res = curl_easy_perform(curl);
 
         if (res != CURLE_OK) {
@@ -125,8 +179,8 @@ bool GithubRelease::SendGitHubRequest(const std::string &url, const json &payloa
     curl = curl_easy_init();
 
     if (curl) {
-        struct curl_slist *headers = NULL;
-        headers = curl_slist_append(headers, ("Authorization: token " + githubToken).c_str());
+        struct curl_slist *headers = nullptr;
+        headers = curl_slist_append(headers, ("Authorization: token " + m_GithubToken).c_str());
         headers = curl_slist_append(headers, "Content-Type: application/json");
         headers = curl_slist_append(headers, "User-Agent: C++ GitHub API Client");
 
@@ -169,3 +223,4 @@ std::string GithubRelease::GetFileName(const std::string &path) {
     size_t pos = path.find_last_of("/\\");
     return (pos == std::string::npos) ? path : path.substr(pos + 1);
 }
+void GithubRelease::SetKey(const std::string &key) { m_GithubToken = key; }

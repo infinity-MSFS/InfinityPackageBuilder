@@ -4,3 +4,4 @@ bin
 cmake-build-debug-x11
 cmake-build-release-x11
 build
+.env

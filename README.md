@@ -57,8 +57,15 @@ approach to building, diffing, and distributing their aircraft from a single pro
 Ensure you have the following prerequisites:
 
 - **C++23 or newer** compiler (for async/await, optional and expected)
-- **Vulkan SDK** (version X.X or later) **You must set the environment variable `VULKAN_SDK` to your vulkan SDK path**
+- **Vulkan SDK** **You must set the environment variable `VULKAN_SDK` to your vulkan SDK path**
 - **CMake** (minimum version 3.28)
+- **Vcpkg** Will save you from the common windows + c++ nightmare
+- **OpenSSL** install via `yay -S openssl` on linux or `vcpkg install openssl` on windows
+- **LibCurl** install via `yay -S curl` on linux or `vcpkg install curl:x64-windows` on windows
+
+#### Setup
+
+- **`.env`** should contain a single entry of `ENCRYPTION_KEY=01234567890123456789012345678901` containing a 256-bit key. A fatal error will be thrown if the .env file is not setup properly.
 
 #### Linux
 

@@ -13,6 +13,12 @@ void greet(const std::string &name) { std::cout << "Hello " << name << "!" << st
 
 void windowSize() { std::cout << "Height: " << ImGui::GetWindowHeight() << "px, Width: " << ImGui::GetWindowWidth() << "px" << std::endl; }
 
+void getGitToken() {
+    if (const auto instance = GithubOAuth::GetInstance(); instance.has_value()) {
+        std::cout << "Key: " << (*instance)->GetOAuthToken().value_or("No Key Found") << std::endl;
+    }
+}
+
 
 PackagePublisher::PackagePublisher(const float padding_x, const float padding_y, const char *lua_file_path) : Page(padding_x, padding_y), m_LuaInterpreter(lua_file_path) {
 
@@ -20,6 +26,8 @@ PackagePublisher::PackagePublisher(const float padding_x, const float padding_y,
     m_LuaInterpreter.AddFunctionToLua("greet", greet, greet_signature);
     std::string window_size_signature = get_function_signature<void, void>("windowSize");
     m_LuaInterpreter.AddFunctionToLua("windowSize", windowSize, window_size_signature);
+    std::string get_token_signature = get_function_signature<void, void>("getGitToken");
+    m_LuaInterpreter.AddFunctionToLua("getGitToken", getGitToken, get_token_signature);
 }
 
 
@@ -29,6 +37,9 @@ void PackagePublisher::RenderPage() {
     ImGui::SetCursorPos(ImVec2(ImGui::GetWindowWidth() / 2 - word_size.x / 2, 10.0f));
     ImGui::Text("Package Publisher");
 
+
+    m_Oauth.RenderUI([&](const std::string &key) { m_ReleaseManager.SetKey(key); });
+    m_ReleaseManager.RenderUI();
 
     static bool is_using_lua = false;
 
