@@ -4,24 +4,8 @@ project(InfinityPackageBuilder)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-string(ASCII 27 Esc)
-set(ColorReset "${Esc}[m")
-set(ColourBold "${Esc}[1m")
-set(Red "${Esc}[31m")
-set(Green "${Esc}[32m")
-set(Yellow "${Esc}[33m")
-set(Blue "${Esc}[34m")
-set(Magenta "${Esc}[35m")
-set(Cyan "${Esc}[36m")
-set(White "${Esc}[37m")
-set(BoldRed "${Esc}[1;31m")
-set(BoldGreen "${Esc}[1;32m")
-set(BoldYellow "${Esc}[1;33m")
-set(BoldBlue "${Esc}[1;34m")
-set(BoldMagenta "${Esc}[1;35m")
-set(BoldCyan "${Esc}[1;36m")
-set(BoldWhite "${Esc}[1;37m")
-
+include(cmake/util.cmake)
+include(cmake/colors.cmake)
 
 message(STATUS "${BoldMagenta}Checking build Environment: ${ColorReset} ")
 
@@ -30,136 +14,48 @@ message("${Blue}Compiler Version: ${Green}${CMAKE_CXX_COMPILER_VERSION}${ColorRe
 option(INFINITY_USE_X11 "Build for X11" OFF)
 option(INFINITY_USE_WAYLAND "Build for Wayland" OFF)
 
-if (DEFINED ENV{VULKAN_SDK})
-    message("${Blue}VULKAN_SDK is set to: ${Green}$ENV{VULKAN_SDK}${ColorReset}")
-else ()
-    message(FATAL_ERROR "VULKAN_SDK environment variable is not set, please add it to your environment variables! The vulkan SDK can be found in the readme")
-endif ()
-
-set(VULKAN_SDK $ENV{VULKAN_SDK})
-
-function(check_and_init_submodule submodule_path submodule_name)
-    if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${submodule_path}/.git")
-        message("${Yellow}${submodule_name} submodule not initialized. Cloning it now...${ColorReset}")
-        execute_process(COMMAND git submodule update --init --recursive ${submodule_path}
-                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-                RESULT_VARIABLE GIT_SUBMODULE_RESULT)
-        if (NOT GIT_SUBMODULE_RESULT EQUAL "0")
-            message(FATAL_ERROR "Failed to initialize submodule: ${submodule_name}. Please ensure Git is available and try again.")
-        else ()
-            message("${Blue}${submodule_name} initialized successfully.${ColorReset}")
-        endif ()
-    else ()
-        message("${Blue}${submodule_name} is initialized.${ColorReset}")
-    endif ()
-endfunction()
-
-find_package(CURL REQUIRED)
-find_package(OpenSSL REQUIRED)
-
-
+# --- util.cmake ---
 check_and_init_submodule("dependencies/glfw" "GLFW")
 check_and_init_submodule("dependencies/Boxer" "Boxer")
 check_and_init_submodule("dependencies/ImGuiColorTextEdit" "ImGuiColorTextEdit")
 
+find_package(Vulkan REQUIRED)
+find_package(CURL REQUIRED)
+find_package(OpenSSL REQUIRED)
+
+print_system_dependencies_info()
+
+# --- util.cmake ---
+load_encryption_key_from_env_file()
 
 if (WIN32)
     message("${Green}Detected Windows${ColorReset}")
     add_compile_definitions(INFINITY_WINDOWS)
 elseif (UNIX)
     message(STATUS "${BoldMagenta}Checking Linux specific build Environment: ${ColorReset} ")
-    message(WARNING "The Package Builder functionality is only available on Windows. This will create a build that omits its functionality.")
-
-    message("${Blue}INFINITY_USE_X11 is: ${Green}${INFINITY_USE_X11}${ColorReset}")
-    message("${Blue}INFINITY_USE_WAYLAND is: ${Green}${INFINITY_USE_WAYLAND}${ColorReset}")
+    message("${Yellow}The Package Builder functionality is only available on Windows. This will create a build that omits its functionality.${ColorReset}")
 
     if (INFINITY_USE_X11 AND INFINITY_USE_WAYLAND)
         message(FATAL_ERROR "Cannot build for both X11 and Wayland. Only one can be selected.")
-    elseif (NOT INFINITY_USE_X11 AND NOT INFINITY_USE_WAYLAND)
-        message(FATAL_ERROR "Must select either X11 or Wayland. Use -DINFINITY_USE_X11=ON -DINFINITY_USE_WAYLAND=OFF or -DINFINITY_USE_X11=OFF -DINFINITY_USE_WAYLAND=ON for Linux build.")
-    endif ()
-
-    if (INFINITY_USE_X11)
-        message(STATUS "${Green}Detected Linux with X11${ColorReset}")
+    elseif (INFINITY_USE_X11)
+        message("${Blue}Display Protocol: ${Green}X11${ColorReset}")
         add_compile_definitions(INFINITY_X11)
     elseif (INFINITY_USE_WAYLAND)
-        message(STATUS "${Green}Detected Linux with Wayland${ColorReset}")
+        message("${Blue}Display Protocol: ${Green}Wayland${ColorReset}")
         add_compile_definitions(INFINITY_WAYLAND)
+    else ()
+        message(FATAL_ERROR "Must select either X11 or Wayland. Use -DINFINITY_USE_X11=ON -DINFINITY_USE_WAYLAND=OFF or -DINFINITY_USE_X11=OFF -DINFINITY_USE_WAYLAND=ON for Linux build.")
     endif ()
 else ()
     message(FATAL_ERROR "Unsupported OS")
 endif ()
 
-file(READ "${CMAKE_CURRENT_SOURCE_DIR}/.env" ENV_FILE)
-string(REGEX MATCH "ENCRYPTION_KEY=([A-Za-z0-9]+)" _match "${ENV_FILE}")
-set(ENCRYPTION_KEY ${CMAKE_MATCH_1})
 
-if (NOT ENCRYPTION_KEY)
-    message(FATAL_ERROR "ENCRYPTION_KEY is not set. Please set it in the .env file")
-else ()
-    message("${Blue}ENCRYPTION_KEY is set to defined value: ${Green}ENCRYPTION_KEY${ColorReset}")
-    add_compile_definitions(ENCRYPTION_KEY="${ENCRYPTION_KEY}")
-endif ()
+message(STATUS "${BoldMagenta}Infinity configuration complete, Configuring dependencies")
+message("${Cyan}")
 
-
-file(GLOB_RECURSE SRC_FILES
-        "src/*.c"
-        "src/*.cpp"
-        "src/*.h"
-        "src/*.hpp"
-        "dependencies/stb_image/*.h"
-        "dependencies/MicroXML/include/MicroXML/*.hpp"
-        "dependencies/MicroXML/src/*.cpp"
-
-
-)
-
-set(IMGUI_SOURCES
-        dependencies/imgui/imgui.cpp
-        dependencies/imgui/imgui_draw.cpp
-        dependencies/imgui/imgui_widgets.cpp
-        dependencies/imgui/imgui_tables.cpp
-        dependencies/imgui/misc/cpp/imgui_stdlib.cpp
-        dependencies/imgui/backends/imgui_impl_glfw.cpp
-        dependencies/imgui/backends/imgui_impl_vulkan.cpp
-)
-
-set(MICROXML_SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/MicroXML/include/MicroXML/MicroXML.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/MicroXML/include/MicroXML/NodeSet.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/MicroXML/include/MicroXML/NodeXML.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/MicroXML/include/MicroXML/utils.hpp
-)
-
-set(SOL_SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/sol/include/sol/config.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/sol/include/sol/forward.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/sol/include/sol/sol.hpp
-)
-
-
-include_directories(
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/imgui
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/GLFW/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/stb_image
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/HDiff/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/MicroXML/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/sol/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ImGuiColorTextEdit
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/json/include
-        ${VULKAN_SDK}/include
-
-)
-
-add_executable(InfinityPackageBuilder ${SRC_FILES} ${MICROXML_SOURCES} ${SOL_SOURCES}
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ImGuiColorTextEdit/TextEditor.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ImGuiColorTextEdit/TextEditor.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/json/include/nlohmann/json.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/json/include/nlohmann/json_fwd.hpp
+add_executable(InfinityPackageBuilder
+        src/main.cpp
         src/renderer/Layer.hpp
         src/renderer/buffer/Buffer.hpp
         src/renderer/serialization/StreamWriter.cpp
@@ -214,18 +110,40 @@ add_executable(InfinityPackageBuilder ${SRC_FILES} ${MICROXML_SOURCES} ${SOL_SOU
         src/Util/StateTimer.hpp
 )
 
-target_sources(InfinityPackageBuilder PRIVATE ${IMGUI_SOURCES})
-target_include_directories(InfinityPackageBuilder PRIVATE ${VULKAN_SDK}/include)
+# --- util.cmake ---
+file(GLOB_RECURSE IMGUI_SOURCES
+        dependencies/imgui/imgui.cpp
+        dependencies/imgui/imgui_draw.cpp
+        dependencies/imgui/imgui_widgets.cpp
+        dependencies/imgui/imgui_tables.cpp
+        dependencies/imgui/misc/cpp/imgui_stdlib.cpp
+        dependencies/imgui/backends/imgui_impl_glfw.cpp
+        dependencies/imgui/backends/imgui_impl_vulkan.cpp
+        dependencies/ImGuiColorTextEdit/TextEditor.cpp
+        dependencies/ImGuiColorTextEdit/TextEditor.h
+)
+file(GLOB_RECURSE MICROXML_SOURCES dependencies/MicroXML/include/MicroXML/*.hpp dependencies/MicroXML/src/*.cpp)
+file(GLOB STB_IMAGE dependencies/stb_image/stb_image.h)
+file(GLOB SOL_SOURCES dependencies/sol/include/sol/config.hpp dependencies/sol/include/sol/forward.hpp dependencies/sol/include/sol/sol.hpp)
+file(GLOB JSON_SOURCES dependencies/json/include/nlohmann/json.hpp dependencies/json/include/nlohmann/json_fwd.hpp)
+target_sources(InfinityPackageBuilder PRIVATE ${MICROXML_SOURCES} ${SOL_SOURCES} ${STB_IMAGE} ${IMGUI_SOURCES} ${JSON_SOURCES})
+
+target_include_directories(InfinityPackageBuilder PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ini
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/imgui
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/GLFW/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/stb_image
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/HDiff/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/MicroXML/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/sol/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ImGuiColorTextEdit
+        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/json/include
+)
 
 add_subdirectory(dependencies/glfw)
 add_subdirectory(dependencies/Boxer)
-
-
-add_library(GLFW INTERFACE)
-target_include_directories(GLFW INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/GLFW/include)
-
-target_link_libraries(GLFW INTERFACE glfw)
-
 
 target_compile_definitions(InfinityPackageBuilder PRIVATE
         $<$<CONFIG:Release>:RELEASE_DIST>
@@ -236,16 +154,14 @@ if (WIN32)
             $<$<CONFIG:Release>:/SUBSYSTEM:WINDOWS>
             $<$<NOT:$<CONFIG:Release>>:/SUBSYSTEM:CONSOLE>
     )
-endif ()
-
-if (WIN32)
-    target_link_libraries(InfinityPackageBuilder PRIVATE ${VULKAN_SDK}/Lib/vulkan-1.lib glfw Boxer ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/lua.lib CURL::libcurl OpenSSL::SSL OpenSSL::Crypto)
+    set(LUA_LIB ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/lua.lib)
 else ()
-    target_link_libraries(InfinityPackageBuilder PRIVATE -L${VULKAN_SDK}/lib -lvulkan glfw Boxer ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/liblua.a CURL::libcurl OpenSSL::SSL OpenSSL::Crypto)
-
     add_custom_command(TARGET InfinityPackageBuilder POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/liblua.so
             $<TARGET_FILE_DIR:InfinityPackageBuilder>
     )
+    set(LUA_LIB ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/liblua.a)
 endif ()
+
+target_link_libraries(InfinityPackageBuilder PRIVATE Vulkan::Vulkan glfw Boxer ${LUA_LIB} CURL::libcurl OpenSSL::SSL OpenSSL::Crypto)

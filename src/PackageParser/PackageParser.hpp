@@ -5,7 +5,7 @@
 #include <vector>
 
 
-#include "ini/ini.h"
+#include "ini.h"
 
 namespace InfinityPackageParser {
     namespace PackageTypes {
