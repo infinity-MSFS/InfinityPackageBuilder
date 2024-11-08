@@ -26,6 +26,7 @@ FetchContent_Declare(Boxer GIT_REPOSITORY https://github.com/aaronmjacobs/Boxer.
 FetchContent_MakeAvailable(GLFW)
 FetchContent_MakeAvailable(Boxer)
 
+
 find_package(Vulkan REQUIRED)
 find_package(CURL REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -158,7 +159,12 @@ if (WIN32)
             $<$<CONFIG:Release>:/SUBSYSTEM:WINDOWS>
             $<$<NOT:$<CONFIG:Release>>:/SUBSYSTEM:CONSOLE>
     )
-    set(LUA_LIB ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/lua.lib)
+    set(LUA_LIB ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/lua.lib OpenSSL::applink)
+    add_custom_command(TARGET InfinityPackageBuilder POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/crypto/libcrypto-3-x64.dll
+            $<TARGET_FILE_DIR:InfinityPackageBuilder>
+    )
 else ()
     add_custom_command(TARGET InfinityPackageBuilder POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy

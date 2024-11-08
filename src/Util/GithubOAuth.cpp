@@ -172,7 +172,7 @@ void GithubOAuth::PollForAccessToken() {
                 std::cerr << "Failed to generate INI file.\n";
             }
 #ifdef WIN32
-            if (!HideFile(.infinity.ini)) {
+            if (!HideFile(".infinity.ini")) {
                 std::cerr << "Failed to hide INI file\n";
             }
 #endif

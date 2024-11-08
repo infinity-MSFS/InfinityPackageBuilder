@@ -13,7 +13,7 @@
 #ifdef WIN32
 #include <windows.h>
 
-bool HideFile(const std::string &filePath) {
+inline bool HideFile(const std::string &filePath) {
     if (SetFileAttributes(filePath.c_str(), FILE_ATTRIBUTE_HIDDEN) == 0) {
         std::cerr << "Error: Could not hide the file. Error code: " << GetLastError() << std::endl;
         return false;
