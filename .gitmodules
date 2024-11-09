@@ -1,3 +1,0 @@
-[submodule "dependencies/ImGuiColorTextEdit"]
-	path = dependencies/ImGuiColorTextEdit
-	url = https://github.com/BalazsJako/ImGuiColorTextEdit.git

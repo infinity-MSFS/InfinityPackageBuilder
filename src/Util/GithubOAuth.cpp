@@ -1,7 +1,7 @@
 
 #include "GithubOAuth.hpp"
 #include <chrono>
-#include <ini.h>
+#include "Ini/ini.h"
 
 constexpr const char *encryption_key = ENCRYPTION_KEY;
 

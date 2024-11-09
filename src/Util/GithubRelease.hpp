@@ -6,10 +6,10 @@
 #include <sstream>
 #include <string>
 
+#include "Json/json.hpp"
 #include "StateTimer.hpp"
 #include "curl/curl.h"
 #include "imgui.h"
-#include "nlohmann/json.hpp"
 
 
 using json = nlohmann::json;

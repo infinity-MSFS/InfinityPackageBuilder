@@ -7,7 +7,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "renderer/GUI/Vulkan/Vulkan.hpp"
-#include "stb_image.h"
+#include "stb_image/stb_image.h"
 
 namespace InfinityRenderer {
     namespace Utils {

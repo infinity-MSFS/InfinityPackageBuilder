@@ -17,14 +17,12 @@ message("${Blue}Compiler Version: ${Green}${CMAKE_CXX_COMPILER_VERSION}${ColorRe
 option(INFINITY_USE_X11 "Build for X11" OFF)
 option(INFINITY_USE_WAYLAND "Build for Wayland" OFF)
 
-# --- util.cmake ---
-check_and_init_submodule("dependencies/ImGuiColorTextEdit" "ImGuiColorTextEdit")
 
 FetchContent_Declare(GLFW GIT_REPOSITORY https://github.com/TheCherno/glfw.git)
 FetchContent_Declare(Boxer GIT_REPOSITORY https://github.com/aaronmjacobs/Boxer.git)
+FetchContent_Declare(Infinity GIT_REPOSITORY https://github.com/Tacotakedown/InfinityPackageBuilderDeps.git)
 
-FetchContent_MakeAvailable(GLFW)
-FetchContent_MakeAvailable(Boxer)
+FetchContent_MakeAvailable(GLFW Boxer Infinity)
 
 
 find_package(Vulkan REQUIRED)
@@ -118,35 +116,30 @@ add_executable(InfinityPackageBuilder
         src/Util/StateTimer.hpp
 )
 
-# --- util.cmake ---
-file(GLOB_RECURSE IMGUI_SOURCES
-        dependencies/imgui/imgui.cpp
-        dependencies/imgui/imgui_draw.cpp
-        dependencies/imgui/imgui_widgets.cpp
-        dependencies/imgui/imgui_tables.cpp
-        dependencies/imgui/misc/cpp/imgui_stdlib.cpp
-        dependencies/imgui/backends/imgui_impl_glfw.cpp
-        dependencies/imgui/backends/imgui_impl_vulkan.cpp
-        dependencies/ImGuiColorTextEdit/TextEditor.cpp
-        dependencies/ImGuiColorTextEdit/TextEditor.h
+file(GLOB IMGUI_SOURCES
+        ${infinity_SOURCE_DIR}/src/imgui/
+        ${infinity_SOURCE_DIR}/src/imgui/imgui.cpp
+        ${infinity_SOURCE_DIR}/src/imgui/imgui_draw.cpp
+        ${infinity_SOURCE_DIR}/src/imgui/imgui_widgets.cpp
+        ${infinity_SOURCE_DIR}/src/imgui/imgui_tables.cpp
+        ${infinity_SOURCE_DIR}/src/imgui/misc/cpp/imgui_stdlib.cpp
+        ${infinity_SOURCE_DIR}/src/imgui/backends/imgui_impl_glfw.cpp
+        ${infinity_SOURCE_DIR}/src/imgui/backends/imgui_impl_vulkan.cpp
+        ${infinity_SOURCE_DIR}/src/imguiTextEditor/TextEditor.cpp
+        ${infinity_SOURCE_DIR}/src/imguiTextEditor/TextEditor.h
 )
-file(GLOB_RECURSE MICROXML_SOURCES dependencies/MicroXML/include/MicroXML/*.hpp dependencies/MicroXML/src/*.cpp)
-file(GLOB STB_IMAGE dependencies/stb_image/stb_image.h)
-file(GLOB SOL_SOURCES dependencies/sol/include/sol/config.hpp dependencies/sol/include/sol/forward.hpp dependencies/sol/include/sol/sol.hpp)
-file(GLOB JSON_SOURCES dependencies/json/include/nlohmann/json.hpp dependencies/json/include/nlohmann/json_fwd.hpp)
+file(GLOB_RECURSE MICROXML_SOURCES ${infinity_SOURCE_DIR}/src/MicroXML/*.cpp ${infinity_SOURCE_DIR}/include/MicroXML/*.hpp)
+file(GLOB STB_IMAGE ${infinity_SOURCE_DIR}/include/stb_image/stb_image.h)
+file(GLOB_RECURSE SOL_SOURCES ${infinity_SOURCE_DIR}/include/Sol2/*.hpp)
+file(GLOB JSON_SOURCES ${infinity_SOURCE_DIR}/include/Json/*.hpp)
 target_sources(InfinityPackageBuilder PRIVATE ${MICROXML_SOURCES} ${SOL_SOURCES} ${STB_IMAGE} ${IMGUI_SOURCES} ${JSON_SOURCES})
 
 target_include_directories(InfinityPackageBuilder PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ini
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/imgui
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/stb_image
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/HDiff/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/MicroXML/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/sol/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ImGuiColorTextEdit
-        ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/json/include
+        ${infinity_SOURCE_DIR}/include
+        ${infinity_SOURCE_DIR}/include/Lua # for sol header file #include<lua.h>
+        ${infinity_SOURCE_DIR}/src/imgui
+        ${infinity_SOURCE_DIR}/src/imguiTextEditor
 )
 
 
@@ -159,19 +152,19 @@ if (WIN32)
             $<$<CONFIG:Release>:/SUBSYSTEM:WINDOWS>
             $<$<NOT:$<CONFIG:Release>>:/SUBSYSTEM:CONSOLE>
     )
-    set(LUA_LIB ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/lua.lib OpenSSL::applink)
+    set(LUA_LIB ${infinity_SOURCE_DIR}/lib/lua.lib)
     add_custom_command(TARGET InfinityPackageBuilder POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/crypto/libcrypto-3-x64.dll
+            ${infinity_SOURCE_DIR}/bin/libcrypto-3-x64.dll
             $<TARGET_FILE_DIR:InfinityPackageBuilder>
     )
 else ()
     add_custom_command(TARGET InfinityPackageBuilder POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/liblua.so
+            ${infinity_SOURCE_DIR}/lib/liblua.so
             $<TARGET_FILE_DIR:InfinityPackageBuilder>
     )
-    set(LUA_LIB ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lua/liblua.a)
+    set(LUA_LIB ${infinity_SOURCE_DIR}/lib/liblua.a)
 endif ()
 
 target_link_libraries(InfinityPackageBuilder PRIVATE Vulkan::Vulkan glfw Boxer ${LUA_LIB} CURL::libcurl OpenSSL::SSL OpenSSL::Crypto)
