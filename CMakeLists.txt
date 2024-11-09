@@ -1,48 +1,76 @@
 cmake_minimum_required(VERSION 3.29)
-project(InfinityPackageBuilder)
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(cmake/util.cmake)
 include(cmake/colors.cmake)
 include(FetchContent)
 
-message(STATUS "${BoldMagenta}Setting up vcpkg packages${ColorReset}")
 
-FetchContent_Declare(
-        vcpkg
-        GIT_REPOSITORY https://github.com/microsoft/vcpkg.git
-        GIT_TAG 2024.10.21
+set(ENV{VCPKG_ENABLE_MANIFEST_MODE} "OFF")
+set(ENV{VCPKG_ROOT} "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg")
+if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg")
+
+    FetchContent_Declare(
+            vcpkg
+            GIT_REPOSITORY https://github.com/microsoft/vcpkg.git
+            GIT_TAG 2024.10.21
+            SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vcpkg
+    )
+    FetchContent_MakeAvailable(vcpkg)
+
+    if (WIN32)
+        set(BOOTSTRAP_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/bootstrap-vcpkg.bat")
+        set(VCPKG_TRIPLET "x64-windows")
+    else ()
+        set(BOOTSTRAP_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/bootstrap-vcpkg.sh")
+        set(VCPKG_TRIPLET "x64-linux")
+    endif ()
+
+    if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/vcpkg")
+        message("${Green}Bootstrapping vcpkg...${ColorReset}")
+        execute_process(
+                COMMAND ${BOOTSTRAP_COMMAND}
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/vcpkg
+        )
+    endif ()
+
+endif ()
+
+
+message("${Green}Installing OpenSSL${ColorReset}")
+execute_process(
+        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/vcpkg install openssl
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
-FetchContent_MakeAvailable(vcpkg)
 
-if (WIN32)
-    set(BOOTSTRAP_COMMAND "${vcpkg_SOURCE_DIR}/bootstrap-vcpkg.bat")
-    set(VCPKG_TRIPLET "x64-windows")
-else ()
-    set(BOOTSTRAP_COMMAND "${vcpkg_SOURCE_DIR}/bootstrap-vcpkg.sh")
-    set(VCPKG_TRIPLET "x64-linux")
-endif ()
+message("${Green}Installing Vulkan${ColorReset}")
+execute_process(
+        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/vcpkg install vulkan
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-if (NOT EXISTS "${vcpkg_SOURCE_DIR}/vcpkg")
-    message("${Green}Bootstrapping vcpkg...${ColorReset}")
-    execute_process(
-            COMMAND ${BOOTSTRAP_COMMAND}
-            WORKING_DIRECTORY ${vcpkg_SOURCE_DIR}
-    )
-endif ()
+message("${Green}Installing Curl${ColorReset}")
+execute_process(
+        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/vcpkg install curl
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-set(CMAKE_TOOLCHAIN_FILE "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake")
 
-if (EXISTS "${CMAKE_SOURCE_DIR}/vcpkg.json")
-    message("${Green}Installing dependencies from vcpkg.json...${ColorReset}")
-    execute_process(
-            COMMAND ${vcpkg_SOURCE_DIR}/vcpkg install --triplet ${VCPKG_TRIPLET}
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    )
-endif ()
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+        CACHE STRING "Vcpkg toolchain file")
 
+project(InfinityPackageBuilder)
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+
+message("${Blue}Using toolchain file: ${Green}${CMAKE_TOOLCHAIN_FILE}")
+find_package(Vulkan REQUIRED)
+find_package(CURL REQUIRED)
+find_package(OpenSSL REQUIRED)
+
+print_system_dependencies_info()
 
 message(STATUS "${BoldMagenta}Checking build Environment: ${ColorReset} ")
 
@@ -64,11 +92,6 @@ message("${Blue}Fetched:${Green}GLFW ${Blue}set to:${Green}${glfw_SOURCE_DIR}${C
 message("${Blue}Fetched:${Green}Boxer ${Blue}set to:${Green}${boxer_SOURCE_DIR}${ColorReset}")
 message("${Blue}Fetched:${Green}InfinityDeps ${Blue}set to:${Green}${infinity_SOURCE_DIR}${ColorReset}")
 
-find_package(Vulkan REQUIRED)
-find_package(CURL REQUIRED)
-find_package(OpenSSL REQUIRED)
-
-print_system_dependencies_info()
 
 load_encryption_key_from_env_file()
 
