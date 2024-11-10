@@ -6,57 +6,90 @@ include(cmake/colors.cmake)
 include(FetchContent)
 
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(VCPKG_SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg-debug")
+    message("Creating vcpkg at: ${VCPKG_SOURCE_PATH}")
+else ()
+    set(VCPKG_SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg-release")
+    message("Creating vcpkg at: ${VCPKG_SOURCE_PATH}")
+endif ()
+
 set(ENV{VCPKG_ENABLE_MANIFEST_MODE} "OFF")
-set(ENV{VCPKG_ROOT} "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg")
-if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg")
+set(ENV{VCPKG_ROOT} "${VCPKG_SOURCE_PATH}")
+if (NOT EXISTS "${VCPKG_SOURCE_PATH}")
 
     FetchContent_Declare(
             vcpkg
             GIT_REPOSITORY https://github.com/microsoft/vcpkg.git
             GIT_TAG 2024.10.21
-            SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vcpkg
+            SOURCE_DIR ${VCPKG_SOURCE_PATH}
     )
     FetchContent_MakeAvailable(vcpkg)
 
     if (WIN32)
-        set(BOOTSTRAP_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/bootstrap-vcpkg.bat")
-        set(VCPKG_TRIPLET "x64-windows")
+        set(BOOTSTRAP_COMMAND "${VCPKG_SOURCE_PATH}/bootstrap-vcpkg.bat")
+
     else ()
-        set(BOOTSTRAP_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/bootstrap-vcpkg.sh")
-        set(VCPKG_TRIPLET "x64-linux")
+        set(BOOTSTRAP_COMMAND "${VCPKG_SOURCE_PATH}/bootstrap-vcpkg.sh")
+
     endif ()
 
-    if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/vcpkg")
+    if (NOT EXISTS "${VCPKG_SOURCE_PATH}/vcpkg.exe")
         message("${Green}Bootstrapping vcpkg...${ColorReset}")
         execute_process(
                 COMMAND ${BOOTSTRAP_COMMAND}
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/vcpkg
+                WORKING_DIRECTORY ${VCPKG_SOURCE_PATH}
         )
     endif ()
 
 endif ()
 
+if (WIN32)
+    set(VCPKG_TRIPLET "x64-windows-static")
+else ()
+    set(VCPKG_TRIPLET "x64-linux-static")
+endif ()
 
 message("${Green}Installing OpenSSL${ColorReset}")
 execute_process(
-        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/vcpkg install openssl
+        COMMAND ${VCPKG_SOURCE_PATH}/vcpkg install openssl
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 message("${Green}Installing Vulkan${ColorReset}")
 execute_process(
-        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/vcpkg install vulkan
+        COMMAND ${VCPKG_SOURCE_PATH}/vcpkg install vulkan
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 message("${Green}Installing Curl${ColorReset}")
 execute_process(
-        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/vcpkg install curl
+        COMMAND ${VCPKG_SOURCE_PATH}/vcpkg install curl
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+message("${Green}Installing MiniZip${ColorReset}")
+execute_process(
+        COMMAND ${VCPKG_SOURCE_PATH}/vcpkg install minizip
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+message("${Green}Installing Zoe${ColorReset}")
+execute_process(
+        COMMAND ${VCPKG_SOURCE_PATH}/vcpkg install zoe
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+if (WIN32)
+    message("${Green}Installing WinToast${ColorReset}")
+    execute_process(
+            COMMAND ${VCPKG_SOURCE_PATH}/vcpkg install wintoast
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+endif ()
+
+
+set(CMAKE_TOOLCHAIN_FILE "${VCPKG_SOURCE_PATH}/scripts/buildsystems/vcpkg.cmake"
         CACHE STRING "Vcpkg toolchain file")
 
 project(InfinityPackageBuilder)
@@ -69,6 +102,11 @@ message("${Blue}Using toolchain file: ${Green}${CMAKE_TOOLCHAIN_FILE}")
 find_package(Vulkan REQUIRED)
 find_package(CURL REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(unofficial-minizip CONFIG REQUIRED)
+find_package(zoe CONFIG REQUIRED PATHS "${VCPKG_SOURCE_PATH}/packages/zoe_${VCPKG_TRIPLET}/")
+if (WIN32)
+    find_package(unofficial-wintoast REQUIRED)
+endif ()
 
 print_system_dependencies_info()
 
@@ -174,6 +212,9 @@ add_executable(InfinityPackageBuilder
         src/Util/GithubOAuth.hpp
         src/Util/Encrypt.hpp
         src/Util/StateTimer.hpp
+        src/Util/ZipUtil.cpp
+        src/Util/ZipUtil.hpp
+        src/Util/OpenInBrowser.hpp
 )
 
 file(GLOB IMGUI_SOURCES
@@ -194,12 +235,16 @@ file(GLOB_RECURSE SOL_SOURCES ${infinity_SOURCE_DIR}/include/Sol2/*.hpp)
 file(GLOB JSON_SOURCES ${infinity_SOURCE_DIR}/include/Json/*.hpp)
 target_sources(InfinityPackageBuilder PRIVATE ${MICROXML_SOURCES} ${SOL_SOURCES} ${STB_IMAGE} ${IMGUI_SOURCES} ${JSON_SOURCES})
 
+set(ZOE_INCLUDE_DIR ${VCPKG_SOURCE_PATH}/packages/zoe_${VCPKG_TRIPLET}/include)
+
 target_include_directories(InfinityPackageBuilder PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${infinity_SOURCE_DIR}/include
         ${infinity_SOURCE_DIR}/include/Lua # for sol header file #include<lua.h>
         ${infinity_SOURCE_DIR}/src/imgui
         ${infinity_SOURCE_DIR}/src/imguiTextEditor
+        ${ZOE_INCLUDE_DIR}
+        ${MINIZIP_INCLUDE_DIR}
 )
 
 target_compile_definitions(InfinityPackageBuilder PRIVATE
@@ -212,6 +257,27 @@ if (WIN32)
             $<$<NOT:$<CONFIG:Release>>:/SUBSYSTEM:CONSOLE>
     )
     set(LUA_LIB ${infinity_SOURCE_DIR}/lib/lua.lib)
+    if (CMAKE_BUILD_TYPE MATCHES DEBUG)
+        set(ZOE_LIB ${VCPKG_SOURCE_PATH}/packages/zoe_x64-windows/debug/lib/libZoe-d.lib)
+    else ()
+        set(ZOE_LIB ${VCPKG_SOURCE_PATH}/packages/zoe_x64-windows/lib/libZoe.lib)
+    endif ()
+
+    set(TOAST_LIB unofficial::wintoast::wintoast)
+
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_custom_command(TARGET InfinityPackageBuilder POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${VCPKG_SOURCE_PATH}/packages/zoe_x64-windows/debug/bin/libZoe-d.dll
+                $<TARGET_FILE_DIR:InfinityPackageBuilder>
+        )
+    else ()
+        add_custom_command(TARGET InfinityPackageBuilder POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${VCPKG_SOURCE_PATH}/packages/zoe_x64-windows/bin/libZoe.dll
+                $<TARGET_FILE_DIR:InfinityPackageBuilder>
+        )
+    endif ()
     add_custom_command(TARGET InfinityPackageBuilder POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             ${infinity_SOURCE_DIR}/bin/libcrypto-3-x64.dll
@@ -224,6 +290,12 @@ else ()
             $<TARGET_FILE_DIR:InfinityPackageBuilder>
     )
     set(LUA_LIB ${infinity_SOURCE_DIR}/lib/liblua.a)
+    if (CMAKE_BUILD_TYPE MATCHES DEBUG)
+        set(ZOE_LIB ${VCPKG_SOURCE_PATH}/packages/zoe_x64-linux/debug/lib/libZoe-D.lib)
+    else ()
+        set(ZOE_LIB ${VCPKG_SOURCE_PATH}/packages/zoe_x64-linux/lib/libZoe.lib)
+    endif ()
 endif ()
 
-target_link_libraries(InfinityPackageBuilder PRIVATE Vulkan::Vulkan glfw Boxer ${LUA_LIB} CURL::libcurl OpenSSL::SSL OpenSSL::Crypto)
+
+target_link_libraries(InfinityPackageBuilder PRIVATE Vulkan::Vulkan glfw Boxer ${LUA_LIB} CURL::libcurl OpenSSL::SSL OpenSSL::Crypto unofficial::minizip::minizip ${ZOE_LIB} ${TOAST_LIB})

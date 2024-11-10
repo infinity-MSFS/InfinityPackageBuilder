@@ -1,7 +1,9 @@
 
 #include "GithubOAuth.hpp"
 #include <chrono>
+
 #include "Ini/ini.h"
+#include "OpenInBrowser.hpp"
 
 constexpr const char *encryption_key = ENCRYPTION_KEY;
 
@@ -103,6 +105,11 @@ bool GithubOAuth::StartDeviceFlow() {
     std::string interval_string = response_json["interval"];
     m_Interval = std::stoi(interval_string);
 
+    if (ImGui::Button("Click here!")) {
+        OpenUrlInBrowser(verificationUri);
+    }
+    ImGui::SameLine();
+    ImGui::Text("Enter Code: %s", userCode.c_str());
     std::cout << "Go to " << verificationUri << " and enter the code: " << userCode << "\n";
 
     std::thread(&GithubOAuth::PollForAccessToken, this).detach();

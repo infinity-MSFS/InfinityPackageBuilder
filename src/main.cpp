@@ -109,7 +109,7 @@ namespace InfinityRenderer {
 
 #if defined(RELEASE_DIST) && WIN32
 
-#include <windows.h>
+#include <Windows.h>
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nShowCmd) { InfinityRenderer::Main(__argc, __argv); }
 

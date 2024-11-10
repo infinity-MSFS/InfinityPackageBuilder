@@ -6,4 +6,5 @@ cmake-build-release-x11
 build
 .env
 vcpkg_installed
-vcpkg
+vcpkg-debug
+vcpkg-release

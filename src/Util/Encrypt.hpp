@@ -11,7 +11,7 @@
 #include <vector>
 
 #ifdef WIN32
-#include <windows.h>
+#include <Windows.h>
 
 inline bool HideFile(const std::string &filePath) {
     if (SetFileAttributes(filePath.c_str(), FILE_ATTRIBUTE_HIDDEN) == 0) {

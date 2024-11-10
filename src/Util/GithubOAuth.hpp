@@ -13,6 +13,13 @@
 
 using json = nlohmann::json;
 
+enum class GithubOuthState {
+    UNAUTHORIZED,
+    PENDING_AUTHORIZATION,
+    AUTHORIZED,
+};
+
+
 class GithubOAuth {
 public:
     GithubOAuth();
@@ -28,6 +35,7 @@ public:
         }
         return std::nullopt;
     }
+    [[nodiscard]] std::string GetDeviceCode() const { return m_DeviceCode; }
 
 private:
     bool StartDeviceFlow();
@@ -38,6 +46,7 @@ private:
 
 private:
     std::string m_DeviceCode;
+    std::string m_UserCode;
     int m_Interval;
 
     const std::string m_ClientID = "Ov23liiC9KSl2GTqcfLj";
