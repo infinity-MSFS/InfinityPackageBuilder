@@ -34,12 +34,22 @@ if (NOT EXISTS "${VCPKG_SOURCE_PATH}")
 
     endif ()
 
-    if (NOT EXISTS "${VCPKG_SOURCE_PATH}/vcpkg.exe")
-        message("${Green}Bootstrapping vcpkg...${ColorReset}")
-        execute_process(
-                COMMAND ${BOOTSTRAP_COMMAND}
-                WORKING_DIRECTORY ${VCPKG_SOURCE_PATH}
-        )
+    if (WIN32)
+        if (NOT EXISTS "${VCPKG_SOURCE_PATH}/vcpkg.exe")
+            message("${Green}Bootstrapping vcpkg...${ColorReset}")
+            execute_process(
+                    COMMAND ${BOOTSTRAP_COMMAND}
+                    WORKING_DIRECTORY ${VCPKG_SOURCE_PATH}
+            )
+        endif ()
+    else ()
+        if (NOT EXISTS "${VCPKG_SOURCE_PATH}/vcpkg")
+            message("${Green}Bootstrapping vcpkg...${ColorReset}")
+            execute_process(
+                    COMMAND ${BOOTSTRAP_COMMAND}
+                    WORKING_DIRECTORY ${VCPKG_SOURCE_PATH}
+            )
+        endif ()
     endif ()
 
 endif ()
@@ -291,9 +301,9 @@ else ()
     )
     set(LUA_LIB ${infinity_SOURCE_DIR}/lib/liblua.a)
     if (CMAKE_BUILD_TYPE MATCHES DEBUG)
-        set(ZOE_LIB ${VCPKG_SOURCE_PATH}/packages/zoe_x64-linux/debug/lib/libZoe-D.lib)
+        set(ZOE_LIB ${VCPKG_SOURCE_PATH}/packages/zoe_x64-linux/debug/lib/liblibZoe-d.a)
     else ()
-        set(ZOE_LIB ${VCPKG_SOURCE_PATH}/packages/zoe_x64-linux/lib/libZoe.lib)
+        set(ZOE_LIB ${VCPKG_SOURCE_PATH}/packages/zoe_x64-linux/lib/liblibZoe.a)
     endif ()
 endif ()
 

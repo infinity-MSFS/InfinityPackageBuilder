@@ -2,6 +2,7 @@
 #include "ZipUtil.hpp"
 #include <fstream>
 #include <minizip/unzip.h>
+#include <vector>
 #include "zoe/zoe.h"
 
 bool ZipUtil::ZipDirectory(const std::string &dir_path, const std::string &zip_path) {

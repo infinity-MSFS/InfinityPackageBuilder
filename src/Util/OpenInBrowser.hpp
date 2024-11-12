@@ -13,9 +13,9 @@ inline void OpenUrlInBrowser(std::string &url) {
 
 #elif __APPLE__
     std::string command = "open " + url;
-    std::system(command.cstr());
+    std::system(command.c_str());
 #elif __linux__
-    std::string command = "open " + url;
-    std::system(command.cstr());
+    std::string command = "xdg-open " + url;
+    std::system(command.c_str());
 #endif
 }

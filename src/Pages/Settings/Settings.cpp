@@ -4,6 +4,7 @@
 #include "Util/OpenInBrowser.hpp"
 #include "renderer/GUI/ApplicationGui.hpp"
 
+#ifdef WIN32
 using namespace WinToastLib;
 
 class CustomHandler : public IWinToastHandler {
@@ -41,7 +42,16 @@ public:
     }
 };
 
-Settings::Settings(const float padding_x, const float padding_y) : Page(padding_x, padding_y), m_WinToast(WinToastTemplate::ImageAndText02) {
+#endif
+
+Settings::Settings(const float padding_x, const float padding_y) :
+    Page(padding_x, padding_y)
+#ifdef WIN32
+    ,
+    m_WinToast(WinToastTemplate::ImageAndText02)
+#endif
+{
+#ifdef WIN32
     if (!WinToast::isCompatible()) {
         std::wcerr << L"Error, your system in not supported!" << std::endl;
     }
@@ -55,15 +65,18 @@ Settings::Settings(const float padding_x, const float padding_y) : Page(padding_
     if (!WinToast::instance()->initialize()) {
         std::wcerr << L"Error, your system in not compatible!" << std::endl;
     }
+#endif
 }
 
 void Settings::RenderPage() {
     const auto word_size = ImGui::CalcTextSize("Settings");
     ImGui::SetCursorPos(ImVec2(ImGui::GetWindowWidth() / 2 - word_size.x / 2, 10.0f));
     ImGui::Text("Settings");
+#ifdef WIN32
     if (ImGui::Button("Show Toast")) {
         WinToast::instance()->showToast(m_WinToast, new CustomHandler());
     }
+#endif
     if (ImGui::Button("Open in browser")) {
         std::string url = "https://youtube.com";
         OpenUrlInBrowser(url);
