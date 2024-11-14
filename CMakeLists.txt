@@ -133,13 +133,23 @@ option(INFINITY_USE_WAYLAND "Build for Wayland" OFF)
 FetchContent_Declare(GLFW GIT_REPOSITORY https://github.com/TheCherno/glfw.git)
 FetchContent_Declare(Boxer GIT_REPOSITORY https://github.com/aaronmjacobs/Boxer.git)
 FetchContent_Declare(Infinity GIT_REPOSITORY https://github.com/Tacotakedown/InfinityPackageBuilderDeps.git)
+if (UNIX)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(DBUS REQUIRED dbus-1)
+    FetchContent_Declare(MiniKDENotify GIT_REPOSITORY https://github.com/rikka-gh/MiniKDENotify.git)
 
-FetchContent_MakeAvailable(GLFW Boxer Infinity)
+    FetchContent_MakeAvailable(GLFW Boxer Infinity MiniKDENotify)
+    option(MINIKDENOTIFY_BUILD_EXAMPLES OFF)
+else ()
+    FetchContent_MakeAvailable(GLFW Boxer Infinity)
+endif ()
 
 message("${Blue}Fetched:${Green}GLFW ${Blue}set to:${Green}${glfw_SOURCE_DIR}${ColorReset}")
 message("${Blue}Fetched:${Green}Boxer ${Blue}set to:${Green}${boxer_SOURCE_DIR}${ColorReset}")
 message("${Blue}Fetched:${Green}InfinityDeps ${Blue}set to:${Green}${infinity_SOURCE_DIR}${ColorReset}")
-
+if (UNIX)
+    message("${Blue}Fetched:${Green}MiniKdeNotify ${Blue}set to:${Green}${minikdenotify_SOURCE_DIR}${ColorReset}")
+endif ()
 
 load_encryption_key_from_env_file()
 
@@ -225,6 +235,8 @@ add_executable(InfinityPackageBuilder
         src/Util/ZipUtil.cpp
         src/Util/ZipUtil.hpp
         src/Util/OpenInBrowser.hpp
+        src/Util/Notifications.cpp
+        src/Util/Notifications.hpp
 )
 
 file(GLOB IMGUI_SOURCES
@@ -247,15 +259,29 @@ target_sources(InfinityPackageBuilder PRIVATE ${MICROXML_SOURCES} ${SOL_SOURCES}
 
 set(ZOE_INCLUDE_DIR ${VCPKG_SOURCE_PATH}/packages/zoe_${VCPKG_TRIPLET}/include)
 
-target_include_directories(InfinityPackageBuilder PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${infinity_SOURCE_DIR}/include
-        ${infinity_SOURCE_DIR}/include/Lua # for sol header file #include<lua.h>
-        ${infinity_SOURCE_DIR}/src/imgui
-        ${infinity_SOURCE_DIR}/src/imguiTextEditor
-        ${ZOE_INCLUDE_DIR}
-        ${MINIZIP_INCLUDE_DIR}
-)
+if (UNIX)
+    target_include_directories(InfinityPackageBuilder PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/src
+            ${infinity_SOURCE_DIR}/include
+            ${infinity_SOURCE_DIR}/include/Lua # for sol header file #include<lua.h>
+            ${infinity_SOURCE_DIR}/src/imgui
+            ${infinity_SOURCE_DIR}/src/imguiTextEditor
+            ${ZOE_INCLUDE_DIR}
+            ${MINIZIP_INCLUDE_DIR}
+            ${minikdenotify_SOURCE_DIR}/include
+            ${DBUS_INCLUDE_DIRS}
+    )
+else ()
+    target_include_directories(InfinityPackageBuilder PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/src
+            ${infinity_SOURCE_DIR}/include
+            ${infinity_SOURCE_DIR}/include/Lua # for sol header file #include<lua.h>
+            ${infinity_SOURCE_DIR}/src/imgui
+            ${infinity_SOURCE_DIR}/src/imguiTextEditor
+            ${ZOE_INCLUDE_DIR}
+            ${MINIZIP_INCLUDE_DIR}
+    )
+endif ()
 
 target_compile_definitions(InfinityPackageBuilder PRIVATE
         $<$<CONFIG:Release>:RELEASE_DIST>
@@ -299,7 +325,7 @@ else ()
             ${infinity_SOURCE_DIR}/lib/liblua.so
             $<TARGET_FILE_DIR:InfinityPackageBuilder>
     )
-    set(LUA_LIB ${infinity_SOURCE_DIR}/lib/liblua.a)
+    set(LUA_LIB ${infinity_SOURCE_DIR}/lib/liblua.a ${DBUS_LIBRARIES})
     if (CMAKE_BUILD_TYPE MATCHES DEBUG)
         set(ZOE_LIB ${VCPKG_SOURCE_PATH}/packages/zoe_x64-linux/debug/lib/liblibZoe-d.a)
     else ()
