@@ -14,5 +14,7 @@ public:
     void RenderPage() override;
 
 private:
-
+#ifdef WIN32
+    WinToastLib::WinToastTemplate m_WinToast;
+#endif
 };
