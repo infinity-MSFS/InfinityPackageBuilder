@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.29)
 
-
 include(cmake/util.cmake)
 include(cmake/colors.cmake)
 include(cmake/key_loading.cmake)
@@ -105,14 +104,6 @@ add_executable(InfinityPackageBuilder
         src/main.cpp
         src/renderer/Layer.hpp
         src/renderer/buffer/Buffer.hpp
-        src/renderer/serialization/StreamWriter.cpp
-        src/renderer/serialization/StreamWriter.hpp
-        src/renderer/serialization/StreamReader.cpp
-        src/renderer/serialization/StreamReader.hpp
-        src/renderer/serialization/FileStream.cpp
-        src/renderer/serialization/FileStream.hpp
-        src/renderer/serialization/BufferStream.cpp
-        src/renderer/serialization/BufferStream.hpp
         src/renderer/image/Image.cpp
         src/renderer/image/Image.hpp
         src/renderer/GUI/ApplicationGui.cpp
@@ -153,14 +144,11 @@ add_executable(InfinityPackageBuilder
         src/Util/GithubRelease.hpp
         src/Util/GithubOAuth.cpp
         src/Util/GithubOAuth.hpp
-        src/Util/Encrypt.hpp
         src/Util/StateTimer.hpp
         src/Util/ZipUtil.cpp
         src/Util/ZipUtil.hpp
         src/Util/OpenInBrowser.hpp
         src/Pages/LauncherJsonManager/Serialization/BinaryStructure.hpp
-        src/Pages/LauncherJsonManager/Serialization/Encryption.cpp
-        src/Pages/LauncherJsonManager/Serialization/Encryption.hpp
         src/Pages/LauncherJsonManager/Serialization/Serialization.cpp
         src/Pages/LauncherJsonManager/Serialization/Serialization.hpp
         src/Util/Notifications.cpp

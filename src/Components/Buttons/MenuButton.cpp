@@ -85,7 +85,7 @@ bool MenuButton::RenderButton(float x, float y, float width, float height, const
 
 
 void MenuButton::Render() {
-    if (const auto router = InfinityPackageBuilder::Utils::Router::getInstance(); router.has_value()) {
+    if (const auto router = Infinity::Utils::Router::getInstance(); router.has_value()) {
         m_CurrentActiveID = (*router)->getPage().value_or(0);
     }
     int i = 0;

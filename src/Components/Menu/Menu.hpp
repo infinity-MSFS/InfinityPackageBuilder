@@ -10,7 +10,7 @@
 
 #include "Router/Router.hpp"
 
-using InfinityPackageBuilder::Utils::Router;
+using Infinity::Utils::Router;
 
 class MenuManager {
 public:
@@ -51,9 +51,9 @@ static const std::vector<std::tuple<std::string, int, std::function<void()>, boo
                                                                                                 [] {
                                                                                                     if (const auto router = Router::getInstance(); router.has_value()) {
                                                                                                         if (auto result = static_cast<Router *>(*router)->setPage(0); !result) {
-                                                                                                            InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
+                                                                                                            Infinity::Errors::ShowErrorPopup(result.error());
                                                                                                         } else {
-                                                                                                            InfinityRenderer::Application::SetWindowTitle("Package Builder");
+                                                                                                            Infinity::Application::SetWindowTitle("Package Builder");
                                                                                                         }
                                                                                                     }
                                                                                                 },
@@ -62,9 +62,9 @@ static const std::vector<std::tuple<std::string, int, std::function<void()>, boo
                                                                                                 [] {
                                                                                                     if (const auto router = Router::getInstance(); router.has_value()) {
                                                                                                         if (auto result = static_cast<Router *>(*router)->setPage(1); !result) {
-                                                                                                            InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
+                                                                                                            Infinity::Errors::ShowErrorPopup(result.error());
                                                                                                         } else {
-                                                                                                            InfinityRenderer::Application::SetWindowTitle("Package Differ");
+                                                                                                            Infinity::Application::SetWindowTitle("Package Differ");
                                                                                                         }
                                                                                                     }
                                                                                                 },
@@ -73,9 +73,9 @@ static const std::vector<std::tuple<std::string, int, std::function<void()>, boo
                                                                                                 [] {
                                                                                                     if (const auto router = Router::getInstance(); router.has_value()) {
                                                                                                         if (auto result = static_cast<Router *>(*router)->setPage(2); !result) {
-                                                                                                            InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
+                                                                                                            Infinity::Errors::ShowErrorPopup(result.error());
                                                                                                         } else {
-                                                                                                            InfinityRenderer::Application::SetWindowTitle("Release Publisher");
+                                                                                                            Infinity::Application::SetWindowTitle("Release Publisher");
                                                                                                         }
                                                                                                     }
                                                                                                 },
@@ -84,9 +84,9 @@ static const std::vector<std::tuple<std::string, int, std::function<void()>, boo
                                                                                                 [] {
                                                                                                     if (const auto router = Router::getInstance(); router.has_value()) {
                                                                                                         if (auto result = static_cast<Router *>(*router)->setPage(3); !result) {
-                                                                                                            InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
+                                                                                                            Infinity::Errors::ShowErrorPopup(result.error());
                                                                                                         } else {
-                                                                                                            InfinityRenderer::Application::SetWindowTitle("Launcher JSON Manager");
+                                                                                                            Infinity::Application::SetWindowTitle("Launcher JSON Manager");
                                                                                                         }
                                                                                                     }
                                                                                                 },
@@ -95,9 +95,9 @@ static const std::vector<std::tuple<std::string, int, std::function<void()>, boo
                                                                                                 [] {
                                                                                                     if (const auto router = Router::getInstance(); router.has_value()) {
                                                                                                         if (auto result = static_cast<Router *>(*router)->setPage(4); !result) {
-                                                                                                            InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
+                                                                                                            Infinity::Errors::ShowErrorPopup(result.error());
                                                                                                         } else {
-                                                                                                            InfinityRenderer::Application::SetWindowTitle("Settings");
+                                                                                                            Infinity::Application::SetWindowTitle("Settings");
                                                                                                         }
                                                                                                     }
                                                                                                 },
@@ -107,9 +107,9 @@ static const std::vector<std::tuple<std::string, int, std::function<void()>, boo
                                                                                                 [] {
                                                                                                     if (const auto router = Router::getInstance(); router.has_value()) {
                                                                                                         if (auto result = static_cast<Router *>(*router)->setPage(0); !result) {
-                                                                                                            InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
+                                                                                                            Infinity::Errors::ShowErrorPopup(result.error());
                                                                                                         } else {
-                                                                                                            InfinityRenderer::Application::SetWindowTitle("Package Differ");
+                                                                                                            Infinity::Application::SetWindowTitle("Package Differ");
                                                                                                         }
                                                                                                     }
                                                                                                 },
@@ -118,9 +118,9 @@ static const std::vector<std::tuple<std::string, int, std::function<void()>, boo
                                                                                                 [] {
                                                                                                     if (const auto router = Router::getInstance(); router.has_value()) {
                                                                                                         if (auto result = static_cast<Router *>(*router)->setPage(1); !result) {
-                                                                                                            InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
+                                                                                                            Infinity::Errors::ShowErrorPopup(result.error());
                                                                                                         } else {
-                                                                                                            InfinityRenderer::Application::SetWindowTitle("Release Publisher");
+                                                                                                            Infinity::Application::SetWindowTitle("Release Publisher");
                                                                                                         }
                                                                                                     }
                                                                                                 },
@@ -129,9 +129,9 @@ static const std::vector<std::tuple<std::string, int, std::function<void()>, boo
                                                                                                 [] {
                                                                                                     if (const auto router = Router::getInstance(); router.has_value()) {
                                                                                                         if (auto result = static_cast<Router *>(*router)->setPage(2); !result) {
-                                                                                                            InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
+                                                                                                            Infinity::Errors::ShowErrorPopup(result.error());
                                                                                                         } else {
-                                                                                                            InfinityRenderer::Application::SetWindowTitle("Launcher JSON Manager");
+                                                                                                            Infinity::Application::SetWindowTitle("Launcher JSON Manager");
                                                                                                         }
                                                                                                     }
                                                                                                 },
@@ -140,9 +140,9 @@ static const std::vector<std::tuple<std::string, int, std::function<void()>, boo
                                                                                                 [] {
                                                                                                     if (const auto router = Router::getInstance(); router.has_value()) {
                                                                                                         if (auto result = static_cast<Router *>(*router)->setPage(3); !result) {
-                                                                                                            InfinityPackageBuilder::Errors::ShowErrorPopup(result.error());
+                                                                                                            Infinity::Errors::ShowErrorPopup(result.error());
                                                                                                         } else {
-                                                                                                            InfinityRenderer::Application::SetWindowTitle("Settings");
+                                                                                                            Infinity::Application::SetWindowTitle("Settings");
                                                                                                         }
                                                                                                     }
                                                                                                 },
@@ -150,7 +150,7 @@ static const std::vector<std::tuple<std::string, int, std::function<void()>, boo
 
 #endif
 
-class Menu final : public InfinityRenderer::Layer {
+class Menu final : public Infinity::Layer {
 public:
     void OnUIRender() override {
 

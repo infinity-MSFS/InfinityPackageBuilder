@@ -24,9 +24,26 @@
 #include "ouroboros_key.h"
 #include "qbit_sim_key.h"
 
+#ifdef WIN32
+#include <Windows.h>
+#include <iostream>
+#endif
 
 namespace Infinity::Encryption {
     typedef std::vector<uint8_t> v_bytes;
+
+
+#ifdef WIN32
+
+
+    inline bool HideFile(const std::string &filePath) {
+        if (SetFileAttributes(filePath.c_str(), FILE_ATTRIBUTE_HIDDEN) == 0) {
+            std::cerr << "Error: Could not hide the file. Error code: " << GetLastError() << std::endl;
+            return false;
+        }
+        return true;
+    }
+#endif
 
 
     enum class Keys { Admin, AeroDynamics, Client, DeltaSim, Github, Group, LunarSim, Ouroboros, QbitSim };
@@ -37,7 +54,7 @@ namespace Infinity::Encryption {
 
 
         static ValidationTypes GetValidationType(const Key &provided_key);
-        static v_bytes ParseKeyFile(std::string &file_path);
+        static v_bytes ParseKeyFile(const std::string &file_path);
     };
 
     class Encryption {
@@ -58,17 +75,15 @@ namespace Infinity::Encryption {
         static std::string Base64Encode(const v_bytes &binary);
 
         static v_bytes Base64Decode(const std::string &base64_data);
-
-    private:
     };
 
-    inline v_bytes CreateUnencryptedKey(unsigned char *raw_binary, unsigned int length) {
-        v_bytes key(raw_binary, raw_binary + length);
+    inline v_bytes CreateUnencryptedKey(const unsigned char *raw_binary) {
+        v_bytes key(raw_binary, raw_binary + sizeof(raw_binary));
         return key;
     }
 
-    inline v_bytes CreateKey(unsigned char *raw_binary, unsigned int length, v_bytes key) {
-        v_bytes encrypted_key(raw_binary, raw_binary + length);
+    inline v_bytes CreateKey(const unsigned char *raw_binary, const v_bytes &key) {
+        const v_bytes encrypted_key(raw_binary, raw_binary + sizeof(raw_binary));
         auto result = Encryption::DecryptToBin(encrypted_key, key);
         return result;
     }

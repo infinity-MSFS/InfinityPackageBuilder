@@ -9,7 +9,7 @@
 #include "renderer/GUI/Vulkan/Vulkan.hpp"
 #include "stb_image/stb_image.h"
 
-namespace InfinityRenderer {
+namespace Infinity {
     namespace Utils {
         static uint32_t GetVulkanMemoryType(const VkMemoryPropertyFlags properties, const uint32_t type_bits) {
             VkPhysicalDeviceMemoryProperties prop;

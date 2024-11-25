@@ -4,7 +4,7 @@
 #include "Util/Error.hpp"
 
 
-namespace InfinityPackageBuilder::Utils {
+namespace Infinity::Utils {
     std::unique_ptr<Router> Router::m_Instance = nullptr;
 
     void Router::configure(std::unordered_map<int, std::function<void()>> pages) {
@@ -46,6 +46,5 @@ namespace InfinityPackageBuilder::Utils {
         }
     }
 
-    Router::Router(std::unordered_map<int, std::function<void()>> pages) :
-        m_CurrentPageID(0), m_Pages(std::move(pages)) {}
-} // namespace InfinityPackageBuilder::Utils
+    Router::Router(std::unordered_map<int, std::function<void()>> pages) : m_CurrentPageID(0), m_Pages(std::move(pages)) {}
+} // namespace Infinity::Utils

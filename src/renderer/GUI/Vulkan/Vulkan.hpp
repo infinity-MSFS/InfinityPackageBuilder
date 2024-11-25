@@ -10,7 +10,7 @@
 #include <functional>
 
 
-namespace InfinityRenderer::Vulkan {
+namespace Infinity::Vulkan {
 
 
     static VkAllocationCallbacks *g_Allocator = nullptr;

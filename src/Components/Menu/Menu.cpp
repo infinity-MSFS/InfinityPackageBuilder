@@ -38,7 +38,7 @@ bool MenuUI::RenderSettingsIcon(const ImVec2 pos, const MenuManager::State state
 static float settings_menu_x = -10.0f;
 static constexpr float animation_speed = 6.0f;
 
-using InfinityPackageBuilder::Utils::Router;
+using Infinity::Utils::Router;
 
 static MenuButton menu_button(settings_menu_x - 300.0f, 130.0f, 300.0f, 50.0f, 20.0f, buttons);
 

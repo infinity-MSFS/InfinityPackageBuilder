@@ -7,31 +7,35 @@
 namespace Infinity::Encryption {
     using namespace Errors;
     ValidationTypes Key::GetValidationType(const Key &provided_key) {
-        v_bytes verification_key = CreateUnencryptedKey(group_key, group_key_len);
-        if (Encryption::DecryptToBin(provided_key.key, verification_key) == CreateKey(admin_key, admin_key_len, verification_key)) {
+        if (Encryption::DecryptToBin(provided_key.key, CreateUnencryptedKey(group_key)) == CreateKey(admin_key, CreateUnencryptedKey(group_key))) {
             return ValidationTypes::FULL;
-        } else if (Encryption::DecryptToBin(provided_key.key, verification_key) == CreateKey(aero_dynamics_key, aero_dynamics_key_len, verification_key)) {
-            return ValidationTypes::AERO_DYNAMICS;
-        } else if (Encryption::DecryptToBin(provided_key.key, verification_key) == CreateKey(delta_sim_key, delta_sim_key_len, verification_key)) {
-            return ValidationTypes::DELTA_SIM;
-        } else if (Encryption::DecryptToBin(provided_key.key, verification_key) == CreateKey(lunar_sim_key, lunar_sim_key_len, verification_key)) {
-            return ValidationTypes::LUNAR_SIM;
-        } else if (Encryption::DecryptToBin(provided_key.key, verification_key) == CreateKey(ouroboros_key, ouroboros_key_len, verification_key)) {
-            return ValidationTypes::OUROBOROS;
-        } else if (Encryption::DecryptToBin(provided_key.key, verification_key) == CreateKey(qbit_sim_key, qbit_sim_key_len, verification_key)) {
-            return ValidationTypes::QBIT_SIM;
-        } else {
-            return ValidationTypes::NOT_AUTHORIZED;
         }
+        if (Encryption::DecryptToBin(provided_key.key, CreateUnencryptedKey(group_key)) == CreateKey(aero_dynamics_key, CreateUnencryptedKey(group_key))) {
+            return ValidationTypes::AERO_DYNAMICS;
+        }
+        if (Encryption::DecryptToBin(provided_key.key, CreateUnencryptedKey(group_key)) == CreateKey(delta_sim_key, CreateUnencryptedKey(group_key))) {
+            return ValidationTypes::DELTA_SIM;
+        }
+        if (Encryption::DecryptToBin(provided_key.key, CreateUnencryptedKey(group_key)) == CreateKey(lunar_sim_key, CreateUnencryptedKey(group_key))) {
+            return ValidationTypes::LUNAR_SIM;
+        }
+        if (Encryption::DecryptToBin(provided_key.key, CreateUnencryptedKey(group_key)) == CreateKey(ouroboros_key, CreateUnencryptedKey(group_key))) {
+            return ValidationTypes::OUROBOROS;
+        }
+        if (Encryption::DecryptToBin(provided_key.key, CreateUnencryptedKey(group_key)) == CreateKey(qbit_sim_key, CreateUnencryptedKey(group_key))) {
+            return ValidationTypes::QBIT_SIM;
+        }
+        return ValidationTypes::NOT_AUTHORIZED;
     }
 
-    v_bytes Key::ParseKeyFile(std::string &file_path) {
+
+    v_bytes Key::ParseKeyFile(const std::string &file_path) {
         std::ifstream file(file_path, std::ios::binary | std::ios::ate);
         if (!file.is_open()) {
             Error(ErrorType::Warning, "Failed to open file: " + file_path).Dispatch();
         }
 
-        std::streamsize file_size = file.tellg();
+        const std::streamsize file_size = file.tellg();
         if (file_size < 0) {
             Error(ErrorType::Warning, "Failed to get file size: " + file_path);
         }
@@ -128,11 +132,11 @@ namespace Infinity::Encryption {
     }
 
     std::string Encryption::EncryptBase64(const std::string &plain_text, const v_bytes &key) {
-        auto bytes = Encrypt(plain_text, key);
+        const auto bytes = Encrypt(plain_text, key);
         return Base64Encode(bytes);
     }
     std::string Encryption::EncryptBase64(const v_bytes &binary, const v_bytes &key) {
-        auto bytes = Encrypt(binary, key);
+        const auto bytes = Encrypt(binary, key);
         return Base64Encode(bytes);
     }
 
@@ -178,6 +182,7 @@ namespace Infinity::Encryption {
         return {plain_text.begin(), plain_text.begin() + plaintext_len};
     }
 
+
     v_bytes Encryption::DecryptToBin(const v_bytes &binary, const v_bytes &key) {
         if (key.size() != 32) {
             Error(ErrorType::Fatal, "Attempted decryption with invalid key").Dispatch();
@@ -221,12 +226,12 @@ namespace Infinity::Encryption {
     }
 
     std::string Encryption::DecryptBase64(const std::string &base64, const v_bytes &key) {
-        auto bytes = Base64Decode(base64);
+        const auto bytes = Base64Decode(base64);
         return Decrypt(bytes, key);
     }
 
     v_bytes Encryption::DecryptBase64Bin(const std::string &base64, const v_bytes &key) {
-        auto bytes = Base64Decode(base64);
+        const auto bytes = Base64Decode(base64);
         return DecryptToBin(bytes, key);
     }
 

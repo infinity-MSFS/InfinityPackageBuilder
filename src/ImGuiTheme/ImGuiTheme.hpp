@@ -6,7 +6,7 @@
 #include <cmath>
 #include "imgui.h"
 
-namespace InfinityRenderer::UI {
+namespace Infinity::UI {
     namespace Colors {
         static inline float Convert_sRGB_FromLinear(float theLinearValue);
 
@@ -94,4 +94,4 @@ namespace InfinityRenderer::UI {
     } // namespace Colors
 
     void SetInfinityTheme();
-} // namespace InfinityRenderer::UI
+} // namespace Infinity::UI

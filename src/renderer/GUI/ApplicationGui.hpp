@@ -23,7 +23,7 @@ void check_vk_result(VkResult err);
 
 struct GLFWwindow;
 
-namespace InfinityRenderer {
+namespace Infinity {
     struct ApplicationSpecifications {
         std::string Name;
         uint32_t Width;
@@ -141,4 +141,4 @@ namespace InfinityRenderer {
     };
 
     Application *CreateApplication(int argc, char **argv);
-} // namespace InfinityRenderer
+} // namespace Infinity

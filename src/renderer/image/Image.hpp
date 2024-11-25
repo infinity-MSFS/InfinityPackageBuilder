@@ -5,7 +5,7 @@
 
 #include "vulkan/vulkan.h"
 
-namespace InfinityRenderer {
+namespace Infinity {
     enum class ImageFormat {
         None = 0,
         RGBA,

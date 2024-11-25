@@ -6,7 +6,7 @@
 #include <cstring>
 
 
-namespace InfinityRenderer {
+namespace Infinity {
     struct Buffer {
         void *Data;
         uint64_t Size;

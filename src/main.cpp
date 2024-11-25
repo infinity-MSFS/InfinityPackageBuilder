@@ -11,9 +11,9 @@
 #include "renderer/GUI/ApplicationGui.hpp"
 
 bool g_ApplicationRunning = true;
-using InfinityPackageBuilder::Utils::Router;
+using Infinity::Utils::Router;
 
-class PageRenderLayer final : public InfinityRenderer::Layer {
+class PageRenderLayer final : public Infinity::Layer {
 public:
     void OnUIRender() override {
         const Background background;
@@ -27,11 +27,11 @@ public:
         }
     }
 
-    void OnAttach() override { InfinityRenderer::Application::SetWindowTitle(std::get<0>(buttons.front())); }
+    void OnAttach() override { Infinity::Application::SetWindowTitle(std::get<0>(buttons.front())); }
 };
 
 
-InfinityRenderer::Application *InfinityRenderer::CreateApplication(int argc, char **argv) {
+Infinity::Application *Infinity::CreateApplication(int argc, char **argv) {
     const std::filesystem::path path = "Resources/Images/Logo.h";
     const ApplicationSpecifications spec = {"Infinity Package Manager",
                                             1440,
@@ -57,7 +57,7 @@ InfinityRenderer::Application *InfinityRenderer::CreateApplication(int argc, cha
 }
 
 
-namespace InfinityRenderer {
+namespace Infinity {
 
     int Main(const int argc, char **argv) {
 #ifdef WIN32
@@ -105,16 +105,16 @@ namespace InfinityRenderer {
         delete settings;
         return 0;
     }
-} // namespace InfinityRenderer
+} // namespace Infinity
 
 #if defined(RELEASE_DIST) && WIN32
 
 #include <Windows.h>
 
-int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nShowCmd) { InfinityRenderer::Main(__argc, __argv); }
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nShowCmd) { Infinity::Main(__argc, __argv); }
 
 #else
 
-int main(const int argc, char **argv) { InfinityRenderer::Main(argc, argv); }
+int main(const int argc, char **argv) { Infinity::Main(argc, argv); }
 
 #endif

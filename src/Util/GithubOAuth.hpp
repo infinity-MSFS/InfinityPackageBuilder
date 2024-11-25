@@ -6,8 +6,8 @@
 #include <optional>
 #include <thread>
 
-#include "Encrypt.hpp"
 #include "Json/json.hpp"
+#include "Util/Encryption/Encryption.hpp"
 #include "curl/curl.h"
 #include "imgui.h"
 

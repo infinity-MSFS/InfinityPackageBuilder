@@ -8,31 +8,32 @@
 
 #include "BinaryStructure.hpp"
 
+namespace Infinity {
+    class Serialization {
+    public:
+        static Serialization &GetInstance() {
+            static Serialization instance;
+            return instance;
+        }
 
-class Serialization {
-public:
-    static Serialization &GetInstance() {
-        static Serialization instance;
-        return instance;
-    }
+        static std::vector<uint8_t> SerializeAndCompress(const SerializationTypes::Outgoing::OutgoingBinary &binary);
+        static std::map<std::string, SerializationTypes::Incoming::IncomingBinary> DecompressAndDeserialize(std::vector<uint8_t> &binary);
+        static void WriteToFile(const std::string &file_name, const std::vector<uint8_t> &data);
 
-    static std::vector<uint8_t> SerializeAndCompress(const SerializationTypes::Outgoing::OutgoingBinary &binary);
-    static std::map<std::string, SerializationTypes::Incoming::IncomingBinary> DecompressAndDeserialize(std::vector<uint8_t> &binary);
-    static void WriteToFile(const std::string &file_name, const std::vector<uint8_t> &data);
+        static std::optional<std::map<std::string, SerializationTypes::Incoming::IncomingBinary>> GetGroupData() {
+            if (!m_GroupMap.empty())
+                return m_GroupMap;
+            return std::nullopt;
+        }
 
-    static std::optional<std::map<std::string, SerializationTypes::Incoming::IncomingBinary>> GetGroupData() {
-        if (!m_GroupMap.empty())
-            return m_GroupMap;
-        return std::nullopt;
-    }
+    private:
+        Serialization() = default;
+        ~Serialization() = default;
 
-private:
-    Serialization() = default;
-    ~Serialization() = default;
+        Serialization(const Serialization &) = delete;
+        Serialization &operator=(const Serialization &) = delete;
 
-    Serialization(const Serialization &) = delete;
-    Serialization &operator=(const Serialization &) = delete;
-
-private:
-    static std::map<std::string, SerializationTypes::Incoming::IncomingBinary> m_GroupMap;
-};
+    private:
+        static std::map<std::string, SerializationTypes::Incoming::IncomingBinary> m_GroupMap;
+    };
+} // namespace Infinity
