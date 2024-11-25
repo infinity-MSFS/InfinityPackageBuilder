@@ -3,7 +3,7 @@
 
 #include <imgui.h>
 
-namespace InfinityRenderer {
+namespace Infinity {
     class Layer {
     public:
         virtual ~Layer() = default;

@@ -8,7 +8,7 @@
 
 #include <memory>
 
-namespace InfinityRenderer::UI {
+namespace Infinity::UI {
     void ShiftCursorX(float distance);
 
     void ShiftCursorY(float distance);

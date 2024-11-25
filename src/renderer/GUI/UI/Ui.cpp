@@ -1,7 +1,7 @@
 
 #include "Ui.hpp"
 
-namespace InfinityRenderer::UI {
+namespace Infinity::UI {
     void ShiftCursorX(const float distance) { ImGui::SetCursorPosX(ImGui::GetCursorPosX() + distance); }
 
     void ShiftCursorY(const float distance) { ImGui::SetCursorPosY(ImGui::GetCursorPosY() + distance); }

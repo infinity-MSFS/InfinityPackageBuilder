@@ -2,7 +2,7 @@
 #include "ImGuiTheme.hpp"
 
 
-namespace InfinityRenderer::UI {
+namespace Infinity::UI {
     void SetInfinityTheme() {
         auto &style = ImGui::GetStyle();
         auto &colors = ImGui::GetStyle().Colors;

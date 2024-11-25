@@ -27,7 +27,7 @@
 #include "GLFW/glfw3native.h"
 #include "stb_image/stb_image.h"
 
-using namespace InfinityRenderer::Vulkan;
+using namespace Infinity::Vulkan;
 
 extern bool g_ApplicationRunning;
 
@@ -42,12 +42,12 @@ extern bool g_ApplicationRunning;
 
 static std::unordered_map<std::string, ImFont *> s_Fonts;
 
-static InfinityRenderer::Application *s_Instance = nullptr;
+static Infinity::Application *s_Instance = nullptr;
 
 constexpr int FPS_CAP = 144;
 constexpr double FRAME_DURATION = 1.0 / FPS_CAP;
 
-GLFWwindow *InfinityRenderer::Application::s_WindowHandle = nullptr;
+GLFWwindow *Infinity::Application::s_WindowHandle = nullptr;
 
 
 #include "Resources/Fonts/Roboto-Bold.h"
@@ -57,7 +57,7 @@ GLFWwindow *InfinityRenderer::Application::s_WindowHandle = nullptr;
 #include "Resources/Images/logo.h"
 #include "Resources/Images/windowIcons.h"
 
-namespace InfinityRenderer {
+namespace Infinity {
     Application::Application(ApplicationSpecifications applicationSpecification) : m_Specification(std::move(applicationSpecification)) {
         s_Instance = this;
         Init();
@@ -640,4 +640,4 @@ namespace InfinityRenderer {
             glfwSetWindowTitle(s_WindowHandle, title.c_str());
         }
     }
-} // namespace InfinityRenderer
+} // namespace Infinity

@@ -62,6 +62,7 @@ Ensure you have the following prerequisites:
 - **Vcpkg** Will save you from the common windows + c++ nightmare
 - **OpenSSL** install via `yay -S openssl` on linux or `vcpkg install openssl` on windows
 - **LibCurl** install via `yay -S curl` on linux or `vcpkg install curl:x64-windows` on windows
+- **xdd** installed with `vim` on linux or [here](https://sourceforge.net/projects/xxd-for-windows/files/latest/download) on Windows.
 
 #### Setup
 

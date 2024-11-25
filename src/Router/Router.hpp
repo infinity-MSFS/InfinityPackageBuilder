@@ -12,7 +12,7 @@
 #include "Util/Error.hpp"
 
 
-namespace InfinityPackageBuilder::Utils {
+namespace Infinity::Utils {
     class Router {
     public:
         static void configure(std::unordered_map<int, std::function<void()>> pages);
@@ -32,4 +32,4 @@ namespace InfinityPackageBuilder::Utils {
         int m_CurrentPageID;
         std::unordered_map<int, std::function<void()>> m_Pages;
     };
-} // namespace InfinityPackageBuilder::Utils
+} // namespace Infinity::Utils

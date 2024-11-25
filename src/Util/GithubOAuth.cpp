@@ -5,7 +5,9 @@
 #include "Ini/ini.h"
 #include "OpenInBrowser.hpp"
 
-constexpr const char *encryption_key = ENCRYPTION_KEY;
+#include "group_key.h"
+
+#include "github_key.h"
 
 GithubOAuth *GithubOAuth::s_Instance = nullptr;
 
@@ -16,7 +18,8 @@ GithubOAuth::GithubOAuth() : m_Interval(0) {
     file.read(ini);
     if (ini.has("github")) {
         if (auto &category = ini["github"]; category.has("token")) {
-            m_AccessToken = Decrypt(category["token"], encryption_key);
+            // TODO: move away from INI and use a bin file
+            // m_AccessToken = Infinity::Encryption::Encryption::Decrypt(category["token"].c_str(), Infinity::Encryption::CreateUnencryptedKey(github_key));
             VerifyAccessToken();
         }
     }
@@ -173,13 +176,14 @@ void GithubOAuth::PollForAccessToken() {
             mINI::INIFile file(".infinity.ini");
 
             mINI::INIStructure ini;
-            ini["github"]["token"] = Encrypt(m_AccessToken, encryption_key);
+            // TODO: Switch from INI to bin
+            //  Infinity::Encryption::CreateUnencryptedKey(group) ini["github"]["token"] = Encrypt(m_AccessToken, encryption_key);
 
             if (!file.generate(ini, true)) {
                 std::cerr << "Failed to generate INI file.\n";
             }
 #ifdef WIN32
-            if (!HideFile(".infinity.ini")) {
+            if (!Infinity::Encryption::HideFile(".infinity.ini")) {
                 std::cerr << "Failed to hide INI file\n";
             }
 #endif
