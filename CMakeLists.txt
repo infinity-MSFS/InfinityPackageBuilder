@@ -3,10 +3,12 @@ cmake_minimum_required(VERSION 3.29)
 
 include(cmake/util.cmake)
 include(cmake/colors.cmake)
+include(cmake/key_loading.cmake)
 include(FetchContent)
 
-
-set(VCPKG_ROOT $ENV{VCPKG_ROOT})
+if (NOT VCPKG_ROOT)
+    set(VCPKG_ROOT $ENV{VCPKG_ROOT})
+endif ()
 
 if (VCPKG_ROOT)
     set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
@@ -72,7 +74,7 @@ if (UNIX)
     message("${Blue}Fetched:${Green}MiniKdeNotify ${Blue}set to:${Green}${minikdenotify_SOURCE_DIR}${ColorReset}")
 endif ()
 
-load_encryption_key_from_env_file()
+load_keys()
 
 if (WIN32)
     message("${Green}Detected Windows${ColorReset}")
@@ -163,6 +165,8 @@ add_executable(InfinityPackageBuilder
         src/Pages/LauncherJsonManager/Serialization/Serialization.hpp
         src/Util/Notifications.cpp
         src/Util/Notifications.hpp
+        src/Util/Encryption/Encryption.cpp
+        src/Util/Encryption/Encryption.hpp
 )
 
 file(GLOB IMGUI_SOURCES
@@ -194,6 +198,7 @@ if (UNIX)
             ${ZOE_INCLUDE_DIR}
             ${MINIZIP_INCLUDE_DIR}
             ${minikdenotify_SOURCE_DIR}/include
+            keys/include
             ${DBUS_INCLUDE_DIRS}
     )
 else ()
@@ -204,6 +209,7 @@ else ()
             ${infinity_SOURCE_DIR}/src/imgui
             ${infinity_SOURCE_DIR}/src/imguiTextEditor
             ${ZOE_INCLUDE_DIR}
+            keys/include
             ${MINIZIP_INCLUDE_DIR}
     )
 endif ()

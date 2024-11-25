@@ -2,12 +2,13 @@
 #pragma once
 
 #include <string>
+#include <utility>
 
 #include "boxer/boxer.h"
 #include "renderer/GUI/ApplicationGui.hpp"
 
 
-namespace InfinityPackageBuilder::Errors {
+namespace Infinity::Errors {
 
     enum class ErrorType {
         Fatal,
@@ -21,6 +22,7 @@ namespace InfinityPackageBuilder::Errors {
         std::string error_message;
 
 
+        Error(ErrorType error_type, std::string message) : error_type(error_type), error_message(std::move(message)) {}
         [[nodiscard]] ErrorType GetErrorType() const { return error_type; }
         [[nodiscard]] std::string &GetErrorMessage() { return error_message; }
 
@@ -61,4 +63,4 @@ namespace InfinityPackageBuilder::Errors {
     inline void Error::Dispatch() { ShowErrorPopup(*this); }
 
 
-} // namespace InfinityPackageBuilder::Errors
+} // namespace Infinity::Errors
