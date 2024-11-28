@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.29)
-
+if(POLICY CMP0167)
+    cmake_policy(SET CMP0167 OLD)
+endif()
 include(cmake/util.cmake)
 include(cmake/colors.cmake)
 include(cmake/key_loading.cmake)
@@ -22,13 +24,14 @@ else ()
     set(VCPKG_TRIPLET "x64-linux-static")
 endif ()
 
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 
 project(InfinityPackageBuilder)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
+find_package(Boost NO_MODULE)
 find_package(Vulkan REQUIRED)
 find_package(CURL REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -54,20 +57,22 @@ option(INFINITY_USE_WAYLAND "Build for Wayland" OFF)
 
 FetchContent_Declare(GLFW GIT_REPOSITORY https://github.com/TheCherno/glfw.git)
 FetchContent_Declare(Boxer GIT_REPOSITORY https://github.com/aaronmjacobs/Boxer.git)
+FetchContent_Declare(ImGuiFileDialog GIT_REPOSITORY https://github.com/Tacotakedown/ImGuiFileDialog.git)
 FetchContent_Declare(Infinity GIT_REPOSITORY https://github.com/Tacotakedown/InfinityPackageBuilderDeps.git)
 if (UNIX)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(DBUS REQUIRED dbus-1)
     FetchContent_Declare(MiniKDENotify GIT_REPOSITORY https://github.com/rikka-gh/MiniKDENotify.git)
 
-    FetchContent_MakeAvailable(GLFW Boxer Infinity MiniKDENotify)
+    FetchContent_MakeAvailable(GLFW Boxer Infinity MiniKDENotify ImGuiFileDialog)
     option(MINIKDENOTIFY_BUILD_EXAMPLES OFF)
 else ()
-    FetchContent_MakeAvailable(GLFW Boxer Infinity)
+    FetchContent_MakeAvailable(GLFW Boxer Infinity ImGuiFileDialog)
 endif ()
 
 message("${Blue}Fetched:${Green}GLFW ${Blue}set to:${Green}${glfw_SOURCE_DIR}${ColorReset}")
 message("${Blue}Fetched:${Green}Boxer ${Blue}set to:${Green}${boxer_SOURCE_DIR}${ColorReset}")
+message("${Blue}Fetched:${Green}ImGuiFileDialog ${Blue}set to:${Green}${imguifiledialog_SOURCE_DIR}${ColorReset}")
 message("${Blue}Fetched:${Green}InfinityDeps ${Blue}set to:${Green}${infinity_SOURCE_DIR}${ColorReset}")
 if (UNIX)
     message("${Blue}Fetched:${Green}MiniKdeNotify ${Blue}set to:${Green}${minikdenotify_SOURCE_DIR}${ColorReset}")
@@ -155,6 +160,8 @@ add_executable(InfinityPackageBuilder
         src/Util/Notifications.hpp
         src/Util/Encryption/Encryption.cpp
         src/Util/Encryption/Encryption.hpp
+        src/Components/SelectKeyFromFile/SelectKeyFromFile.cpp
+        src/Components/SelectKeyFromFile/SelectKeyFromFile.hpp
 )
 
 file(GLOB IMGUI_SOURCES
@@ -173,7 +180,8 @@ file(GLOB_RECURSE MICROXML_SOURCES ${infinity_SOURCE_DIR}/src/MicroXML/*.cpp ${i
 file(GLOB STB_IMAGE ${infinity_SOURCE_DIR}/include/stb_image/stb_image.h)
 file(GLOB_RECURSE SOL_SOURCES ${infinity_SOURCE_DIR}/include/Sol2/*.hpp)
 file(GLOB JSON_SOURCES ${infinity_SOURCE_DIR}/include/Json/*.hpp)
-target_sources(InfinityPackageBuilder PRIVATE ${MICROXML_SOURCES} ${SOL_SOURCES} ${STB_IMAGE} ${IMGUI_SOURCES} ${JSON_SOURCES})
+file(GLOB IMGUI_FILE_DIALOG_SOURCES ${imguifiledialog_SOURCE_DIR}/ImGuiFileDialog.cpp)
+target_sources(InfinityPackageBuilder PRIVATE ${MICROXML_SOURCES} ${IMGUI_FILE_DIALOG_SOURCES} ${SOL_SOURCES} ${STB_IMAGE} ${IMGUI_SOURCES} ${JSON_SOURCES})
 
 
 if (UNIX)
@@ -186,6 +194,8 @@ if (UNIX)
             ${ZOE_INCLUDE_DIR}
             ${MINIZIP_INCLUDE_DIR}
             ${minikdenotify_SOURCE_DIR}/include
+            ${imguifiledialog_SOURCE_DIR}
+            ${imguifiledialog_SOURCE_DIR}/include
             keys/include
             ${DBUS_INCLUDE_DIRS}
     )
@@ -197,6 +207,8 @@ else ()
             ${infinity_SOURCE_DIR}/src/imgui
             ${infinity_SOURCE_DIR}/src/imguiTextEditor
             ${ZOE_INCLUDE_DIR}
+            ${imguifiledialog_SOURCE_DIR}
+            ${imguifiledialog_SOURCE_DIR}/include
             keys/include
             ${MINIZIP_INCLUDE_DIR}
     )
@@ -208,6 +220,7 @@ target_compile_definitions(InfinityPackageBuilder PRIVATE
 
 if (WIN32)
     target_link_options(InfinityPackageBuilder PRIVATE
+            /NODEFAULTLIB:LIBCMT
             $<$<CONFIG:Release>:/SUBSYSTEM:WINDOWS>
             $<$<NOT:$<CONFIG:Release>>:/SUBSYSTEM:CONSOLE>
     )
@@ -231,4 +244,4 @@ else ()
 endif ()
 
 
-target_link_libraries(InfinityPackageBuilder PRIVATE Vulkan::Vulkan glfw Boxer ${LUA_LIB} CURL::libcurl OpenSSL::SSL OpenSSL::Crypto unofficial::minizip::minizip ${ZOE_LIB} ${TOAST_LIB})
+target_link_libraries(InfinityPackageBuilder PRIVATE  Vulkan::Vulkan glfw Boxer ${LUA_LIB} CURL::libcurl OpenSSL::SSL OpenSSL::Crypto unofficial::minizip::minizip ${ZOE_LIB} ${TOAST_LIB})
