@@ -33,23 +33,9 @@ namespace Infinity {
          ImGui::Text("Please select your prefered method for submiting your access key:");
          if (ImGui::Button("Load Key From Clipboard (base64 encoded codes)")) {}
          if (ImGui::Button("Load Key From .infinitykey file")) {
-                IGFD::FileDialogConfig config;
-             config.path =".";
-             ImGuiFileDialog::Instance()->OpenDialog("ChooseKeyDialog", "Select Your Key", "Infinity Key File (*.infinitykey){.infinitykey}",config);
+            ShowFileDialog(m_FilePath);
          }
-         if (ImGuiFileDialog::Instance()->Display("ChooseKeyDialog")) {
-             if (ImGuiFileDialog::Instance()->IsOk()) {
-                 std::string file_path_name = ImGuiFileDialog::Instance()->GetFilePathName();
-                 std::string file_path = ImGuiFileDialog::Instance()->GetCurrentPath();
-                 m_FilePath = file_path_name;
-                 LoadKeyFromFile();
-                //TODO: Either within this class or outside of it, store the key (in encrypted binary) in the config folder
-                 ImGuiFileDialog::Instance()->Close();
-             }
-             if (!ImGuiFileDialog::Instance()->IsOk()) {
-                 ImGuiFileDialog::Instance()->Close();
-             }
-         }
+
          ImGui::Checkbox("Remember Key Data", &m_RememberKeyFromFile);
          ImGui::Text("Using key data = %s", m_FilePath.c_str());
      }
