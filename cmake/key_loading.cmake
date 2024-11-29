@@ -50,7 +50,6 @@ function(load_keys)
                     ERROR_VARIABLE convert_error
                     OUTPUT_VARIABLE convert_output
             )
-            message("${convert_output}")
         else ()
             execute_process(
                     COMMAND ${CONVERTER} -n "${key_name}" -i "${KEY_BIN}"
@@ -62,11 +61,15 @@ function(load_keys)
             if (convert_result EQUAL 0)
                 file(WRITE "${KEY_HEADER}" "${convert_output}")
             endif ()
+            execute_process(
+                    COMMAND /bin/sh -c "sed -i '1s/^/#pragma once\\n/' ${KEY_HEADER} && sed -i 's/^unsigned /inline unsigned /' ${KEY_HEADER}"
+            )
+
         endif ()
 
         if (convert_result EQUAL 0)
             list(APPEND GENERATED_HEADERS "${KEY_HEADER}")
-            message(STATUS "Successfully processed ${key_name}")
+            message("${Blue}Successfully processed: ${Green}${key_name}${ColorReset}")
         else ()
             message(WARNING "Failed to process ${key_name}: ${convert_error}")
         endif ()
@@ -74,5 +77,5 @@ function(load_keys)
 
     list(LENGTH GENERATED_HEADERS num_generated)
     list(LENGTH KEY_PAIRS total_keys)
-    message(STATUS "Processed ${num_generated} of ${total_keys} keys")
+    message("${Blue}Processed ${Green}${num_generated}${Blue} of ${Green}${total_keys}${Blue} keys${ColorReset}")
 endfunction()
