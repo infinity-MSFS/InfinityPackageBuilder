@@ -1,63 +1,63 @@
 #include <iostream>
 
-#include "Components/Background/Background.hpp"
-#include "Components/Menu/Menu.hpp"
-#include "Pages/LauncherJsonManager/LauncherJsonManager.hpp"
-#include "Pages/PackageBuilder/PackageBuilder.hpp"
-#include "Pages/PackageDiffer/PackageDiffer.hpp"
-#include "Pages/ReleasePublisher/PackagePublisher.hpp"
-#include "Pages/Settings/Settings.hpp"
-#include "Router/Router.hpp"
-#include "renderer/GUI/ApplicationGui.hpp"
+#include "Backend/Application/Application.hpp"
+#include "Frontend/Components/Background/Background.hpp"
+#include "Frontend/Components/Menu/Menu.hpp"
+#include "Frontend/Pages/LauncherJsonManager/LauncherJsonManager.hpp"
+#include "Frontend/Pages/PackageBuilder/PackageBuilder.hpp"
+#include "Frontend/Pages/PackageDiffer/PackageDiffer.hpp"
+#include "Frontend/Pages/ReleasePublisher/PackagePublisher.hpp"
+#include "Frontend/Pages/Settings/Settings.hpp"
+#include "Util/Router/Router.hpp"
+
 
 bool g_ApplicationRunning = true;
-using Infinity::Utils::Router;
-
-class PageRenderLayer final : public Infinity::Layer {
-public:
-    void OnUIRender() override {
-        const Background background;
-
-        background.RenderBackground();
-
-        if (const auto router = Router::getInstance(); router.has_value()) {
-            (*router)->RenderCurrentPage();
-        } else {
-            std::cerr << "PageRenderLayer: Cannot obtain router instance" << std::endl;
-        }
-    }
-
-    void OnAttach() override { Infinity::Application::SetWindowTitle(std::get<0>(buttons.front())); }
-};
-
-
-Infinity::Application *Infinity::CreateApplication(int argc, char **argv) {
-    const std::filesystem::path path = "Resources/Images/Logo.h";
-    const ApplicationSpecifications spec = {"Infinity Package Manager",
-                                            1440,
-                                            1026,
-                                            2560,
-                                            1440,
-                                            1240,
-                                            680,
-                                            path,
-                                            true,
-#ifdef WIN32
-                                            true,
-#else
-                                            false,
-#endif
-                                            true};
-
-    const auto app = new Application(spec);
-    app->PushLayer<PageRenderLayer>();
-    app->PushLayer<Menu>();
-
-    return app;
-}
-
 
 namespace Infinity {
+
+    class PageRenderLayer final : public Layer {
+    public:
+        void OnUIRender() override {
+            const Background background;
+
+            background.RenderBackground();
+
+            if (const auto router = Router::getInstance(); router.has_value()) {
+                (*router)->RenderCurrentPage();
+            } else {
+                std::cerr << "PageRenderLayer: Cannot obtain router instance" << std::endl;
+            }
+        }
+
+        void OnAttach() override { Infinity::Application::SetWindowTitle(std::get<0>(buttons.front())); }
+    };
+
+
+    Application *CreateApplication(int argc, char **argv) {
+        const std::filesystem::path path = "Resources/Images/Logo.h";
+        const ApplicationSpecifications spec = {"Infinity Package Manager",
+                                                1440,
+                                                1026,
+                                                2560,
+                                                1440,
+                                                1240,
+                                                680,
+                                                path,
+                                                true,
+#ifdef WIN32
+                                                true,
+#else
+                                                false,
+#endif
+                                                true};
+
+        const auto app = new Application(spec);
+        app->PushLayer<PageRenderLayer>();
+        app->PushLayer<Menu>();
+
+        return app;
+    }
+
 
     int Main(const int argc, char **argv) {
 #ifdef WIN32

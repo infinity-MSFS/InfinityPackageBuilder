@@ -111,62 +111,69 @@ message(STATUS "${BoldMagenta}Infinity configuration complete, Configuring depen
 message("${Cyan}")
 
 add_executable(InfinityPackageBuilder
+        # --- Main Source File ---
         src/main.cpp
-        src/renderer/Layer.hpp
-        src/renderer/buffer/Buffer.hpp
-        src/renderer/image/Image.cpp
-        src/renderer/image/Image.hpp
-        src/renderer/GUI/ApplicationGui.cpp
-        src/renderer/GUI/ApplicationGui.hpp
-        src/ImGuiTheme/ImGuiTheme.cpp
-        src/ImGuiTheme/ImGuiTheme.hpp
-        src/renderer/GUI/UI/Ui.cpp
-        src/renderer/GUI/UI/Ui.hpp
-        src/Resources/Images/InfinityAppIcon.h
-        src/PackageParser/PackageParser.cpp
-        src/PackageParser/PackageParser.hpp
-        src/Router/Router.cpp
-        src/Router/Router.hpp
-        src/Components/Menu/Menu.cpp
-        src/Components/Menu/Menu.hpp
-        src/Pages/LauncherJsonManager/LauncherJsonManager.cpp
-        src/Pages/LauncherJsonManager/LauncherJsonManager.hpp
-        src/Pages/PackageBuilder/PackageBuilder.cpp
-        src/Pages/PackageBuilder/PackageBuilder.hpp
-        src/Pages/PackageDiffer/PackageDiffer.cpp
-        src/Pages/PackageDiffer/PackageDiffer.hpp
-        src/Pages/ReleasePublisher/PackagePublisher.cpp
-        src/Pages/ReleasePublisher/PackagePublisher.hpp
-        src/Pages/Settings/Settings.cpp
-        src/Pages/Settings/Settings.hpp
-        src/Pages/Page.hpp
-        src/Util/Error.hpp
-        src/Util/LuaInterpreter.cpp
-        src/Util/LuaInterpreter.hpp
-        src/Util/FunctionTraits.hpp
-        src/Components/ToggleButton/ToggleButton.hpp
-        src/Components/Background/Background.cpp
-        src/Components/Background/Background.hpp
-        src/Components/Buttons/MenuButton.cpp
-        src/Components/Buttons/MenuButton.hpp
-        src/renderer/GUI/Vulkan/Vulkan.hpp
-        src/Util/GithubRelease.cpp
-        src/Util/GithubRelease.hpp
-        src/Util/GithubOAuth.cpp
-        src/Util/GithubOAuth.hpp
-        src/Util/StateTimer.hpp
-        src/Util/ZipUtil.cpp
-        src/Util/ZipUtil.hpp
-        src/Util/OpenInBrowser.hpp
-        src/Pages/LauncherJsonManager/Serialization/BinaryStructure.hpp
-        src/Pages/LauncherJsonManager/Serialization/Serialization.cpp
-        src/Pages/LauncherJsonManager/Serialization/Serialization.hpp
-        src/Util/Notifications.cpp
-        src/Util/Notifications.hpp
+
+        # --- Backend Source Files ---
+        src/Backend/Layer/Layer.hpp
+        src/Backend/buffer/Buffer.hpp
+        src/Backend/image/Image.cpp
+        src/Backend/image/Image.hpp
+        src/Backend/Application/Application.cpp
+        src/Backend/Application/Application.hpp
+        src/Backend/UiHelpers/UiHelpers.cpp
+        src/Backend/UiHelpers/UiHelpers.hpp
+        src/Backend/Vulkan/Vulkan.hpp
+        src/Backend/Zip/ZipUtil.cpp
+        src/Backend/Zip/ZipUtil.hpp
+        src/Backend/Lua/LuaInterpreter.cpp
+        src/Backend/Lua/LuaInterpreter.hpp
+        src/Backend/Lua/FunctionTraits.hpp
+
+        # --- Frontend Source Files ---
+        src/Frontend/Resources/Images/InfinityAppIcon.h
+        src/Frontend/Components/Menu/Menu.cpp
+        src/Frontend/Components/Menu/Menu.hpp
+        src/Frontend/Components/ToggleButton/ToggleButton.hpp
+        src/Frontend/Components/Background/Background.cpp
+        src/Frontend/Components/Background/Background.hpp
+        src/Frontend/Components/Buttons/MenuButton.cpp
+        src/Frontend/Components/Buttons/MenuButton.hpp
+        src/Frontend/Components/SelectKeyFromFile/SelectKeyFromFile.cpp
+        src/Frontend/Components/SelectKeyFromFile/SelectKeyFromFile.hpp
+        src/Frontend/Pages/LauncherJsonManager/LauncherJsonManager.cpp
+        src/Frontend/Pages/LauncherJsonManager/LauncherJsonManager.hpp
+        src/Frontend/Pages/PackageBuilder/PackageBuilder.cpp
+        src/Frontend/Pages/PackageBuilder/PackageBuilder.hpp
+        src/Frontend/Pages/PackageDiffer/PackageDiffer.cpp
+        src/Frontend/Pages/PackageDiffer/PackageDiffer.hpp
+        src/Frontend/Pages/ReleasePublisher/PackagePublisher.cpp
+        src/Frontend/Pages/ReleasePublisher/PackagePublisher.hpp
+        src/Frontend/Pages/Settings/Settings.cpp
+        src/Frontend/Pages/Settings/Settings.hpp
+        src/Frontend/Pages/Page.hpp
+        src/Frontend/Pages/LauncherJsonManager/Serialization/BinaryStructure.hpp
+        src/Frontend/Pages/LauncherJsonManager/Serialization/Serialization.cpp
+        src/Frontend/Pages/LauncherJsonManager/Serialization/Serialization.hpp
+        src/Frontend/ImGuiTheme/ImGuiTheme.cpp
+        src/Frontend/ImGuiTheme/ImGuiTheme.hpp
+
+        # --- Util Source Files ---
+        src/Util/PackageParser/PackageParser.cpp
+        src/Util/PackageParser/PackageParser.hpp
+        src/Util/Router/Router.cpp
+        src/Util/Router/Router.hpp
+        src/Util/Notifications/Notifications.cpp
+        src/Util/Notifications/Notifications.hpp
         src/Util/Encryption/Encryption.cpp
         src/Util/Encryption/Encryption.hpp
-        src/Components/SelectKeyFromFile/SelectKeyFromFile.cpp
-        src/Components/SelectKeyFromFile/SelectKeyFromFile.hpp
+        src/Util/OpenInBrowser.hpp
+        src/Util/Github/GithubRelease.cpp
+        src/Util/Github/GithubRelease.hpp
+        src/Util/Github/GithubOAuth.cpp
+        src/Util/Github/GithubOAuth.hpp
+        src/Util/StateTimer.hpp
+        src/Util/Errors/Error.hpp
 )
 
 file(GLOB IMGUI_SOURCES

@@ -4,8 +4,7 @@
 #include <fstream>
 #include <ranges>
 
-namespace Infinity::Encryption {
-    using namespace Errors;
+namespace Infinity {
     ValidationTypes Key::GetValidationType(const Key &provided_key) {
         if (Encryption::DecryptToBin(provided_key.key, CreateUnencryptedKey(group_key)) == CreateKey(admin_key, CreateUnencryptedKey(group_key))) {
             return ValidationTypes::FULL;
@@ -279,4 +278,4 @@ namespace Infinity::Encryption {
         result.resize(decoded_size);
         return result;
     }
-} // namespace Infinity::Encryption
+} // namespace Infinity

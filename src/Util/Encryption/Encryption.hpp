@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Util/Error.hpp"
+#include "Util/Errors/Error.hpp"
 #include "openssl/aes.h"
 #include "openssl/bio.h"
 #include "openssl/buffer.h"
@@ -29,7 +29,7 @@
 #include <iostream>
 #endif
 
-namespace Infinity::Encryption {
+namespace Infinity {
     typedef std::vector<uint8_t> v_bytes;
 
 
@@ -87,4 +87,4 @@ namespace Infinity::Encryption {
         auto result = Encryption::DecryptToBin(encrypted_key, key);
         return result;
     }
-} // namespace Infinity::Encryption
+} // namespace Infinity
