@@ -1,10 +1,12 @@
 
 #include "Settings.hpp"
 
+#include "MiniKDENotify/MiniKDENotify.hpp"
 #include "Util/OpenInBrowser.hpp"
 #include "renderer/GUI/ApplicationGui.hpp"
 #include "zoe/zoe.h"
 
+#ifdef WIN32
 using namespace WinToastLib;
 
 class CustomHandler final : public IWinToastHandler {
@@ -41,8 +43,16 @@ public:
         exit(5);
     }
 };
+#endif
 
-Settings::Settings(const float padding_x, const float padding_y) : Page(padding_x, padding_y), m_WinToast(WinToastTemplate::ImageAndText02) {
+Settings::Settings(const float padding_x, const float padding_y) :
+    Page(padding_x, padding_y)
+#ifdef WIN32
+    ,
+    m_WinToast(WinToastTemplate::ImageAndText02)
+#endif
+{
+#ifdef WIN32
     if (!WinToast::isCompatible()) {
         std::wcerr << L"Error, your system in not supported!" << std::endl;
     }
@@ -56,6 +66,7 @@ Settings::Settings(const float padding_x, const float padding_y) : Page(padding_
     if (!WinToast::instance()->initialize()) {
         std::wcerr << L"Error, your system in not compatible!" << std::endl;
     }
+#endif
 }
 
 void Settings::RenderPage() {
@@ -63,7 +74,12 @@ void Settings::RenderPage() {
     ImGui::SetCursorPos(ImVec2(ImGui::GetWindowWidth() / 2 - word_size.x / 2, 10.0f));
     ImGui::Text("Settings");
     if (ImGui::Button("Show Toast")) {
+#ifdef WIN32
         WinToast::instance()->showToast(m_WinToast, new CustomHandler());
+#elif __linux__
+        auto notification = MiniKdeNotify::Notification::Builder().summary("Toast").body("Kde Toast").build();
+        notification->send();
+#endif
     }
     if (ImGui::Button("Open in browser")) {
         std::string url = "https://youtube.com";

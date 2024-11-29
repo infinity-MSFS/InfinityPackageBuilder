@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.29)
-if(POLICY CMP0167)
+if (POLICY CMP0167)
     cmake_policy(SET CMP0167 OLD)
-endif()
+endif ()
 include(cmake/util.cmake)
 include(cmake/colors.cmake)
 include(cmake/key_loading.cmake)
@@ -63,10 +63,17 @@ if (UNIX)
     pkg_check_modules(DBUS REQUIRED dbus-1)
     FetchContent_Declare(MiniKDENotify GIT_REPOSITORY https://github.com/rikka-gh/MiniKDENotify.git)
 
-    FetchContent_MakeAvailable(GLFW Boxer Infinity MiniKDENotify )
+    FetchContent_MakeAvailable(GLFW Boxer Infinity MiniKDENotify)
     option(MINIKDENOTIFY_BUILD_EXAMPLES OFF)
+
+    find_package(Qt5 COMPONENTS
+            Core
+            Widgets
+            REQUIRED
+    )
+
 else ()
-    FetchContent_MakeAvailable(GLFW Boxer Infinity )
+    FetchContent_MakeAvailable(GLFW Boxer Infinity)
 endif ()
 
 message("${Blue}Fetched:${Green}GLFW ${Blue}set to:${Green}${glfw_SOURCE_DIR}${ColorReset}")
@@ -178,7 +185,7 @@ file(GLOB_RECURSE MICROXML_SOURCES ${infinity_SOURCE_DIR}/src/MicroXML/*.cpp ${i
 file(GLOB STB_IMAGE ${infinity_SOURCE_DIR}/include/stb_image/stb_image.h)
 file(GLOB_RECURSE SOL_SOURCES ${infinity_SOURCE_DIR}/include/Sol2/*.hpp)
 file(GLOB JSON_SOURCES ${infinity_SOURCE_DIR}/include/Json/*.hpp)
-target_sources(InfinityPackageBuilder PRIVATE ${MICROXML_SOURCES}  ${SOL_SOURCES} ${STB_IMAGE} ${IMGUI_SOURCES} ${JSON_SOURCES})
+target_sources(InfinityPackageBuilder PRIVATE ${MICROXML_SOURCES} ${SOL_SOURCES} ${STB_IMAGE} ${IMGUI_SOURCES} ${JSON_SOURCES})
 
 
 if (UNIX)
@@ -232,9 +239,10 @@ else ()
             ${infinity_SOURCE_DIR}/lib/liblua.so
             $<TARGET_FILE_DIR:InfinityPackageBuilder>
     )
-    set(LUA_LIB ${infinity_SOURCE_DIR}/lib/liblua.a ${DBUS_LIBRARIES})
+    set(LUA_LIB ${infinity_SOURCE_DIR}/lib/liblua.a ${DBUS_LIBRARIES} Qt5::Core
+            Qt5::Widgets)
 
 endif ()
 
 
-target_link_libraries(InfinityPackageBuilder PRIVATE  Vulkan::Vulkan glfw Boxer ${LUA_LIB} CURL::libcurl OpenSSL::SSL OpenSSL::Crypto unofficial::minizip::minizip ${ZOE_LIB} ${TOAST_LIB})
+target_link_libraries(InfinityPackageBuilder PRIVATE Vulkan::Vulkan glfw Boxer ${LUA_LIB} CURL::libcurl OpenSSL::SSL OpenSSL::Crypto unofficial::minizip::minizip ${ZOE_LIB} ${TOAST_LIB})

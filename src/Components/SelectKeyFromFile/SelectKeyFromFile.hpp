@@ -6,8 +6,8 @@
 
 #include "Util/Encryption/Encryption.hpp"
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #ifdef WIN32
 #include <mutex>
@@ -17,27 +17,19 @@
 
 inline std::mutex filePathMutex;
 
-inline void OpenFileDialogThread(std::string& outputFilePath) {
+inline void OpenFileDialogThread(std::string &outputFilePath) {
     HRESULT hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
     if (FAILED(hr)) {
         return;
     }
 
-    IFileOpenDialog* pFileOpen = nullptr;
-    hr = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_ALL,
-                          IID_IFileOpenDialog, reinterpret_cast<void**>(&pFileOpen));
+    IFileOpenDialog *pFileOpen = nullptr;
+    hr = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void **>(&pFileOpen));
 
     if (SUCCEEDED(hr)) {
-        COMDLG_FILTERSPEC rgSpec[] =
-        {
-            { L"Infinity Key Files", L"*.infinitykey" },
-            { L"All Files", L"*.*" }
-        };
+        COMDLG_FILTERSPEC rgSpec[] = {{L"Infinity Key Files", L"*.infinitykey"}, {L"All Files", L"*.*"}};
 
-        hr = pFileOpen->SetFileTypes(
-            _countof(rgSpec),
-            rgSpec
-        );
+        hr = pFileOpen->SetFileTypes(_countof(rgSpec), rgSpec);
 
         if (SUCCEEDED(hr)) {
             hr = pFileOpen->SetDefaultExtension(L"infinitykey");
@@ -48,7 +40,7 @@ inline void OpenFileDialogThread(std::string& outputFilePath) {
         hr = pFileOpen->Show(nullptr);
 
         if (SUCCEEDED(hr)) {
-            IShellItem* pItem;
+            IShellItem *pItem;
             hr = pFileOpen->GetResult(&pItem);
             if (SUCCEEDED(hr)) {
                 PWSTR pszFilePath;
@@ -59,8 +51,7 @@ inline void OpenFileDialogThread(std::string& outputFilePath) {
                     const int utf8Length = WideCharToMultiByte(CP_UTF8, 0, pszFilePath, wideLength, nullptr, 0, nullptr, nullptr);
 
                     std::string filePath(utf8Length, 0);
-                    WideCharToMultiByte(CP_UTF8, 0, pszFilePath, wideLength,
-                                        &filePath[0], utf8Length, nullptr, nullptr);
+                    WideCharToMultiByte(CP_UTF8, 0, pszFilePath, wideLength, &filePath[0], utf8Length, nullptr, nullptr);
                     {
                         std::lock_guard<std::mutex> lock(filePathMutex);
                         outputFilePath = filePath;
@@ -76,82 +67,59 @@ inline void OpenFileDialogThread(std::string& outputFilePath) {
 }
 
 
-inline void ShowFileDialog(std::string& filePath) {
+inline void ShowFileDialog(std::string &filePath) {
     std::thread dialogThread(OpenFileDialogThread, std::ref(filePath));
     dialogThread.detach();
 }
 #elif __linux__
-#include <cstdio>
-#include <cstdlib>
-#include <array>
-#include <memory>
-#include <thread>
+#include <QApplication>
+#include <QFileDialog>
+#include <QString>
 #include <mutex>
-#include <stdio.h>
+#include <thread>
 
-inline std::mutex file_path_mutex;
+inline std::mutex filePathMutex;
 
-inline std::string ExecCommand(const char* cmd) {
-    std::array<char, 128> buffer;
-    std::string result;
-    std::unique_ptr<FILE, decltype(&pclose) > pipe(popen(cmd, "r"),popen);
-
-    if (!pipe) {
-        Infinity::Errors::Error(Infinity::Errors::ErrorType::NonFatal, "popen() failed").Dispatch();
+inline void OpenFileDialogThread(std::string &outputFilePath) {
+    if (!QCoreApplication::instance()) {
+        static int argc = 0;
+        static char *argv[] = {nullptr};
+        static QApplication tempApp(argc, argv);
     }
 
-    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-        result += buffer.data();
-    }
+    QString selectedFile = QFileDialog::getOpenFileName(nullptr, "Select Infinity Key File", QString(), "Infinity Key Files (*.infinitykey);; All Files (*.*)");
 
-    if (!result.empty() && result.back() == '\n') {
-        result.pop_back();
-    }
-
-    return result;
-}
-
-
-inline std::string OpenFileDialog() {
-    try {
-        const std::string cmd = R"(kdialog --getopenfilename . "*.infinitykey|Infinity Key Files" "*.infinitykey")";
-        return ExecCommand(cmd.c_str());
-    } catch (const std::exception& e) {
-        Infinity::Errors::Error(Infinity::Errors::ErrorType::NonFatal, e.what());
-        return "";
+    if (!selectedFile.isEmpty()) {
+        std::lock_guard<std::mutex> lock(filePathMutex);
+        outputFilePath = selectedFile.toStdString();
     }
 }
 
-inline void ShowFileDialog(std::string& filePath) {
-    std::thread dialogThread([&filePath]() {
-        std::lock_guard<std::mutex> lock(file_path_mutex);
-        filePath = OpenFileDialog();
-    });
+inline void ShowFileDialog(std::string &filePath) {
+    std::thread dialogThread(OpenFileDialogThread, std::ref(filePath));
     dialogThread.detach();
 }
 
 #else
-inline void ShowFileDialog(std::string& filePath) {
-    Infinity::Errors::Error(Infinity::Errors::ErrorType::NonFatal, "Unsupported Platform, please use clipboard");
-}
+inline void ShowFileDialog(std::string &filePath) { Infinity::Errors::Error(Infinity::Errors::ErrorType::NonFatal, "Unsupported Platform, please use clipboard"); }
 
 
 #endif
 
 namespace Infinity {
     class SelectKeyFromFile {
-public:
+    public:
         SelectKeyFromFile();
 
         void Render();
 
-        private:
+    private:
         void LoadKeyFromFile();
 
-        private:
+    private:
         bool m_RememberKeyFromFile;
         std::vector<uint8_t> m_KeyData;
         std::string m_FilePath;
     };
 
-}
+} // namespace Infinity

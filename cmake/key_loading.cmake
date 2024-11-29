@@ -61,6 +61,10 @@ function(load_keys)
             if (convert_result EQUAL 0)
                 file(WRITE "${KEY_HEADER}" "${convert_output}")
             endif ()
+            execute_process(
+                    COMMAND /bin/sh -c "sed -i '1s/^/#pragma once\\n/' ${KEY_HEADER} && sed -i 's/^unsigned /inline unsigned /' ${KEY_HEADER}"
+            )
+
         endif ()
 
         if (convert_result EQUAL 0)
