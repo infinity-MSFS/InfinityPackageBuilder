@@ -121,13 +121,14 @@ namespace Infinity {
 
         void SaveKey();
 
-        static std::string LoadKey();
+      std::string LoadKey();
 
     private:
         bool m_RememberKeyFromFile;
         std::vector<uint8_t> m_KeyData;
         std::string m_FilePath;
         std::string m_PreviousTickFilePath;
+        bool m_ShouldLookForKey;
     };
 
 } // namespace Infinity

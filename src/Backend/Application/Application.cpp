@@ -333,8 +333,8 @@ namespace Infinity {
             ImGui::ResumeLayout();
         }
 
-        const ImU32 buttonColN = Colors::ColorWithMultipliedValue(Colors::Theme::text, 0.9f);
-        const ImU32 buttonColH = Colors::ColorWithMultipliedValue(Colors::Theme::text, 1.2f);
+        const ImU32 buttonColN =Colors::Theme::text;
+        const ImU32 buttonColH =Colors::Theme::text_darker;
         constexpr ImU32 buttonColP = Colors::Theme::text_darker;
         constexpr float buttonWidth = 14.0f;
         constexpr float buttonHeight = 14.0f;
@@ -386,7 +386,7 @@ namespace Infinity {
                 }
             }
 
-            UI::DrawButtonImage(m_IconClose, Colors::Theme::text, Colors::ColorWithMultipliedValue(Colors::Theme::text, 1.4f), buttonColP);
+            UI::DrawButtonImage(m_IconClose, Colors::Theme::text,  Colors::Theme::text_darker , buttonColP);
         }
 
         ImGui::Spring(-1.0f, 18.0f);

@@ -36,17 +36,23 @@ namespace Infinity {
         std::filesystem::path output_path;
 
 #ifdef WIN32
-        const *appdata_path = std::getenv("APPDATA");
-        if (!appdata_path) {
+        char *appdata_path = nullptr;
+        size_t len = 0;
+        if (_dupenv_s(&appdata_path, &len, "APPDATA") != 0 || appdata_path == nullptr) {
             std::cerr << "Error: Unable to determine AppData folder (APPDATA environment variable is not set)." << std::endl;
+        } else {
+            output_path = std::filesystem::path(appdata_path) / "infinityPackageBuilder";
+            free(appdata_path);
         }
-        output_path = std::filesystem::path(appdata_path) / "infinityPackageBuilder";
 #elif __linux__
-        char *home_dir = std::getenv("HOME");
-        if (!home_dir) {
+        char *home_dir = nullptr;
+        size_t len = 0;
+        if (_dupenv_s(&home_dir, &len, "HOME") != 0 || home_dir == nullptr) {
             std::cerr << "Error: Unable to determine home directory (HOME environment variable is not set)." << std::endl;
+        } else {
+            output_path = std::filesystem::path(home_dir) / ".config/infinityPackageBuilder";
+            free(home_dir);
         }
-        output_path = std::filesystem::path(home_dir) / ".config/infinityPackageBuilder";
 #else
         std::cerr << "Error: Unsupported platform." << std::endl;
 #endif

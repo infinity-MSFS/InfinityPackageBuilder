@@ -185,9 +185,9 @@ namespace Infinity {
                     std::cerr << "Failed to generate INI file.\n";
                 }
 #ifdef WIN32
-                if (!Infinity::Encryption::HideFile(".infinity.ini")) {
-                    std::cerr << "Failed to hide INI file\n";
-                }
+                // if (!Infinity::Encryption::HideFile(".infinity.ini")) {
+                //     std::cerr << "Failed to hide INI file\n";
+                // }
 #endif
                 break;
             } else if (response_string.contains("interval")) {

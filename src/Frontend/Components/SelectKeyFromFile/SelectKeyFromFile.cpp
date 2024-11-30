@@ -12,36 +12,7 @@
 namespace Infinity {
     SelectKeyFromFile::SelectKeyFromFile() : m_RememberKeyFromFile(false), m_KeyData() {}
 
-    std::string SelectKeyFromFile::LoadKey() {
-        std::filesystem::path config_path;
 
-#ifdef WIN32
-        const *appdata_path = std::getenv("APPDATA");
-        if (!appdata_path) {
-            std::cerr << "Error: Unable to determine AppData folder (APPDATA environment variable is not set)." << std::endl;
-        }
-        config_path = std::filesystem::path(appdata_path) / "infinityPackageBuilder";
-#elif __linux__
-        char *home_dir = std::getenv("HOME");
-        if (!home_dir) {
-            std::cerr << "Error: Unable to determine home directory (HOME environment variable is not set)." << std::endl;
-        }
-        config_path = std::filesystem::path(home_dir) / ".config/infinityPackageBuilder";
-#else
-        std::cerr << "Error: Unsupported platform." << std::endl;
-#endif
-
-        config_path += "/group.infinitystate";
-
-        std::ifstream file(config_path);
-        if (!file.is_open()) {
-            Error(ErrorType::NonFatal, "Failed to open keyfile: " + config_path.string()).Dispatch();
-        }
-
-        std::stringstream buffer;
-        buffer << file.rdbuf();
-        return buffer.str();
-    }
 
     void SelectKeyFromFile::LoadKeyFromFile() {
         std::ifstream key_file(m_FilePath, std::ios::binary | std::ios::ate);
@@ -51,7 +22,7 @@ namespace Infinity {
 
         std::streamsize file_size = key_file.tellg();
         if (file_size <= 0) {
-            Error(ErrorType::NonFatal, "Failed to read key file").Dispatch();
+            Error(ErrorType::NonFatal, "Failed to read key file size").Dispatch();
         }
 
         std::vector<uint8_t> key_buffer(file_size);
@@ -66,16 +37,7 @@ namespace Infinity {
 
     void SelectKeyFromFile::Render() {
 
-        auto persistent_state = PersistentState::GetInstance();
-        auto &state = persistent_state->GetState();
-        m_RememberKeyFromFile = state.remember_key;
 
-
-        if (m_RememberKeyFromFile && m_KeyData.empty()) {
-            auto key = LoadKey();
-            auto key_vec = Encryption::Base64Decode(key);
-            m_KeyData = key_vec;
-        }
 
         ImGui::Text("Please select your prefered method for submiting your access key:");
         if (ImGui::Button("Load Key From Clipboard (base64 encoded codes)")) {
@@ -84,13 +46,10 @@ namespace Infinity {
             ShowFileDialog(m_FilePath);
         }
 
-        SaveKey();
-
-
-        if (ImGui::Checkbox("Remember Key Data", &m_RememberKeyFromFile)) {
-            state.remember_key = m_RememberKeyFromFile;
-            persistent_state->SaveState();
+        if (m_KeyData.empty() && !m_FilePath.empty()) {
+            LoadKeyFromFile();
         }
+
 
 
         ImGui::Text("Using key from file = %s", m_FilePath.c_str());
@@ -99,7 +58,7 @@ namespace Infinity {
 
     void SelectKeyFromFile::SaveKey() {
 
-        if (!m_RememberKeyFromFile || m_PreviousTickFilePath == m_FilePath) {
+        if (m_PreviousTickFilePath == m_FilePath) {
             m_PreviousTickFilePath = m_FilePath;
             return;
         }
@@ -111,19 +70,23 @@ namespace Infinity {
             std::filesystem::path output_path;
 
 #ifdef WIN32
-            const *appdata_path = std::getenv("APPDATA");
-            if (!appdata_path) {
+            char *appdata_path = nullptr;
+            size_t len = 0;
+            if (_dupenv_s(&appdata_path, &len, "APPDATA") != 0 || appdata_path == nullptr) {
                 std::cerr << "Error: Unable to determine AppData folder (APPDATA environment variable is not set)." << std::endl;
-                return;
+            } else {
+                output_path = std::filesystem::path(appdata_path) / "infinityPackageBuilder";
+                free(appdata_path);
             }
-            output_path = std::filesystem::path(appdata_path) / "infinityPackageBuilder";
 #elif __linux__
-            char *home_dir = std::getenv("HOME");
-            if (!home_dir) {
+            char *home_dir = nullptr;
+            size_t len = 0;
+            if (_dupenv_s(&home_dir, &len, "HOME") != 0 || home_dir == nullptr) {
                 std::cerr << "Error: Unable to determine home directory (HOME environment variable is not set)." << std::endl;
-                return;
+            } else {
+                output_path = std::filesystem::path(home_dir) / ".config/infinityPackageBuilder";
+                free(home_dir);
             }
-            output_path = std::filesystem::path(home_dir) / ".config/infinityPackageBuilder";
 #else
             std::cerr << "Error: Unsupported platform." << std::endl;
             return;

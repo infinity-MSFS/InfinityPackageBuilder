@@ -8,7 +8,7 @@ namespace Infinity {
 
 #ifdef WIN32
 
-    void Notification::SendNotification(const Notifications::NotificationContent &notification_content) {
+    void Notification::SendNotification(const NotificationContent &notification_content) {
 
         auto m_WinToast = WinToastTemplate(WinToastTemplate::ImageAndText02);
         if (!WinToast::isCompatible()) {

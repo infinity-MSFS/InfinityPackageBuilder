@@ -58,6 +58,7 @@ namespace Infinity {
 
 
     class Notification {
+        public:
         static void SendNotification(const NotificationContent &notification_content);
     };
 
