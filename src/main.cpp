@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "Backend/Application/Application.hpp"
+#include "Backend/PersistentState/PersistentState.hpp"
 #include "Frontend/Components/Background/Background.hpp"
 #include "Frontend/Components/Menu/Menu.hpp"
 #include "Frontend/Pages/LauncherJsonManager/LauncherJsonManager.hpp"
@@ -29,7 +30,11 @@ namespace Infinity {
             }
         }
 
-        void OnAttach() override { Infinity::Application::SetWindowTitle(std::get<0>(buttons.front())); }
+        void OnAttach() override {
+            auto state = PersistentState::GetInstance();
+            state->LoadState();
+            Infinity::Application::SetWindowTitle(std::get<0>(buttons.front()));
+        }
     };
 
 

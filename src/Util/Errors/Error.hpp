@@ -32,20 +32,25 @@ namespace Infinity {
 
     inline void ShowErrorPopup(Error &error) {
         switch (error.GetErrorType()) {
-            case ErrorType::Fatal:
-                if (const boxer::Selection selection = boxer::show(error.GetErrorMessage().c_str(), "Fatal Error", boxer::Style::Error, boxer::Buttons::Quit); selection == boxer::Selection::Quit) {
+            case ErrorType::Fatal: {
+                std::string error_message = error.GetErrorMessage() + "\n\nInfinity Package Builder will now quit";
+                if (const boxer::Selection selection = boxer::show(error_message.c_str(), "Fatal Error, Application must exit", boxer::Style::Error, boxer::Buttons::OK);
+                    selection == boxer::Selection::OK) {
                     if (const auto app = Infinity::Application::Get(); app.has_value()) {
                         (*app)->Close();
                     }
                 }
                 break;
-            case ErrorType::NonFatal:
-                if (const boxer::Selection selection = boxer::show(error.GetErrorMessage().c_str(), "NonFatal Error", boxer::Style::Error, boxer::Buttons::OK); selection == boxer::Selection::Quit) {
-                    // if (const auto app = Infinity::Application::Get(); app.has_value()) {
-                    //     static_cast<InfinityRenderer::Application *>(*app)->Close();
-                    // }
+            }
+            case ErrorType::NonFatal: {
+                std::string error_message = error.GetErrorMessage() + "\n\nWould you like to quit the Infinity Package Builder? \nNote: certain function might break if you do not restart";
+                if (const boxer::Selection selection = boxer::show(error_message.c_str(), "NonFatal Error", boxer::Style::Warning, boxer::Buttons::YesNo); selection == boxer::Selection::Yes) {
+                    if (const auto app = Infinity::Application::Get(); app.has_value()) {
+                        (*app)->Close();
+                    }
                 }
                 break;
+            }
             case ErrorType::Warning:
                 boxer::show(error.GetErrorMessage().c_str(), "Warning", boxer::Style::Warning, boxer::Buttons::OK);
                 break;

@@ -69,12 +69,12 @@ namespace Infinity {
         static std::string DecryptBase64(const std::string &base64, const v_bytes &key);
         static v_bytes DecryptBase64Bin(const std::string &base64, const v_bytes &key);
 
-    private:
-        static v_bytes GenerateIV();
-
         static std::string Base64Encode(const v_bytes &binary);
 
         static v_bytes Base64Decode(const std::string &base64_data);
+
+    private:
+        static v_bytes GenerateIV();
     };
 
     inline v_bytes CreateUnencryptedKey(const unsigned char *raw_binary) {

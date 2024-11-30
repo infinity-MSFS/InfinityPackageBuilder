@@ -10,8 +10,15 @@ namespace Infinity {
         const auto word_size = ImGui::CalcTextSize("Launcher Json Manager");
         ImGui::SetCursorPos(ImVec2(ImGui::GetWindowWidth() / 2 - word_size.x / 2, 10.0f));
         ImGui::Text("Launcher Json Manager");
-
-
         m_FileSelector.Render();
+        if (ImGui::Button("Fatal")) {
+            Error(ErrorType::Fatal, "Fatal Error").Dispatch();
+        }
+        if (ImGui::Button("Non-Fatal")) {
+            Error(ErrorType::NonFatal, "Non-Fatal Error").Dispatch();
+        }
+        if (ImGui::Button("Warning")) {
+            Error(ErrorType::Warning, "Warning").Dispatch();
+        }
     }
 } // namespace Infinity

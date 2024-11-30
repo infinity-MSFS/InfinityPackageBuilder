@@ -7,6 +7,7 @@
 #include "Util/Encryption/Encryption.hpp"
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 #ifdef WIN32
@@ -103,10 +104,12 @@ inline void ShowFileDialog(std::string &filePath) {
 #else
 inline void ShowFileDialog(std::string &filePath) { Infinity::Errors::Error(Infinity::Errors::ErrorType::NonFatal, "Unsupported Platform, please use clipboard"); }
 
-
 #endif
 
 namespace Infinity {
+
+    inline bool EndsWith(std::string_view str, std::string_view suffix) { return str.size() >= suffix.size() && str.substr(str.size() - suffix.size()) == suffix; }
+
     class SelectKeyFromFile {
     public:
         SelectKeyFromFile();
@@ -116,10 +119,15 @@ namespace Infinity {
     private:
         void LoadKeyFromFile();
 
+        void SaveKey();
+
+        static std::string LoadKey();
+
     private:
         bool m_RememberKeyFromFile;
         std::vector<uint8_t> m_KeyData;
         std::string m_FilePath;
+        std::string m_PreviousTickFilePath;
     };
 
 } // namespace Infinity

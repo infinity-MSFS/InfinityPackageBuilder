@@ -129,6 +129,9 @@ add_executable(InfinityPackageBuilder
         src/Backend/Lua/LuaInterpreter.cpp
         src/Backend/Lua/LuaInterpreter.hpp
         src/Backend/Lua/FunctionTraits.hpp
+        src/Backend/BinaryFiles/BinaryFiles.hpp
+        src/Backend/PersistentState/PersistentState.cpp
+        src/Backend/PersistentState/PersistentState.hpp
 
         # --- Frontend Source Files ---
         src/Frontend/Resources/Images/InfinityAppIcon.h
