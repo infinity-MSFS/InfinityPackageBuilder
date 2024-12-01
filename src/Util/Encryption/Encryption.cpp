@@ -197,8 +197,9 @@ namespace Infinity {
 
     v_bytes Encryption::DecryptToBin(const v_bytes &binary, const v_bytes &key) {
 
-        std::cout <<"Decrypting: " << binary.size() << "bytes" << std::endl;
-
+        if (key.size() != 32) {
+            Error(ErrorType::Fatal, "Attempted decryption with invalid key").Dispatch();
+        }
 
         if (binary.size() < EVP_MAX_IV_LENGTH) {
             Error(ErrorType::Fatal, "Binary too short to extract IV").Dispatch();

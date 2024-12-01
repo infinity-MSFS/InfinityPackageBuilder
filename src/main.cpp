@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "Backend/Application/Application.hpp"
+#include "Backend/DifferPatcher/TestDiffPatch.hpp"
 #include "Backend/PersistentState/PersistentState.hpp"
 #include "Frontend/Components/Background/Background.hpp"
 #include "Frontend/Components/Menu/Menu.hpp"
@@ -31,6 +32,11 @@ namespace Infinity {
         }
 
         void OnAttach() override {
+
+            // test differ on load
+           TestBSDiff();
+
+
             auto state = PersistentState::GetInstance();
             state->LoadState();
             Infinity::Application::SetWindowTitle(std::get<0>(buttons.front()));

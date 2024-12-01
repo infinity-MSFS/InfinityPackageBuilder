@@ -58,12 +58,14 @@ option(INFINITY_USE_WAYLAND "Build for Wayland" OFF)
 FetchContent_Declare(GLFW GIT_REPOSITORY https://github.com/TheCherno/glfw.git)
 FetchContent_Declare(Boxer GIT_REPOSITORY https://github.com/aaronmjacobs/Boxer.git)
 FetchContent_Declare(Infinity GIT_REPOSITORY https://github.com/Tacotakedown/InfinityPackageBuilderDeps.git)
+FetchContent_Declare(BsDiff GIT_REPOSITORY https://github.com/zhuyie/bsdiff.git)
+
 if (UNIX)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(DBUS REQUIRED dbus-1)
     FetchContent_Declare(MiniKDENotify GIT_REPOSITORY https://github.com/rikka-gh/MiniKDENotify.git)
 
-    FetchContent_MakeAvailable(GLFW Boxer Infinity MiniKDENotify)
+    FetchContent_MakeAvailable(GLFW Boxer Infinity MiniKDENotify BsDiff )
     option(MINIKDENOTIFY_BUILD_EXAMPLES OFF)
 
     find_package(Qt5 COMPONENTS
@@ -73,7 +75,7 @@ if (UNIX)
     )
 
 else ()
-    FetchContent_MakeAvailable(GLFW Boxer Infinity)
+    FetchContent_MakeAvailable(GLFW Boxer Infinity BsDiff )
 endif ()
 
 message("${Blue}Fetched:${Green}GLFW ${Blue}set to:${Green}${glfw_SOURCE_DIR}${ColorReset}")
@@ -177,6 +179,7 @@ add_executable(InfinityPackageBuilder
         src/Util/Github/GithubOAuth.hpp
         src/Util/StateTimer.hpp
         src/Util/Errors/Error.hpp
+        src/Backend/DifferPatcher/TestDiffPatch.hpp
 )
 
 file(GLOB IMGUI_SOURCES
@@ -218,6 +221,7 @@ else ()
             ${infinity_SOURCE_DIR}/include/Lua # for sol header file #include<lua.h>
             ${infinity_SOURCE_DIR}/src/imgui
             ${infinity_SOURCE_DIR}/src/imguiTextEditor
+            ${bsdiff_SOURCE_DIR}/include
             ${ZOE_INCLUDE_DIR}
             keys/include
             ${MINIZIP_INCLUDE_DIR}
@@ -238,6 +242,7 @@ if (WIN32)
 
     set(TOAST_LIB unofficial::wintoast::wintoast)
 
+
     add_custom_command(TARGET InfinityPackageBuilder POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             ${infinity_SOURCE_DIR}/bin/libcrypto-3-x64.dll
@@ -255,4 +260,4 @@ else ()
 endif ()
 
 
-target_link_libraries(InfinityPackageBuilder PRIVATE Vulkan::Vulkan glfw Boxer ${LUA_LIB} CURL::libcurl OpenSSL::SSL OpenSSL::Crypto unofficial::minizip::minizip ${ZOE_LIB} ${TOAST_LIB})
+target_link_libraries(InfinityPackageBuilder PRIVATE Vulkan::Vulkan bsdiff glfw Boxer ${LUA_LIB} CURL::libcurl OpenSSL::SSL OpenSSL::Crypto unofficial::minizip::minizip ${ZOE_LIB} ${TOAST_LIB})
