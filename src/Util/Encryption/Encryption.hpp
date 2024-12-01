@@ -46,15 +46,16 @@ namespace Infinity {
 #endif
 
 
-    enum class Keys { Admin, AeroDynamics, Client, DeltaSim, Github, Group, LunarSim, Ouroboros, QbitSim };
+    enum class Keys { Admin, AeroDynamics, Client, DeltaSim, Github, Group, LunarSim, Ouroboros, QbitSim, Unknown };
     enum class ValidationTypes { FULL, AERO_DYNAMICS, DELTA_SIM, LUNAR_SIM, OUROBOROS, QBIT_SIM, NOT_AUTHORIZED };
     struct Key {
         v_bytes key;
         Keys name;
 
 
-        static ValidationTypes GetValidationType(const Key &provided_key);
+        static ValidationTypes GetValidationType(const Key &provided_key , std::unordered_map<Keys, v_bytes>key_map);
         static v_bytes ParseKeyFile(const std::string &file_path);
+        static std::unordered_map<Keys, v_bytes> GetKeyMap();
     };
 
     class Encryption {
@@ -82,7 +83,7 @@ namespace Infinity {
         return key;
     }
 
-    inline v_bytes CreateKey(const unsigned char *raw_binary, const v_bytes &key) {
+    inline v_bytes CreateKey(const unsigned char *raw_binary, v_bytes key) {
         const v_bytes encrypted_key(raw_binary, raw_binary + sizeof(raw_binary));
         auto result = Encryption::DecryptToBin(encrypted_key, key);
         return result;

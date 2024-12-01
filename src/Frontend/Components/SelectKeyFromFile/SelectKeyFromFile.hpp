@@ -8,6 +8,7 @@
 
 #include <string>
 #include <string_view>
+#include <optional>
 #include <vector>
 
 #ifdef WIN32
@@ -116,12 +117,13 @@ namespace Infinity {
 
         void Render();
 
+        std::optional<std::vector<uint8_t>>  GetKey();
+
     private:
         void LoadKeyFromFile();
 
         void SaveKey();
 
-      std::string LoadKey();
 
     private:
         bool m_RememberKeyFromFile;

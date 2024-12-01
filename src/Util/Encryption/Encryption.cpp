@@ -5,26 +5,39 @@
 #include <ranges>
 
 namespace Infinity {
-    ValidationTypes Key::GetValidationType(const Key &provided_key) {
-        if (Encryption::DecryptToBin(provided_key.key, CreateUnencryptedKey(group_key)) == CreateKey(admin_key, CreateUnencryptedKey(group_key))) {
+    ValidationTypes Key::GetValidationType(const Key &provided_key, std::unordered_map<Keys, v_bytes>key_map){
+    auto unencrypted_provided_key = provided_key.key;
+        if (unencrypted_provided_key == key_map[Keys::Admin]) {
             return ValidationTypes::FULL;
         }
-        if (Encryption::DecryptToBin(provided_key.key, CreateUnencryptedKey(group_key)) == CreateKey(aero_dynamics_key, CreateUnencryptedKey(group_key))) {
+        if (unencrypted_provided_key == key_map[Keys::AeroDynamics]) {
             return ValidationTypes::AERO_DYNAMICS;
         }
-        if (Encryption::DecryptToBin(provided_key.key, CreateUnencryptedKey(group_key)) == CreateKey(delta_sim_key, CreateUnencryptedKey(group_key))) {
+        if (unencrypted_provided_key == key_map[Keys::DeltaSim]) {
             return ValidationTypes::DELTA_SIM;
         }
-        if (Encryption::DecryptToBin(provided_key.key, CreateUnencryptedKey(group_key)) == CreateKey(lunar_sim_key, CreateUnencryptedKey(group_key))) {
+        if (unencrypted_provided_key == key_map[Keys::LunarSim]) {
             return ValidationTypes::LUNAR_SIM;
         }
-        if (Encryption::DecryptToBin(provided_key.key, CreateUnencryptedKey(group_key)) == CreateKey(ouroboros_key, CreateUnencryptedKey(group_key))) {
+        if (unencrypted_provided_key == key_map[Keys::Ouroboros]) {
             return ValidationTypes::OUROBOROS;
         }
-        if (Encryption::DecryptToBin(provided_key.key, CreateUnencryptedKey(group_key)) == CreateKey(qbit_sim_key, CreateUnencryptedKey(group_key))) {
+        if (unencrypted_provided_key == key_map[Keys::QbitSim]) {
             return ValidationTypes::QBIT_SIM;
         }
         return ValidationTypes::NOT_AUTHORIZED;
+    }
+
+    std::unordered_map<Keys, v_bytes> Key::GetKeyMap() {
+        std::unordered_map<Keys, v_bytes> key_map;
+        key_map.insert({Keys::Admin, Encryption::DecryptToBin({admin_key, admin_key + sizeof(admin_key)}, {group_key, group_key + sizeof(group_key)})});
+        key_map.insert({Keys::AeroDynamics, Encryption::DecryptToBin({aero_dynamics_key, aero_dynamics_key + sizeof(aero_dynamics_key)},{group_key, group_key + sizeof(group_key)})});
+        key_map.insert({Keys::DeltaSim, Encryption::DecryptToBin({delta_sim_key, delta_sim_key + sizeof(delta_sim_key)},{group_key, group_key + sizeof(group_key)})});
+        key_map.insert({Keys::LunarSim, Encryption::DecryptToBin({lunar_sim_key, lunar_sim_key + sizeof(lunar_sim_key)},{group_key, group_key + sizeof(group_key)})});
+        key_map.insert({Keys::Ouroboros, Encryption::DecryptToBin({ouroboros_key, ouroboros_key + sizeof(ouroboros_key)},{group_key, group_key + sizeof(group_key)})});
+        key_map.insert({Keys::QbitSim, Encryption::DecryptToBin({qbit_sim_key, qbit_sim_key + sizeof(qbit_sim_key)},{group_key, group_key + sizeof(group_key)})});
+
+        return key_map;
     }
 
 
@@ -183,13 +196,14 @@ namespace Infinity {
 
 
     v_bytes Encryption::DecryptToBin(const v_bytes &binary, const v_bytes &key) {
-        if (key.size() != 32) {
-            Error(ErrorType::Fatal, "Attempted decryption with invalid key").Dispatch();
+
+        std::cout <<"Decrypting: " << binary.size() << "bytes" << std::endl;
+
+
+        if (binary.size() < EVP_MAX_IV_LENGTH) {
+            Error(ErrorType::Fatal, "Binary too short to extract IV").Dispatch();
         }
 
-        if (binary.size() <= EVP_MAX_IV_LENGTH) {
-            Error(ErrorType::Fatal, "Binary too short").Dispatch();
-        }
 
         EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
         if (!ctx) {
@@ -212,11 +226,11 @@ namespace Infinity {
         }
         int plaintext_len = len;
 
-        if (!EVP_DecryptFinal_ex(ctx, plaintext.data() + len, &len)) {
-            EVP_CIPHER_CTX_free(ctx);
-            Error(ErrorType::Fatal, "Failed to finalize decryption").Dispatch();
-        }
-        plaintext_len += len;
+        // if (!EVP_DecryptFinal_ex(ctx, plaintext.data() + len, &len)) {
+        //     EVP_CIPHER_CTX_free(ctx);
+        //     Error(ErrorType::Fatal, "Failed to finalize decryption").Dispatch();
+        // }
+        // plaintext_len += len;
 
         EVP_CIPHER_CTX_free(ctx);
 

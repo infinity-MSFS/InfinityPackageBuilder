@@ -12,5 +12,7 @@ namespace Infinity {
 
     private:
         Infinity::SelectKeyFromFile m_FileSelector;
+        ValidationTypes m_ValidationType;
+        std::unordered_map<Keys, std::vector<uint8_t>> m_GroupKeys;
     };
 } // namespace Infinity

@@ -16,6 +16,7 @@
 #include "imgui_internal.h"
 
 #include <algorithm>
+#include <corecrt_io.h>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -56,6 +57,10 @@ GLFWwindow *Infinity::Application::s_WindowHandle = nullptr;
 #include "Frontend/Resources/Images/InfinityAppIcon.h"
 #include "Frontend/Resources/Images/logo.h"
 #include "Frontend/Resources/Images/windowIcons.h"
+
+#include "Frontend/Resources/Images/InfinityIconSet/minus.h"
+#include "Frontend/Resources/Images/InfinityIconSet/unmax.h"
+#include "Frontend/Resources/Images/InfinityIconSet/close.h"
 
 namespace Infinity {
     Application::Application(ApplicationSpecifications applicationSpecification) : m_Specification(std::move(applicationSpecification)) {
@@ -217,13 +222,13 @@ namespace Infinity {
         }
         {
             uint32_t w1, h1;
-            void *data = Image::Decode(g_WindowCloseIcon, sizeof(g_WindowCloseIcon), w1, h1);
+            void *data = Image::Decode(g_closeIcon, sizeof(g_closeIcon), w1, h1);
             m_IconClose = std::make_shared<Image>(w1, h1, ImageFormat::RGBA, data);
             free(data);
         }
         {
             uint32_t w2, h2;
-            void *data = Image::Decode(g_WindowMinimizeIcon, sizeof(g_WindowMinimizeIcon), w2, h2);
+            void *data = Image::Decode(g_minusIcon, sizeof(g_minusIcon), w2, h2);
             m_IconMinimize = std::make_shared<Image>(w2, h2, ImageFormat::RGBA, data);
             free(data);
         }
@@ -235,7 +240,7 @@ namespace Infinity {
         }
         {
             uint32_t w4, h4;
-            void *data = Image::Decode(g_WindowMaximizeIcon, sizeof(g_WindowMaximizeIcon), w4, h4);
+            void *data = Image::Decode(g_unmaxIcon, sizeof(g_unmaxIcon), w4, h4);
             m_IconMaximize = std::make_shared<Image>(w4, h4, ImageFormat::RGBA, data);
             free(data);
         }
@@ -283,7 +288,7 @@ namespace Infinity {
     void Application::UI_DrawTitleBar(float &out_title_bar_height) {
         constexpr float title_bar_height = 40.0f;
         const bool isMaximized = IsMaximized();
-        const float title_bar_vertical_offset = isMaximized ? -6.0f : 0.0f;
+        const float title_bar_vertical_offset = 0.0f;
         const ImVec2 windowPadding = ImGui::GetCurrentWindow()->WindowPadding;
 
         ImGui::SetCursorPos(ImVec2(windowPadding.x, windowPadding.y + title_bar_vertical_offset));
@@ -336,15 +341,15 @@ namespace Infinity {
         const ImU32 buttonColN =Colors::Theme::text;
         const ImU32 buttonColH =Colors::Theme::text_darker;
         constexpr ImU32 buttonColP = Colors::Theme::text_darker;
-        constexpr float buttonWidth = 14.0f;
-        constexpr float buttonHeight = 14.0f;
+        constexpr float buttonWidth = 26.0f;
+        constexpr float buttonHeight = 26.0f;
 
 
         ImGui::Spring();
-        UI::ShiftCursorY(8.0f);
+        UI::ShiftCursorY(6.0f);
         {
             const int iconHeight = static_cast<int>(m_IconMinimize->GetHeight());
-            const float padY = (buttonHeight - static_cast<float>(iconHeight)) / 2.0f;
+            const float padY = (buttonHeight - static_cast<float>(iconHeight)) ;
             if (ImGui::InvisibleButton("Minimize", ImVec2(buttonWidth, buttonHeight))) {
                 if (m_WindowHandle) {
                     if (const auto application = Get(); application.has_value()) {
@@ -353,11 +358,11 @@ namespace Infinity {
                 }
             }
 
-            UI::DrawButtonImage(m_IconMinimize, buttonColN, buttonColH, buttonColP, UI::RectExpanded(UI::GetItemRect(), 0.0f, -padY));
+            UI::DrawButtonImage(m_IconMinimize, buttonColN, buttonColH, buttonColP);
         }
 
-        ImGui::Spring(-1.0f, 17.0f);
-        UI::ShiftCursorY(8.0f);
+        ImGui::Spring(-1.0f, 0.0f);
+        UI::ShiftCursorY(6.0f);
         {
 
 
@@ -377,8 +382,8 @@ namespace Infinity {
             UI::DrawButtonImage(isMaximized ? m_IconRestore : m_IconMaximize, buttonColN, buttonColH, buttonColP);
         }
 
-        ImGui::Spring(-1.0f, 15.0f);
-        UI::ShiftCursorY(8.0f);
+        ImGui::Spring(-1.0f, 0.0f);
+        UI::ShiftCursorY(6.0f);
         {
             if (ImGui::InvisibleButton("Close", ImVec2(buttonWidth, buttonHeight))) {
                 if (const auto application = Get(); application.has_value()) {
