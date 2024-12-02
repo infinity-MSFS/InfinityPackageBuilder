@@ -2,6 +2,7 @@
 
 #include "Backend/Application/Application.hpp"
 #include "Backend/DifferPatcher/TestDiffPatch.hpp"
+#include "Backend/FSPackageToolInterface/FsPackageToolInterface.hpp"
 #include "Frontend/Components/Background/Background.hpp"
 #include "Frontend/Components/Menu/Menu.hpp"
 #include "Frontend/Pages/LauncherJsonManager/LauncherJsonManager.hpp"
@@ -17,12 +18,18 @@ bool g_ApplicationRunning = true;
 
 namespace Infinity {
 
+    FSPackageToolInterface fs_package_tool_interface;
+
     class PageRenderLayer final : public Layer {
     public:
         void OnUIRender() override {
             const Background background;
 
             background.RenderBackground();
+
+            if (fs_package_tool_interface.GetIsLoading()) {
+                ImGui::Text("Loading...");
+            }
 
             if (const auto router = Router::getInstance(); router.has_value()) {
                 (*router)->RenderCurrentPage();
@@ -39,6 +46,13 @@ namespace Infinity {
             std::cout << "Key Location: " << config.key_location << std::endl;
             std::cout << "Use Lua: " << config.lua_release << std::endl;
             TestBSDiff();
+
+            std::cout << "FsPackage tool found at: " << FSPackageToolInterface::GetFSPackageToolPath() << std::endl;
+
+            std::string xml_path = "C:\\Users\\Taco\\Documents\\Github\\MSFS-H-60M\\UH60.xml";
+            std::string out_path = "C:\\Users\\Taco\\Desktop\\out";
+
+            fs_package_tool_interface.StartCommand(FSPackageToolInterface::GetFSPackageToolPath(), xml_path, out_path);
 
             Infinity::Application::SetWindowTitle(std::get<0>(buttons.front()));
         }

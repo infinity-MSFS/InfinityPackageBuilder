@@ -181,6 +181,8 @@ add_executable(InfinityPackageBuilder
         src/Util/Config/Config.cpp
         src/Util/Config/Config.hpp
         src/Util/State/State.hpp
+        src/Backend/FSPackageToolInterface/FsPackageToolInterface.cpp
+        src/Backend/FSPackageToolInterface/FsPackageToolInterface.hpp
 )
 
 file(GLOB IMGUI_SOURCES
