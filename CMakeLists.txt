@@ -65,7 +65,7 @@ if (UNIX)
     pkg_check_modules(DBUS REQUIRED dbus-1)
     FetchContent_Declare(MiniKDENotify GIT_REPOSITORY https://github.com/rikka-gh/MiniKDENotify.git)
 
-    FetchContent_MakeAvailable(GLFW Boxer Infinity MiniKDENotify BsDiff )
+    FetchContent_MakeAvailable(GLFW Boxer Infinity MiniKDENotify BsDiff)
     option(MINIKDENOTIFY_BUILD_EXAMPLES OFF)
 
     find_package(Qt5 COMPONENTS
@@ -75,7 +75,7 @@ if (UNIX)
     )
 
 else ()
-    FetchContent_MakeAvailable(GLFW Boxer Infinity BsDiff )
+    FetchContent_MakeAvailable(GLFW Boxer Infinity BsDiff)
 endif ()
 
 message("${Blue}Fetched:${Green}GLFW ${Blue}set to:${Green}${glfw_SOURCE_DIR}${ColorReset}")
@@ -132,8 +132,7 @@ add_executable(InfinityPackageBuilder
         src/Backend/Lua/LuaInterpreter.hpp
         src/Backend/Lua/FunctionTraits.hpp
         src/Backend/BinaryFiles/BinaryFiles.hpp
-        src/Backend/PersistentState/PersistentState.cpp
-        src/Backend/PersistentState/PersistentState.hpp
+        src/Backend/DifferPatcher/TestDiffPatch.hpp
 
         # --- Frontend Source Files ---
         src/Frontend/Resources/Images/InfinityAppIcon.h
@@ -179,7 +178,9 @@ add_executable(InfinityPackageBuilder
         src/Util/Github/GithubOAuth.hpp
         src/Util/StateTimer.hpp
         src/Util/Errors/Error.hpp
-        src/Backend/DifferPatcher/TestDiffPatch.hpp
+        src/Util/Config/Config.cpp
+        src/Util/Config/Config.hpp
+        src/Util/State/State.hpp
 )
 
 file(GLOB IMGUI_SOURCES

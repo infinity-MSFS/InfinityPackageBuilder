@@ -11,6 +11,7 @@
 #include "Backend/UiHelpers/UiHelpers.hpp"
 #include "Backend/Vulkan/Vulkan.hpp"
 #include "Frontend/ImGuiTheme/ImGuiTheme.hpp"
+#include "Util/Config/Config.hpp"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_vulkan.h"
 #include "imgui_internal.h"
@@ -58,9 +59,9 @@ GLFWwindow *Infinity::Application::s_WindowHandle = nullptr;
 #include "Frontend/Resources/Images/logo.h"
 #include "Frontend/Resources/Images/windowIcons.h"
 
+#include "Frontend/Resources/Images/InfinityIconSet/close.h"
 #include "Frontend/Resources/Images/InfinityIconSet/minus.h"
 #include "Frontend/Resources/Images/InfinityIconSet/unmax.h"
-#include "Frontend/Resources/Images/InfinityIconSet/close.h"
 
 namespace Infinity {
     Application::Application(ApplicationSpecifications applicationSpecification) : m_Specification(std::move(applicationSpecification)) {
@@ -338,8 +339,8 @@ namespace Infinity {
             ImGui::ResumeLayout();
         }
 
-        const ImU32 buttonColN =Colors::Theme::text;
-        const ImU32 buttonColH =Colors::Theme::text_darker;
+        const ImU32 buttonColN = Colors::Theme::text;
+        const ImU32 buttonColH = Colors::Theme::text_darker;
         constexpr ImU32 buttonColP = Colors::Theme::text_darker;
         constexpr float buttonWidth = 26.0f;
         constexpr float buttonHeight = 26.0f;
@@ -349,7 +350,7 @@ namespace Infinity {
         UI::ShiftCursorY(6.0f);
         {
             const int iconHeight = static_cast<int>(m_IconMinimize->GetHeight());
-            const float padY = (buttonHeight - static_cast<float>(iconHeight)) ;
+            const float padY = (buttonHeight - static_cast<float>(iconHeight));
             if (ImGui::InvisibleButton("Minimize", ImVec2(buttonWidth, buttonHeight))) {
                 if (m_WindowHandle) {
                     if (const auto application = Get(); application.has_value()) {
@@ -386,12 +387,15 @@ namespace Infinity {
         UI::ShiftCursorY(6.0f);
         {
             if (ImGui::InvisibleButton("Close", ImVec2(buttonWidth, buttonHeight))) {
+                auto &config = Config::getInstance();
+                config.SaveConfig();
+
                 if (const auto application = Get(); application.has_value()) {
                     (*application)->Close();
                 }
             }
 
-            UI::DrawButtonImage(m_IconClose, Colors::Theme::text,  Colors::Theme::text_darker , buttonColP);
+            UI::DrawButtonImage(m_IconClose, Colors::Theme::text, Colors::Theme::text_darker, buttonColP);
         }
 
         ImGui::Spring(-1.0f, 18.0f);
@@ -645,4 +649,6 @@ namespace Infinity {
             glfwSetWindowTitle(s_WindowHandle, title.c_str());
         }
     }
+
+
 } // namespace Infinity

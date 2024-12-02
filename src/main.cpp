@@ -2,7 +2,6 @@
 
 #include "Backend/Application/Application.hpp"
 #include "Backend/DifferPatcher/TestDiffPatch.hpp"
-#include "Backend/PersistentState/PersistentState.hpp"
 #include "Frontend/Components/Background/Background.hpp"
 #include "Frontend/Components/Menu/Menu.hpp"
 #include "Frontend/Pages/LauncherJsonManager/LauncherJsonManager.hpp"
@@ -10,6 +9,7 @@
 #include "Frontend/Pages/PackageDiffer/PackageDiffer.hpp"
 #include "Frontend/Pages/ReleasePublisher/PackagePublisher.hpp"
 #include "Frontend/Pages/Settings/Settings.hpp"
+#include "Util/Config/Config.hpp"
 #include "Util/Router/Router.hpp"
 
 
@@ -33,12 +33,13 @@ namespace Infinity {
 
         void OnAttach() override {
 
-            // test differ on load
-           TestBSDiff();
+            const auto config = Config::getInstance().GetConfig();
+            std::cout << "Loaded Config" << std::endl;
+            std::cout << "Cache Path: " << config.cache_path << std::endl;
+            std::cout << "Key Location: " << config.key_location << std::endl;
+            std::cout << "Use Lua: " << config.lua_release << std::endl;
+            TestBSDiff();
 
-
-            auto state = PersistentState::GetInstance();
-            state->LoadState();
             Infinity::Application::SetWindowTitle(std::get<0>(buttons.front()));
         }
     };

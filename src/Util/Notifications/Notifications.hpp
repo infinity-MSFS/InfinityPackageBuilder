@@ -1,6 +1,7 @@
 #pragma once
 
 #ifdef WIN32
+#include <Windows.h>
 #include "wintoastlib.h"
 #else
 
@@ -58,8 +59,11 @@ namespace Infinity {
 
 
     class Notification {
-        public:
+    public:
         static void SendNotification(const NotificationContent &notification_content);
+
+    private:
+        static std::wstring GetFilePath();
     };
 
 #else

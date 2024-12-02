@@ -1,7 +1,6 @@
 
 #include "SelectKeyFromFile.hpp"
 #include "Backend/BinaryFiles/BinaryFiles.hpp"
-#include "Backend/PersistentState/PersistentState.hpp"
 #include "Util/Encryption/Encryption.hpp"
 #include "Util/Errors/Error.hpp"
 
@@ -11,7 +10,6 @@
 
 namespace Infinity {
     SelectKeyFromFile::SelectKeyFromFile() : m_RememberKeyFromFile(false), m_KeyData() {}
-
 
 
     void SelectKeyFromFile::LoadKeyFromFile() {
@@ -38,7 +36,6 @@ namespace Infinity {
     void SelectKeyFromFile::Render() {
 
 
-
         ImGui::Text("Please select your prefered method for submiting your access key:");
         if (ImGui::Button("Load Key From Clipboard (base64 encoded codes)")) {
         }
@@ -49,7 +46,6 @@ namespace Infinity {
         if (m_KeyData.empty() && !m_FilePath.empty()) {
             LoadKeyFromFile();
         }
-
 
 
         ImGui::Text("Using key from file = %s", m_FilePath.c_str());
