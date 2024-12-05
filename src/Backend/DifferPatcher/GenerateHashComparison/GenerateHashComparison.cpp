@@ -117,17 +117,16 @@ namespace Infinity {
                 auto old_handle = msgpack::unpack(old_buffer.str().data(), old_buffer.str().size());
                 auto new_handle = msgpack::unpack(new_buffer.str().data(), new_buffer.str().size());
 
-                auto old_structure = old_handle.get().as<FileStructure>();
-                auto new_structure = new_handle.get().as<FileStructure>();
+                auto [version_old, files_old] = old_handle.get().as<FileStructure>();
+                auto [version_new, files_new] = new_handle.get().as<FileStructure>();
 
-                PatchMapStructure output_map(old_structure.version, new_structure.version);
+                PatchMapStructure output_map(version_old, version_new);
 
 
-                for (const auto &old_entry: old_structure.files) {
-                    auto it = std::ranges::find_if(new_structure.files.begin(), new_structure.files.end(),
-                                                   [&old_entry](const HashOutput &new_entry) { return new_entry.fileName == old_entry.fileName; });
+                for (const auto &old_entry: files_old) {
 
-                    if (it != new_structure.files.end()) {
+                    if (auto it = std::ranges::find_if(files_new.begin(), files_new.end(), [&old_entry](const HashOutput &new_entry) { return new_entry.fileName == old_entry.fileName; });
+                        it != files_new.end()) {
                         if (it->hash != old_entry.hash) {
                             output_map.changed_files.push_back(it->fileName);
                         }
@@ -136,11 +135,10 @@ namespace Infinity {
                     }
                 }
 
-                for (const auto &new_entry: new_structure.files) {
-                    auto it = std::ranges::find_if(old_structure.files.begin(), old_structure.files.end(),
-                                                   [&new_entry](const HashOutput &old_entry) { return old_entry.fileName == new_entry.fileName; });
+                for (const auto &new_entry: files_new) {
 
-                    if (it == old_structure.files.end()) {
+                    if (auto it = std::ranges::find_if(files_old.begin(), files_old.end(), [&new_entry](const HashOutput &old_entry) { return old_entry.fileName == new_entry.fileName; });
+                        it == files_old.end()) {
                         output_map.added_files.push_back(new_entry.fileName);
                     }
                 }

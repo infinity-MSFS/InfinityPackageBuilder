@@ -15,9 +15,9 @@ namespace Infinity {
 
     private:
         static std::pair<std::vector<uint8_t>, std::vector<uint8_t>> ReadDDS(const std::string &file_name);
-        static void SaveDDS(const std::string &file_name, std::vector<uint8_t> header, std::vector<uint8_t> data);
-        [[maybe_unused]] static void SaveDiff(const std::string &file_name, const std::vector<uint8_t> &diff);
-        [[maybe_unused]] static std::vector<uint8_t> DecompressPatchFile(const std::string &filename);
-        static std::vector<uint8_t> ComputeDiff(const std::vector<uint8_t> image1, const std::vector<uint8_t> image2);
+        static void SaveDDS(const std::string &file_name, const std::vector<uint8_t> &header, const std::vector<uint8_t> &data);
+        [[deprecated("Use for testing when a patch needs to be saved seperate from the combined binary")]] static void SaveDiff(const std::string &file_name, const std::vector<uint8_t> &diff);
+        [[deprecated("Use for testing when a patch needs to be saved seperate from the combined binary")]] static std::vector<uint8_t> DecompressPatchFile(const std::string &filename);
+        static std::vector<uint8_t> ComputeDiff(const std::vector<uint8_t> &image1, const std::vector<uint8_t> &image2);
     };
 } // namespace Infinity

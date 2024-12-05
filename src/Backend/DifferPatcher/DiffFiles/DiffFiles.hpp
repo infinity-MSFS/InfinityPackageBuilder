@@ -1,16 +1,7 @@
 
 #pragma once
 
-#include <atomic>
 #include <chrono>
-#include <cstring>
-#include <filesystem>
-#include <fstream>
-#include <iostream>
-#include <memory>
-#include <mutex>
-#include <sstream>
-#include <thread>
 #include <vector>
 
 #include "Backend/DifferPatcher/PatchBinaryStructure.hpp"
