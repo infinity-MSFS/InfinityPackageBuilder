@@ -1,10 +1,11 @@
 #pragma once
 
+#include <ctime>
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "bsdiff.h"
-
 
 static void log_error(void *opaque, const char *errmsg) {
     (void) opaque;
@@ -37,10 +38,10 @@ inline int generate_patch(const char *oldname, const char *newname, const char *
         fprintf(stderr, "can't create BZ2 patch packer\n");
         goto cleanup;
     }
-
     ctx.log_error = log_error;
 
     ret = bsdiff(&ctx, &oldfile, &newfile, &packer);
+
     if (ret != BSDIFF_SUCCESS) {
         fprintf(stderr, "bsdiff failed: %d\n", ret);
         goto cleanup;
@@ -99,7 +100,7 @@ cleanup:
     return ret;
 }
 
-inline void create_test_file(const char *filename, const char *data, size_t size) {
+inline void create_temp_file(const char *filename, const uint8_t *data, size_t size) {
     FILE *file = fopen(filename, "wb");
     if (!file) {
         fprintf(stderr, "Failed to create file: %s\n", filename);
@@ -125,24 +126,39 @@ inline int files_are_equal(const char *file1, const char *file2) {
             break;
         }
     }
-    if (fgetc(f1) != EOF || fgetc(f2) != EOF) equal = 0;
+    if (fgetc(f1) != EOF || fgetc(f2) != EOF)
+        equal = 0;
 
     fclose(f1);
     fclose(f2);
     return equal;
 }
 
-void TestBSDiff() {
+inline std::string gen_random(const int len) {
+    static const char alphanum[] = "0123456789"
+                                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                   "abcdefghijklmnopqrstuvwxyz";
+    std::string tmp_s;
+    tmp_s.reserve(len);
+
+    for (int i = 0; i < len; ++i) {
+        tmp_s += alphanum[rand() % (sizeof(alphanum) - 1)];
+    }
+
+    return tmp_s;
+}
+
+inline void TestBSDiff() {
     const char *oldfile = "oldfile.bin";
     const char *newfile = "newfile.bin";
     const char *patchfile = "patchfile.patch";
     const char *patchedfile = "patchedfile.bin";
 
-    const char olddata[] = {1, 2, 3, 4, 5};
-    const char newdata[] = {1, 2, 3, 6, 7, 8};
+    const uint8_t olddata[] = {1, 2, 3, 4, 5};
+    const uint8_t newdata[] = {1, 2, 3, 6, 7, 8};
 
-    create_test_file(oldfile, olddata, sizeof(olddata));
-    create_test_file(newfile, newdata, sizeof(newdata));
+    create_temp_file(oldfile, olddata, sizeof(olddata));
+    create_temp_file(newfile, newdata, sizeof(newdata));
 
     if (generate_patch(oldfile, newfile, patchfile) != BSDIFF_SUCCESS) {
         fprintf(stderr, "Patch generation failed\n");
@@ -162,5 +178,4 @@ void TestBSDiff() {
     remove(newfile);
     remove(patchfile);
     remove(patchedfile);
-
 }

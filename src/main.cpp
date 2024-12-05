@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "Backend/Application/Application.hpp"
-#include "Backend/DifferPatcher/TestDiffPatch.hpp"
+#include "Backend/DifferPatcher/DiffPatch.hpp"
 #include "Backend/FSPackageToolInterface/FsPackageToolInterface.hpp"
 #include "Frontend/Components/Background/Background.hpp"
 #include "Frontend/Components/Menu/Menu.hpp"

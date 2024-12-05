@@ -132,7 +132,18 @@ add_executable(InfinityPackageBuilder
         src/Backend/Lua/LuaInterpreter.hpp
         src/Backend/Lua/FunctionTraits.hpp
         src/Backend/BinaryFiles/BinaryFiles.hpp
-        src/Backend/DifferPatcher/TestDiffPatch.hpp
+        src/Backend/DifferPatcher/DiffPatch.hpp
+        src/Backend/FSPackageToolInterface/FsPackageToolInterface.cpp
+        src/Backend/FSPackageToolInterface/FsPackageToolInterface.hpp
+        src/Backend/DifferPatcher/PatchBinaryStructure.hpp
+        src/Backend/DifferPatcher/GenerateHashComparison/GenerateHashComparison.cpp
+        src/Backend/DifferPatcher/GenerateHashComparison/GenerateHashComparison.hpp
+        src/Backend/DifferPatcher/DiffFiles/DiffFiles.cpp
+        src/Backend/DifferPatcher/DiffFiles/DiffFiles.hpp
+        src/Backend/DifferPatcher/PatchFiles/PatchFiles.cpp
+        src/Backend/DifferPatcher/PatchFiles/PatchFiles.hpp
+        src/Backend/DifferPatcher/DDSDiff/DdsDiff.cpp
+        src/Backend/DifferPatcher/DDSDiff/DdsDiff.hpp
 
         # --- Frontend Source Files ---
         src/Frontend/Resources/Images/InfinityAppIcon.h
@@ -181,8 +192,6 @@ add_executable(InfinityPackageBuilder
         src/Util/Config/Config.cpp
         src/Util/Config/Config.hpp
         src/Util/State/State.hpp
-        src/Backend/FSPackageToolInterface/FsPackageToolInterface.cpp
-        src/Backend/FSPackageToolInterface/FsPackageToolInterface.hpp
 )
 
 file(GLOB IMGUI_SOURCES
